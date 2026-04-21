@@ -1,0 +1,86 @@
+# AutoKernel RLVR — AMD MI300X bench worker pool
+#
+# Each worker is a single-GPU MI300X box.  It polls the queue service for jobs,
+# sandboxes the proposed code into a copy of the AutoKernel AMD fork, runs
+# bench.py --backend rocm, and POSTs parsed metrics back.
+#
+# Workers are SPOT — they are idempotent (queue retries on TTL) and cheap to
+# lose.  The timeout is bumped to 300 s vs 180 s for NVIDIA because ROCm
+# HIP-Clang JIT has higher first-run overhead.
+#
+# Usage:
+#   sky launch -c autokernel-amd-workers skypilot/bench_worker_amd.yaml \
+#       --env BENCH_URL=http://<bench-ip>:8000 \
+#       --num-nodes 4 -y
+#
+# Scale up:
+#   sky launch -c autokernel-amd-workers skypilot/bench_worker_amd.yaml \
+#       --env BENCH_URL=$BENCH_URL --num-nodes 8 -y
+
+name: autokernel-amd-bench-workers
+
+resources:
+  accelerators:
+    # AMD MI300X is available on Lambda Labs, Azure NDv5, and Oracle A2.
+    # SkyPilot will pick the cheapest available option.
+    MI300X:1: 1
+    MI210:1:  1     # fallback if MI300X inventory is tight
+  memory: 64+       # MI300X has 192 GB on-die; host RAM just needs enough for
+                    # build tooling and the worker process
+  disk_size: 256
+  use_spot: true
+
+num_nodes: 4   # --num-nodes overrides this on launch
+
+workdir: .
+
+envs:
+  BENCH_URL:           ""      # e.g. http://1.2.3.4:8000  (required)
+  WORKER_TIMEOUT_SEC:  "300"   # 300 s default for ROCm JIT
+  ROCR_VISIBLE_DEVICES: "0"
+  HIP_VISIBLE_DEVICES:  "0"
+  HF_HUB_ENABLE_HF_TRANSFER: "1"
+  # ROCm / HIP compilation flags
+  HIP_FORCE_DEV_KERNARG: "1"
+  PYTORCH_ROCM_ARCH: "gfx942"  # MI300X GCN ISA target
+
+setup: |
+  set -e
+  if [ -z "$BENCH_URL" ]; then
+    echo "ERROR: --env BENCH_URL=http://<bench-ip>:8000 is required."
+    exit 1
+  fi
+
+  # Install uv.
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  source "$HOME/.local/bin/env" || true
+  export PATH="$HOME/.local/bin:$PATH"
+
+  # Clone the AutoKernel AMD fork.
+  # TODO: replace with the upstream repo once AMD backend is merged.
+  rm -rf autokernel
+  git clone https://github.com/RightNow-AI/autokernel.git
+  cd autokernel
+  # Switch to the AMD/HIP branch (adjust branch name once established).
+  git checkout amd-hip 2>/dev/null || git checkout main
+  uv sync
+  # Pre-build baselines so the first real bench job isn't cold.
+  # Pass --backend rocm to target AMD.
+  uv run prepare.py --backend rocm || true
+
+  cd ..
+  pip install --no-cache-dir httpx
+
+run: |
+  set -e
+  export PATH="$HOME/.local/bin:$PATH"
+  export ROCR_VISIBLE_DEVICES="$ROCR_VISIBLE_DEVICES"
+  export HIP_VISIBLE_DEVICES="$HIP_VISIBLE_DEVICES"
+  export PYTORCH_ROCM_ARCH="$PYTORCH_ROCM_ARCH"
+
+  cd bench_worker
+  exec python3 worker_amd.py \
+      --bench-url     "$BENCH_URL" \
+      --autokernel-dir "$HOME/sky_workdir/autokernel" \
+      --timeout       "$WORKER_TIMEOUT_SEC" \
+      --device-id     "$ROCR_VISIBLE_DEVICES"

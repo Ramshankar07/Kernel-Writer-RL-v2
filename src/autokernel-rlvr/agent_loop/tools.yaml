@@ -1,0 +1,43 @@
+# verl tool config — registers the `autokernel_bench` tool the agent
+# calls to evaluate a proposed kernel.
+#
+# The tool is implemented in agent_loop/autokernel_loop.py as an HTTP
+# client to the bench queue service. verl streams the tool_response as
+# an observation token block back into the model's context.
+
+tools:
+  - class_name: "agent_loop.autokernel_loop.BenchHTTPTool"
+    config:
+      # Picked up from --env BENCH_URL on `sky launch`.
+      bench_url_env: "BENCH_URL"
+      poll_interval_sec: 2.0
+      max_wait_sec: 240
+    tool_schema:
+      type: "function"
+      function:
+        name: "autokernel_bench"
+        description: >
+          Evaluate a proposed Triton kernel on GPU against the PyTorch
+          reference. Returns correctness (PASS/FAIL/TIMEOUT/CRASH), speedup
+          vs PyTorch, and percent-of-peak. Use this to iterate: propose a
+          kernel, read the result, revise.
+        parameters:
+          type: "object"
+          required: ["kernel_type", "code"]
+          properties:
+            kernel_type:
+              type: "string"
+              description: "One of: matmul, softmax, layernorm, rmsnorm, flash_attention, fused_mlp, cross_entropy, rotary_embedding, reduce."
+              enum:
+                - matmul
+                - softmax
+                - layernorm
+                - rmsnorm
+                - flash_attention
+                - fused_mlp
+                - cross_entropy
+                - rotary_embedding
+                - reduce
+            code:
+              type: "string"
+              description: "Complete contents of kernel.py, including Triton kernel definition and the PyTorch-facing wrapper function."

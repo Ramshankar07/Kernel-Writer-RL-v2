@@ -1,0 +1,132 @@
+# AutoKernel RLVR — Trainer cluster
+#
+# Runs verl GRPO on Qwen2.5-Coder-7B. The agent loop calls the bench HTTP
+# service (deployed separately via bench_server.yaml) as its verifiable-
+# reward tool. Weights for the vLLM rollout engines are kept in-process
+# by verl's agent-loop manager, so there's no separate rollout cluster
+# here — verl manages rollout instances on the same cluster by default.
+# (If you want rollout separated onto cheaper GPUs later, switch to
+# verl's server-based async rollout and point it at a sky-serve'd vLLM
+# endpoint. For v1, keep it simple.)
+#
+# Usage:
+#   export WANDB_API_KEY=...
+#   export HF_TOKEN=...
+#   export BENCH_URL=http://<ip-from-bench_server>:8000
+#   sky launch -c autokernel-trainer skypilot/trainer.yaml \
+#       --secret WANDB_API_KEY --secret HF_TOKEN \
+#       --env BENCH_URL=$BENCH_URL -y
+
+name: autokernel-rlvr-trainer
+
+resources:
+  accelerators: H100:8
+  # Fall back to A100-80GB if H100 inventory is tight.
+  any_of:
+    - accelerators: H100:8
+    - accelerators: A100-80GB:8
+  memory: 256+
+  disk_size: 512
+  use_spot: false   # Trainer is stateful; keep on-demand. Spot the rollout/bench.
+  image_id: docker:verlai/verl:app-verl0.6-transformers4.56.1-sglang0.5.2-mcore0.13.0-te2.2
+  ports:
+    - 8265   # Ray dashboard
+
+num_nodes: 1
+
+workdir: .
+
+file_mounts:
+  /checkpoints:
+    name: ${CHECKPOINT_BUCKET}
+    mode: MOUNT
+
+secrets:
+  WANDB_API_KEY: null
+  HF_TOKEN: null
+
+envs:
+  MODEL_NAME: Qwen/Qwen2.5-Coder-7B-Instruct
+  CHECKPOINT_BUCKET: autokernel-rlvr-ckpt
+  BENCH_URL: ""    # MUST be provided on launch: --env BENCH_URL=http://…:8000
+  WANDB_PROJECT: autokernel-rlvr
+  TOTAL_EPOCHS: "3"
+  GROUP_SIZE: "8"        # GRPO rollouts per prompt
+  MAX_TURNS: "20"        # edit budget per episode
+  HF_HUB_ENABLE_HF_TRANSFER: "1"
+  TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+
+setup: |
+  set -e
+  if [ -z "$BENCH_URL" ]; then
+    echo "ERROR: --env BENCH_URL=http://<bench-ip>:8000 is required."
+    exit 1
+  fi
+  echo "Bench service: $BENCH_URL"
+
+  # verl is already installed in the base image. Add our project deps.
+  pip install --no-cache-dir httpx redis hf_transfer wandb
+
+  # Clone AutoKernel so the agent loop can reference kernel specs / program.md
+  # (reference.py PyTorch implementations are the ground truth for prompts).
+  rm -rf autokernel
+  git clone https://github.com/RightNow-AI/autokernel.git
+  # We do NOT `uv sync` autokernel on the trainer — the trainer never runs
+  # bench.py. It only needs the source to build the prompt dataset.
+
+  # Preprocess the AutoKernel kernel set into a verl-compatible parquet.
+  python3 data/build_dataset.py \
+      --autokernel-dir ./autokernel \
+      --out $HOME/data/autokernel \
+      --max-turns $MAX_TURNS
+
+  python3 -c "import wandb; wandb.login(relogin=True, key='$WANDB_API_KEY')" || true
+
+run: |
+  set -e
+  ulimit -n 65535
+
+  # Start Ray head (single node; scale via num_nodes if you multi-node later).
+  ray start --head --disable-usage-stats --port=6379 \
+      --dashboard-host=0.0.0.0 --dashboard-port=8265 --num-gpus=8
+
+  export RAY_ADDRESS="http://localhost:8265"
+
+  # Launch the verl GRPO trainer using the tool-agent-loop.
+  # The "autokernel_bench" tool is defined in agent_loop/tools.yaml and
+  # posts to the bench queue at $BENCH_URL.
+  ray job submit --address=$RAY_ADDRESS --working-dir=. -- \
+      python3 -m verl.trainer.main_ppo \
+      algorithm.adv_estimator=grpo \
+      data.train_files=$HOME/data/autokernel/train.parquet \
+      data.val_files=$HOME/data/autokernel/val.parquet \
+      data.train_batch_size=64 \
+      data.max_prompt_length=4096 \
+      data.max_response_length=8192 \
+      actor_rollout_ref.model.path=$MODEL_NAME \
+      actor_rollout_ref.actor.optim.lr=5e-7 \
+      actor_rollout_ref.actor.ppo_mini_batch_size=16 \
+      actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
+      actor_rollout_ref.rollout.name=vllm \
+      actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+      actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+      actor_rollout_ref.rollout.n=$GROUP_SIZE \
+      actor_rollout_ref.rollout.multi_turn.enable=True \
+      actor_rollout_ref.rollout.multi_turn.max_assistant_turns=$MAX_TURNS \
+      actor_rollout_ref.rollout.multi_turn.tool_config_path=agent_loop/tools.yaml \
+      actor_rollout_ref.rollout.agent.agent_name=autokernel_agent \
+      actor_rollout_ref.rollout.agent.custom_agent_loop.path=agent_loop/autokernel_loop.py \
+      actor_rollout_ref.rollout.agent.custom_agent_loop.name=AutoKernelAgentLoop \
+      custom_reward_function.path=agent_loop/reward.py \
+      custom_reward_function.name=autokernel_reward \
+      trainer.critic_warmup=0 \
+      trainer.logger=['console','wandb'] \
+      trainer.project_name=$WANDB_PROJECT \
+      trainer.experiment_name=${SKYPILOT_CLUSTER_NAME}-${SKYPILOT_TASK_ID} \
+      trainer.n_gpus_per_node=8 \
+      trainer.nnodes=1 \
+      trainer.save_freq=50 \
+      trainer.test_freq=25 \
+      trainer.total_epochs=$TOTAL_EPOCHS \
+      trainer.default_local_dir=/checkpoints/${SKYPILOT_CLUSTER_NAME} \
+      +custom_env.BENCH_URL=$BENCH_URL

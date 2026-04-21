@@ -1,0 +1,46 @@
+# AutoKernel RLVR — Bench queue service
+#
+# A tiny FastAPI + Redis service that:
+#   1. Accepts POST /bench from the agent loop with {kernel_type, code}.
+#   2. Hashes (kernel_type + code) → content key. Returns cached reward if present.
+#   3. Otherwise enqueues the job in Redis; workers pull and run bench.py on a GPU.
+#   4. The client long-polls GET /bench/{job_id} until done.
+#
+# This runs on a cheap CPU node. No GPU needed here.
+#
+# Usage:
+#   sky serve up -n autokernel-bench skypilot/bench_server.yaml
+#   # Or for a single long-lived instance:
+#   sky launch -c autokernel-bench skypilot/bench_server.yaml -y
+#   sky status --endpoint 8000 autokernel-bench   # copy this into BENCH_URL
+
+name: autokernel-bench-queue
+
+resources:
+  cpus: 8+
+  memory: 16+
+  disk_size: 64
+  ports:
+    - 8000
+
+num_nodes: 1
+
+workdir: .
+
+setup: |
+  set -e
+  sudo apt-get update && sudo apt-get install -y redis-server
+  pip install --no-cache-dir fastapi uvicorn redis pydantic
+
+run: |
+  set -e
+  # Start Redis on loopback.
+  redis-server --daemonize yes --bind 127.0.0.1 --port 6379
+
+  # Start the queue API.
+  cd bench_server
+  exec uvicorn app:app --host 0.0.0.0 --port 8000 --workers 2
+
+service:
+  readiness_probe: /healthz
+  replicas: 1

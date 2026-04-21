@@ -1,0 +1,143 @@
+# AutoKernel RLVR — AMD MI300X Trainer cluster
+#
+# Runs verl GRPO on Qwen2.5-Coder-7B targeting AMD MI300X kernels.
+# Bench workers run separately via bench_worker_amd.yaml.
+#
+# Prerequisites:
+#   1. A running bench queue service (bench_server.yaml, hardware-agnostic).
+#   2. AMD MI300X nodes with ROCm 6.1+ and a ROCm-enabled verl image.
+#      The image tag below is a placeholder — build or pull the ROCm variant
+#      of the verl image from the verl repo's rocm/ Dockerfile.
+#
+# Usage:
+#   export WANDB_API_KEY=...
+#   export HF_TOKEN=...
+#   export BENCH_URL=http://<bench-ip>:8000
+#   sky launch -c autokernel-amd-trainer skypilot/trainer_amd.yaml \
+#       --secret WANDB_API_KEY --secret HF_TOKEN \
+#       --env BENCH_URL=$BENCH_URL -y
+
+name: autokernel-rlvr-trainer-amd
+
+resources:
+  # AMD MI300X preferred; fall back to MI210 (less HBM, same GCN ISA).
+  any_of:
+    - accelerators: MI300X:8
+    - accelerators: MI210:8
+  memory: 256+
+  disk_size: 512
+  use_spot: false   # Trainer is stateful — keep on-demand.
+
+  # ROCm-enabled verl image.
+  # Build from verl repo: docker build -f docker/rocm/Dockerfile -t verlai/verl:rocm6.1 .
+  # Then push to your registry and update this tag.
+  image_id: docker:verlai/verl:rocm6.1-verl0.6   # <-- update to your built image
+
+  ports:
+    - 8265   # Ray dashboard
+
+num_nodes: 1
+
+workdir: .
+
+file_mounts:
+  /checkpoints:
+    name: ${CHECKPOINT_BUCKET}
+    mode: MOUNT
+
+secrets:
+  WANDB_API_KEY: null
+  HF_TOKEN: null
+
+envs:
+  MODEL_NAME:        Qwen/Qwen2.5-Coder-7B-Instruct
+  CHECKPOINT_BUCKET: autokernel-rlvr-amd-ckpt
+  BENCH_URL:         ""        # required: --env BENCH_URL=http://…:8000
+  WANDB_PROJECT:     autokernel-rlvr-amd
+  TOTAL_EPOCHS:      "3"
+  GROUP_SIZE:        "8"       # GRPO rollouts per prompt
+  MAX_TURNS:         "20"      # edit budget per episode
+  HF_HUB_ENABLE_HF_TRANSFER: "1"
+
+  # AMD / ROCm environment
+  PYTORCH_ROCM_ARCH: "gfx942"              # MI300X ISA target
+  HIP_FORCE_DEV_KERNARG: "1"
+  ROCR_VISIBLE_DEVICES: "0,1,2,3,4,5,6,7"
+  # Suppress ROCm verbosity during training; set to 0 for debugging.
+  AMD_LOG_LEVEL: "3"
+
+setup: |
+  set -e
+  if [ -z "$BENCH_URL" ]; then
+    echo "ERROR: --env BENCH_URL=http://<bench-ip>:8000 is required."
+    exit 1
+  fi
+  echo "Bench service: $BENCH_URL"
+
+  # verl is pre-installed in the ROCm image.  Add project deps.
+  pip install --no-cache-dir httpx redis hf_transfer wandb
+
+  # Clone AutoKernel AMD fork for reference.py and kernel specs.
+  rm -rf autokernel
+  git clone https://github.com/RightNow-AI/autokernel.git
+  git -C autokernel checkout amd-hip 2>/dev/null || true
+
+  # Build the AMD prompt dataset.
+  python3 data/build_amd_dataset.py \
+      --autokernel-dir ./autokernel \
+      --out            "$HOME/data/autokernel_amd" \
+      --max-turns      "$MAX_TURNS"
+
+  python3 -c "import wandb; wandb.login(relogin=True, key='$WANDB_API_KEY')" || true
+
+run: |
+  set -e
+  ulimit -n 65535
+
+  export PYTORCH_ROCM_ARCH="$PYTORCH_ROCM_ARCH"
+  export ROCR_VISIBLE_DEVICES="$ROCR_VISIBLE_DEVICES"
+  export HIP_FORCE_DEV_KERNARG="$HIP_FORCE_DEV_KERNARG"
+
+  # Ray uses ROCM_VISIBLE_DEVICES on some builds; export both.
+  export ROCM_VISIBLE_DEVICES="$ROCR_VISIBLE_DEVICES"
+
+  ray start --head --disable-usage-stats --port=6379 \
+      --dashboard-host=0.0.0.0 --dashboard-port=8265 --num-gpus=8
+
+  export RAY_ADDRESS="http://localhost:8265"
+
+  ray job submit --address="$RAY_ADDRESS" --working-dir=. -- \
+      python3 -m verl.trainer.main_ppo \
+      algorithm.adv_estimator=grpo \
+      data.train_files="$HOME/data/autokernel_amd/train.parquet" \
+      data.val_files="$HOME/data/autokernel_amd/val.parquet" \
+      data.train_batch_size=64 \
+      data.max_prompt_length=4096 \
+      data.max_response_length=8192 \
+      actor_rollout_ref.model.path="$MODEL_NAME" \
+      actor_rollout_ref.actor.optim.lr=5e-7 \
+      actor_rollout_ref.actor.ppo_mini_batch_size=16 \
+      actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1 \
+      actor_rollout_ref.rollout.name=vllm \
+      actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
+      actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
+      actor_rollout_ref.rollout.n="$GROUP_SIZE" \
+      actor_rollout_ref.rollout.multi_turn.enable=True \
+      actor_rollout_ref.rollout.multi_turn.max_assistant_turns="$MAX_TURNS" \
+      actor_rollout_ref.rollout.multi_turn.tool_config_path=agent_loop/tools.yaml \
+      actor_rollout_ref.rollout.agent.agent_name=autokernel_agent \
+      actor_rollout_ref.rollout.agent.custom_agent_loop.path=agent_loop/autokernel_loop.py \
+      actor_rollout_ref.rollout.agent.custom_agent_loop.name=AutoKernelAgentLoop \
+      custom_reward_function.path=agent_loop/reward_amd.py \
+      custom_reward_function.name=autokernel_reward_amd \
+      trainer.critic_warmup=0 \
+      trainer.logger=['console','wandb'] \
+      trainer.project_name="$WANDB_PROJECT" \
+      trainer.experiment_name="${SKYPILOT_CLUSTER_NAME}-${SKYPILOT_TASK_ID}" \
+      trainer.n_gpus_per_node=8 \
+      trainer.nnodes=1 \
+      trainer.save_freq=50 \
+      trainer.test_freq=25 \
+      trainer.total_epochs="$TOTAL_EPOCHS" \
+      trainer.default_local_dir="/checkpoints/${SKYPILOT_CLUSTER_NAME}" \
+      +custom_env.BENCH_URL="$BENCH_URL"

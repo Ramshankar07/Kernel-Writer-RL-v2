@@ -1,0 +1,73 @@
+# AutoKernel RLVR — Bench worker pool
+#
+# Each worker is a single-GPU box running AutoKernel. It polls the queue
+# service for jobs, drops the proposed code into a sandbox copy of the
+# AutoKernel repo, executes bench.py, and POSTs the parsed reward back.
+#
+# Workers are SPOT — they're idempotent (the queue retries on timeout)
+# and cheap to lose.
+#
+# Usage:
+#   # BENCH_URL is the same value the trainer gets. Workers also need it.
+#   sky launch -c autokernel-workers skypilot/bench_worker.yaml \
+#       --env BENCH_URL=http://<bench-ip>:8000 \
+#       --num-nodes 4 -y
+#
+# Scale up:
+#   sky launch -c autokernel-workers skypilot/bench_worker.yaml \
+#       --env BENCH_URL=$BENCH_URL --num-nodes 8 -y
+#
+# For elastic autoscaling, wrap this in a `sky serve` config that scales
+# on queue depth. (Can be added after the basic loop works.)
+
+name: autokernel-bench-workers
+
+resources:
+  accelerators:
+    # Any of these. Cheapest that's available wins.
+    A10:1: 1
+    L4:1: 1
+    RTX4090:1: 1
+  memory: 32+
+  disk_size: 128
+  use_spot: true
+
+num_nodes: 4   # --num-nodes overrides on launch
+
+workdir: .
+
+envs:
+  BENCH_URL: ""           # e.g. http://1.2.3.4:8000
+  WORKER_TIMEOUT_SEC: "180"
+  HF_HUB_ENABLE_HF_TRANSFER: "1"
+
+setup: |
+  set -e
+  if [ -z "$BENCH_URL" ]; then
+    echo "ERROR: --env BENCH_URL=http://<bench-ip>:8000 is required."
+    exit 1
+  fi
+
+  # Install uv and clone AutoKernel.
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  source $HOME/.local/bin/env || true
+  export PATH="$HOME/.local/bin:$PATH"
+
+  rm -rf autokernel
+  git clone https://github.com/RightNow-AI/autokernel.git
+  cd autokernel
+  uv sync
+  uv run prepare.py   # builds test data + baselines once
+
+  cd ..
+  pip install --no-cache-dir httpx
+
+run: |
+  set -e
+  export PATH="$HOME/.local/bin:$PATH"
+  cd bench_worker
+  # The worker process loops forever, pulling jobs and running bench.py.
+  exec python3 worker.py \
+      --bench-url "$BENCH_URL" \
+      --autokernel-dir "$HOME/sky_workdir/autokernel" \
+      --timeout "$WORKER_TIMEOUT_SEC"
