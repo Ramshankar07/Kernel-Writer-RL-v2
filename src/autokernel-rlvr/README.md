@@ -54,7 +54,7 @@ for both hardware targets — it doesn't care what GPU the workers run on.
     agent_loop/reward_amd.py       AMD reward: same structure, higher clip for FP8/MXFP4
 
     data/build_dataset.py       NVIDIA dataset: matmul, softmax, layernorm, etc.
-    data/build_amd_dataset.py   AMD dataset: fp8-gemm, moe, mla-decode, all2all, …
+    data/build_amd_dataset.py   AMD dataset: 6 single-GPU MI300X kernels (fp8-gemm, moe, …)
 
 ---
 
@@ -73,16 +73,16 @@ that difference.
 
 ### Target kernels
 
-The nine AMD competition problem types covered by `build_amd_dataset.py`:
+The six **single-GPU MI300X** kernel types covered by `build_amd_dataset.py`.
+Collective kernels (`all2all`, `gemm+reducescatter`, `allgather+gemm`) are
+intentionally excluded — they require multi-GPU Infinity Fabric communication
+and cannot run on one MI300X node.
 
 | Kernel | Type | Key challenge |
 |---|---|---|
 | `fp8-gemm` | Compute-bound | MFMA intrinsics, FP8 tile layout |
 | `moe` | Mixed | Expert routing + compute overlap |
 | `mla-decode` | Memory-bound | KV cache with low-rank compression |
-| `all2all` | Communication | Infinity Fabric alignment |
-| `gemm+reducescatter` | Compute + comms | Pipeline GEMM with collective |
-| `allgather+gemm` | Comms + compute | Overlap gather with local GEMM |
 | `mxfp4-mm` | Compute-bound | MX FP4 scale-factor handling |
 | `moe-mxfp4` | Mixed | MoE routing with FP4 weights |
 | `mixed-mla` | Mixed | Mixed-precision latent attention |
@@ -125,7 +125,6 @@ against a BF16 PyTorch baseline can realistically exceed 8× just from the
 precision difference — so we clip higher for the low-precision kernels:
 
 - `fp8-gemm`, `mxfp4-mm`, `moe-mxfp4`, `mixed-mla` → clip at 4.0 (16×)
-- `all2all`, `gemm+reducescatter`, `allgather+gemm` → clip at 3.5 (~11×)
 - `moe`, `mla-decode` → clip at 3.0 (8×, same as NVIDIA default)
 
 This stops one lucky FP8 kernel from drowning out the rest of the batch in
@@ -378,9 +377,10 @@ ROCm JIT means the model needs more turns before getting a PASS — 20 is
 probably the right floor for AMD.
 
 **Reward clip.** NVIDIA uses `SPEEDUP_CLIP_HIGH = 3.0` in `reward.py`.
-AMD uses per-kernel clips in `reward_amd.py` — 4.0 for FP8/MXFP4 kernels,
-3.5 for collectives, 3.0 for the rest. Raise a specific value if you see
-the policy consistently butting against the ceiling for that kernel class.
+AMD uses per-kernel clips in `reward_amd.py` — 4.0 for FP8/MXFP4 kernels
+(`fp8-gemm`, `mxfp4-mm`, `moe-mxfp4`, `mixed-mla`), 3.0 for the rest (`moe`,
+`mla-decode`). Raise a specific value if you see the policy consistently
+butting against the ceiling for that kernel class.
 
 **Cache TTL.** `bench_server/app.py:CACHE_TTL` — 7 days by default. Kernel
 code is deterministic (same code → same result), so this is safe to leave

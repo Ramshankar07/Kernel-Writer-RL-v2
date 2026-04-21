@@ -1,10 +1,13 @@
 """
 Build the RLVR prompt dataset for AMD MI300X competition kernels.
 
-Targets the nine AMD competition problem types:
-  fp8-gemm, moe, mla-decode, all2all,
-  gemm+reducescatter, allgather+gemm,
+Targets the six single-GPU MI300X kernel types:
+  fp8-gemm, moe, mla-decode,
   mxfp4-mm, moe-mxfp4, mixed-mla
+
+Collective / multi-GPU kernels (all2all, gemm+reducescatter, allgather+gemm)
+are excluded — they require Infinity Fabric inter-die communication and
+cannot run on a single MI300X node.
 
 Source parquets (from HuggingFace GPUMODE/kernelbot-data):
   submissions.parquet                        — all AMD competition submissions
@@ -50,9 +53,6 @@ AMD_KERNELS = [
     "fp8-gemm",
     "moe",
     "mla-decode",
-    "all2all",
-    "gemm+reducescatter",
-    "allgather+gemm",
     "mxfp4-mm",
     "moe-mxfp4",
     "mixed-mla",
@@ -79,24 +79,6 @@ AMD_SHAPE_SWEEP = {
         (1, 16, 2048,  512, 64),
         (4, 16, 4096,  512, 64),
         (8, 16, 8192,  512, 128),
-    ],
-    # (tokens_per_rank, hidden_dim)  — 8-rank ring assumed
-    "all2all": [
-        (1024, 4096),
-        (2048, 4096),
-        (4096, 7168),
-    ],
-    # (M, K, N)  — after GEMM the N dim is reduce-scattered across ranks
-    "gemm+reducescatter": [
-        (4096, 4096, 4096),
-        (8192, 4096, 4096),
-        (4096, 8192, 4096),
-    ],
-    # (M, K, N)  — M shard arrives via allgather, then local GEMM
-    "allgather+gemm": [
-        (4096, 4096, 4096),
-        (8192, 4096, 4096),
-        (4096, 8192, 4096),
     ],
     # (M, K, N)  — MX FP4 matrix multiply
     "mxfp4-mm": [
@@ -158,22 +140,16 @@ Rules:
   * After each bench result, revise based on what the numbers tell you.
 
 AMD-specific optimisation guidance:
-  Memory-bound kernels (mla-decode, moe routing, all2all):
+  Memory-bound kernels (mla-decode, moe routing):
     - Coalesce 128-byte cache-line fetches across wavefront lanes.
     - Avoid LDS bank conflicts: 32 banks × 4 bytes; stride accesses carefully.
     - Prefer flat global loads over texture paths for non-spatial data.
 
-  Compute-bound kernels (fp8-gemm, mxfp4-mm, moe-mxfp4, gemm+reducescatter,
-                         allgather+gemm):
+  Compute-bound kernels (fp8-gemm, mxfp4-mm, moe-mxfp4, mixed-mla):
     - Target MFMA (Matrix Fused Multiply-Add) intrinsics for peak matrix-core use.
     - Tile sizes: MFMA_F8_16×16, MFMA_F8_32×32, MFMA_BF16_16×16 are the key shapes.
     - Keep the LDS double-buffer sized to hide HBM3 latency (~200 ns).
     - Wavefront-level register pressure: >128 VGPRs halves occupancy.
-
-  Collective kernels (all2all, gemm+reducescatter, allgather+gemm):
-    - Use Infinity Fabric transfers where available; avoid PCIe round-trips.
-    - Overlap compute with inter-die communication via async pipelines.
-    - Scale-up links run at 7× 128 GB/s — keep transfers 128-byte aligned.
 
   FP8 / MXFP4 kernels:
     - Use `__hip_fp8_e4m3_fnuz` or `__hip_fp8_e5m2_fnuz` types.
@@ -311,7 +287,7 @@ def build(
     train.to_parquet(out_dir / "train.parquet", index=False)
     val.to_parquet(out_dir   / "val.parquet",   index=False)
     print(
-        f"AMD MI300X dataset: {len(train)} train / {len(val)} val rows "
+        f"AMD MI300X single-GPU dataset: {len(train)} train / {len(val)} val rows "
         f"({len(AMD_KERNELS)} kernels × shapes × dtypes) → {out_dir}"
     )
 

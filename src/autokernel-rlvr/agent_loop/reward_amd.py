@@ -10,10 +10,13 @@ over BF16 PyTorch baselines than typical NVIDIA Triton kernels.
   → FP8 kernel vs BF16 PyTorch can theoretically achieve ≥ 2× precision gain
     on top of algorithmic improvements, pushing realistic max past log2(8).
 
-Clip schedule (log2 scale):
+Clip schedule (log2 scale) — single-GPU MI300X kernels only:
   FP8 / MXFP4 kernels  : high = 4.0  (log2(16) — allows up to 16× speedup)
-  Collective kernels    : high = 3.5  (log2(11.3) — all2all, gather/scatter)
   All others            : high = 3.0  (log2(8)  — same as NVIDIA baseline)
+
+Note: collective kernels (all2all, gemm+reducescatter, allgather+gemm) are
+excluded from this policy — they require multi-GPU Infinity Fabric and cannot
+run on a single MI300X node.
 
 Terminal reward per trajectory:
     r = 0.0                     if no PASS ever
@@ -31,13 +34,10 @@ SPEEDUP_CLIP_LOW   = -1.0
 
 # Kernel-class → log2 clip ceiling
 _HIGH_CLIP: dict[str, float] = {
-    "fp8-gemm":   4.0,
-    "mxfp4-mm":   4.0,
-    "moe-mxfp4":  4.0,
-    "mixed-mla":  4.0,   # mixed FP8 precision path
-    "all2all":            3.5,
-    "gemm+reducescatter": 3.5,
-    "allgather+gemm":     3.5,
+    "fp8-gemm":  4.0,
+    "mxfp4-mm":  4.0,
+    "moe-mxfp4": 4.0,
+    "mixed-mla": 4.0,   # mixed FP8 precision path
     # moe, mla-decode → default 3.0
 }
 _DEFAULT_HIGH = 3.0

@@ -52,7 +52,7 @@ hardware paths.
     autokernel-rlvr/agent_loop/reward_amd.py       AMD reward: per-kernel clip (3.0–4.0)
 
     autokernel-rlvr/data/build_dataset.py      NVIDIA dataset builder
-    autokernel-rlvr/data/build_amd_dataset.py  AMD dataset builder (9 MI300X kernels)
+    autokernel-rlvr/data/build_amd_dataset.py  AMD dataset builder (6 single-GPU MI300X kernels)
 
 ## Run order
 

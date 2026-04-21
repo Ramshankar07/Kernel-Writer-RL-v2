@@ -1,30 +1,31 @@
-# AutoKernel RLVR — Trainer cluster
+# AutoKernel RLVR — AMD MI300X Trainer cluster
 #
-# Runs verl GRPO on Qwen2.5-Coder-7B. The agent loop calls the bench HTTP
-# service (deployed separately via bench_server.yaml) as its verifiable-
-# reward tool. Weights for the vLLM rollout engines are kept in-process
-# by verl's agent-loop manager, so there's no separate rollout cluster
-# here — verl manages rollout instances on the same cluster by default.
-# (If you want rollout separated onto cheaper GPUs later, switch to
-# verl's server-based async rollout and point it at a sky-serve'd vLLM
-# endpoint. For v1, keep it simple.)
+# Runs verl GRPO on Qwen2.5-Coder-7B against the full AMD kernel dataset
+# (fp8-gemm, moe, mla-decode, all2all, gemm+reducescatter, allgather+gemm,
+# mxfp4-mm, moe-mxfp4, mixed-mla). The agent loop calls the bench HTTP
+# service (bench_server.yaml) which dispatches to AMD MI300X bench workers
+# (bench_worker_amd.yaml). Workers execute bench.py --backend rocm and
+# return real hardware metrics; reward_amd.py converts them to a log2-
+# scaled reward with per-kernel clip ceilings tuned for FP8/MXFP4 headroom.
 #
 # Usage:
 #   export WANDB_API_KEY=...
 #   export HF_TOKEN=...
 #   export BENCH_URL=http://<ip-from-bench_server>:8000
-#   sky launch -c autokernel-trainer skypilot/trainer.yaml \
+#   sky launch -c autokernel-trainer-amd skypilot/trainer.yaml \
 #       --secret WANDB_API_KEY --secret HF_TOKEN \
 #       --env BENCH_URL=$BENCH_URL -y
 
-name: autokernel-rlvr-trainer
+name: autokernel-rlvr-trainer-amd
 
 resources:
-  accelerators: H100:8
-  # Fall back to A100-80GB if H100 inventory is tight.
+  accelerators: A100:8
+  # Fall back in this order if A100 inventory is tight.
   any_of:
-    - accelerators: H100:8
-    - accelerators: A100-80GB:8
+    - accelerators: A100:8
+    - accelerators: A40:8
+    - accelerators: L4:8
+    - accelerators: RTX_PRO_6000:8
   memory: 256+
   disk_size: 512
   use_spot: false   # Trainer is stateful; keep on-demand. Spot the rollout/bench.
@@ -36,25 +37,23 @@ num_nodes: 1
 
 workdir: .
 
-file_mounts:
-  /checkpoints:
-    name: ${CHECKPOINT_BUCKET}
-    mode: MOUNT
-
 secrets:
   WANDB_API_KEY: null
   HF_TOKEN: null
 
 envs:
   MODEL_NAME: Qwen/Qwen2.5-Coder-7B-Instruct
-  CHECKPOINT_BUCKET: autokernel-rlvr-ckpt
   BENCH_URL: ""    # MUST be provided on launch: --env BENCH_URL=http://…:8000
-  WANDB_PROJECT: autokernel-rlvr
+  WANDB_PROJECT: autokernel-rlvr-amd
   TOTAL_EPOCHS: "3"
   GROUP_SIZE: "8"        # GRPO rollouts per prompt
   MAX_TURNS: "20"        # edit budget per episode
   HF_HUB_ENABLE_HF_TRANSFER: "1"
   TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+  # Path to a local mirror of GPUMODE/kernelbot-data parquets (optional).
+  # When set, build_amd_dataset.py splices in the best competition starter
+  # for each kernel type from deduplicated_successful_submissions.parquet.
+  SUBMISSIONS_DIR: ""
 
 setup: |
   set -e
@@ -67,18 +66,25 @@ setup: |
   # verl is already installed in the base image. Add our project deps.
   pip install --no-cache-dir httpx redis hf_transfer wandb
 
-  # Clone AutoKernel so the agent loop can reference kernel specs / program.md
-  # (reference.py PyTorch implementations are the ground truth for prompts).
+  # Clone the AutoKernel AMD fork so build_amd_dataset.py can read
+  # reference.py and kernels/{kernel_type}.py for prompt construction.
+  # The trainer never runs bench.py — only needs the source tree.
   rm -rf autokernel
   git clone https://github.com/RightNow-AI/autokernel.git
-  # We do NOT `uv sync` autokernel on the trainer — the trainer never runs
-  # bench.py. It only needs the source to build the prompt dataset.
+  cd autokernel
+  git checkout amd-hip 2>/dev/null || git checkout main
+  cd ..
 
-  # Preprocess the AutoKernel kernel set into a verl-compatible parquet.
-  python3 data/build_dataset.py \
+  # Build the full AMD MI300X dataset (9 kernel types × shapes × dtypes).
+  SUBMISSIONS_ARG=""
+  if [ -n "$SUBMISSIONS_DIR" ]; then
+    SUBMISSIONS_ARG="--submissions-dir $SUBMISSIONS_DIR"
+  fi
+  python3 data/build_amd_dataset.py \
       --autokernel-dir ./autokernel \
-      --out $HOME/data/autokernel \
-      --max-turns $MAX_TURNS
+      --out $HOME/data/autokernel_amd \
+      --max-turns $MAX_TURNS \
+      $SUBMISSIONS_ARG
 
   python3 -c "import wandb; wandb.login(relogin=True, key='$WANDB_API_KEY')" || true
 
@@ -98,8 +104,8 @@ run: |
   ray job submit --address=$RAY_ADDRESS --working-dir=. -- \
       python3 -m verl.trainer.main_ppo \
       algorithm.adv_estimator=grpo \
-      data.train_files=$HOME/data/autokernel/train.parquet \
-      data.val_files=$HOME/data/autokernel/val.parquet \
+      data.train_files=$HOME/data/autokernel_amd/train.parquet \
+      data.val_files=$HOME/data/autokernel_amd/val.parquet \
       data.train_batch_size=64 \
       data.max_prompt_length=4096 \
       data.max_response_length=8192 \
@@ -117,8 +123,8 @@ run: |
       actor_rollout_ref.rollout.agent.agent_name=autokernel_agent \
       actor_rollout_ref.rollout.agent.custom_agent_loop.path=agent_loop/autokernel_loop.py \
       actor_rollout_ref.rollout.agent.custom_agent_loop.name=AutoKernelAgentLoop \
-      custom_reward_function.path=agent_loop/reward.py \
-      custom_reward_function.name=autokernel_reward \
+      custom_reward_function.path=agent_loop/reward_amd.py \
+      custom_reward_function.name=autokernel_reward_amd \
       trainer.critic_warmup=0 \
       trainer.logger=['console','wandb'] \
       trainer.project_name=$WANDB_PROJECT \
@@ -128,5 +134,5 @@ run: |
       trainer.save_freq=50 \
       trainer.test_freq=25 \
       trainer.total_epochs=$TOTAL_EPOCHS \
-      trainer.default_local_dir=/checkpoints/${SKYPILOT_CLUSTER_NAME} \
+      trainer.default_local_dir=/tmp/checkpoints/${SKYPILOT_CLUSTER_NAME} \
       +custom_env.BENCH_URL=$BENCH_URL

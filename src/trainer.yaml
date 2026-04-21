@@ -1,30 +1,31 @@
-# AutoKernel RLVR — Trainer cluster
+# AutoKernel RLVR — AMD MI300X Trainer cluster
 #
-# Runs verl GRPO on Qwen2.5-Coder-7B. The agent loop calls the bench HTTP
-# service (deployed separately via bench_server.yaml) as its verifiable-
-# reward tool. Weights for the vLLM rollout engines are kept in-process
-# by verl's agent-loop manager, so there's no separate rollout cluster
-# here — verl manages rollout instances on the same cluster by default.
-# (If you want rollout separated onto cheaper GPUs later, switch to
-# verl's server-based async rollout and point it at a sky-serve'd vLLM
-# endpoint. For v1, keep it simple.)
+# Runs verl GRPO on Qwen2.5-Coder-7B against the full AMD kernel dataset
+# (fp8-gemm, moe, mla-decode, all2all, gemm+reducescatter, allgather+gemm,
+# mxfp4-mm, moe-mxfp4, mixed-mla). The agent loop calls the bench HTTP
+# service (bench_server.yaml) which dispatches to AMD MI300X bench workers
+# (bench_worker_amd.yaml). Workers execute bench.py --backend rocm and
+# return real hardware metrics; reward_amd.py converts them to a log2-
+# scaled reward with per-kernel clip ceilings tuned for FP8/MXFP4 headroom.
 #
 # Usage:
 #   export WANDB_API_KEY=...
 #   export HF_TOKEN=...
 #   export BENCH_URL=http://<ip-from-bench_server>:8000
-#   sky launch -c autokernel-trainer skypilot/trainer.yaml \
+#   sky launch -c autokernel-trainer-amd skypilot/trainer.yaml \
 #       --secret WANDB_API_KEY --secret HF_TOKEN \
 #       --env BENCH_URL=$BENCH_URL -y
 
-name: autokernel-rlvr-trainer
+name: autokernel-rlvr-trainer-amd
 
 resources:
-  accelerators: H100:8
-  # Fall back to A100-80GB if H100 inventory is tight.
+  accelerators: A100:8
+  # Fall back in this order if A100 inventory is tight.
   any_of:
-    - accelerators: H100:8
-    - accelerators: A100-80GB:8
+    - accelerators: A100:8
+    - accelerators: A40:8
+    - accelerators: L4:8
+    - accelerators: RTX_PRO_6000:8
   memory: 256+
   disk_size: 512
   use_spot: false   # Trainer is stateful; keep on-demand. Spot the rollout/bench.
@@ -36,25 +37,23 @@ num_nodes: 1
 
 workdir: .
 
-file_mounts:
-  /checkpoints:
-    name: ${CHECKPOINT_BUCKET}
-    mode: MOUNT
-
 secrets:
   WANDB_API_KEY: null
   HF_TOKEN: null
 
 envs:
   MODEL_NAME: Qwen/Qwen2.5-Coder-7B-Instruct
-  CHECKPOINT_BUCKET: autokernel-rlvr-ckpt
   BENCH_URL: ""    # MUST be provided on launch: --env BENCH_URL=http://…:8000
-  WANDB_PROJECT: autokernel-rlvr
+  WANDB_PROJECT: autokernel-rlvr-amd
   TOTAL_EPOCHS: "3"
   GROUP_SIZE: "8"        # GRPO rollouts per prompt
   MAX_TURNS: "20"        # edit budget per episode
   HF_HUB_ENABLE_HF_TRANSFER: "1"
   TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+  # Path to a local mirror of GPUMODE/kernelbot-data parquets (optional).
+  # When set, build_amd_dataset.py splices in the best competition starter
+  # for each kernel type from deduplicated_successful_submissions.parquet.
+  SUBMISSIONS_DIR: ""
 
 setup: |
   set -e
@@ -128,5 +127,5 @@ run: |
       trainer.save_freq=50 \
       trainer.test_freq=25 \
       trainer.total_epochs=$TOTAL_EPOCHS \
-      trainer.default_local_dir=/checkpoints/${SKYPILOT_CLUSTER_NAME} \
+      trainer.default_local_dir=/tmp/checkpoints/${SKYPILOT_CLUSTER_NAME} \
       +custom_env.BENCH_URL=$BENCH_URL

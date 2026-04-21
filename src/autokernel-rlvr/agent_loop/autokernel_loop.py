@@ -126,11 +126,20 @@ class AutoKernelAgentLoop(ToolAgentLoop):
                 crash_count += 1
 
         out.extra_info = out.extra_info or {}
+
+        # Preserve kernel_type from the prompt's extra_info so reward_amd.py
+        # can select the correct per-kernel log2 clip ceiling (FP8/MXFP4
+        # kernels allow up to log2(16); collective kernels log2(11.3); etc.).
+        # verl may merge data extra_info with loop output but we write it
+        # explicitly here to guarantee it survives.
+        kernel_type = out.extra_info.get("kernel_type") or kwargs.get("extra_info", {}).get("kernel_type", "")
+
         out.extra_info.update({
             "best_speedup": best_speedup,
             "pass_count": pass_count,
             "crash_count": crash_count,
             "any_pass": any_pass,
             "num_turns": len(tool_responses),
+            "kernel_type": kernel_type,
         })
         return out
