@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <nav class="nav">
     <a href="index.html">Home</a>
@@ -19,21 +20,21 @@
   </nav>
 </header>
 
-<main>
+<main id="main">
 <h1>The verifier is the experiment</h1>
-<p class="lead">In RL for kernels, the reward is a benchmark harness. If the harness is wrong, the
+<p class="lede">In RL for kernels, the reward is a benchmark harness. If the harness is wrong, the
 policy learns whatever the harness gets wrong. Re-running this project on Modal turned up
 harness bugs in nearly every stage. One of them produced the project's headline result: a
 "2.9× RMSNorm kernel" that is actually a numerics bug which the harness rewarded.</p>
 
-<div class="cards">
-  <div class="stat"><span class="stat-value"><span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100 → 100/100</span>
+<div class="stats">
+  <div class="stat"><span class="stat-num"><span class="from"><span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100</span><span class="arrow">→</span><wbr>100/100</span>
     <span class="stat-label">KernelBench L1 problems that are harness-valid, i.e. a copy of the reference passes reliably (kb v1 → kb v2)</span></div>
-  <div class="stat"><span class="stat-value">0%</span>
+  <div class="stat"><span class="stat-num">0%</span>
     <span class="stat-label">speedup added by GRPO's RMSNorm edit over the starter (geomean 0.999× over 32 configs)</span></div>
-  <div class="stat"><span class="stat-value">346/362</span>
+  <div class="stat"><span class="stat-num">346/362</span>
     <span class="stat-label">old PASS kernels that still PASS under bench v2. 0 have a real speedup over the starter (&gt;1.05× at every timing shape)</span></div>
-  <div class="stat"><span class="stat-value">10/10</span>
+  <div class="stat"><span class="stat-num">10/10</span>
     <span class="stat-label">SFT-verifier GPU controls that returned the expected verdict</span></div>
 </div>
 
@@ -55,7 +56,7 @@ harness bugs in nearly every stage. One of them produced the project's headline 
 didn't make sense in the Modal re-run. They are listed in the order they were found
 (<code>CLAUDE.md</code>, "Findings that changed the code").</p>
 
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>Harness</th><th>Bug</th><th>Effect</th><th>Fix</th></tr></thead>
   <tbody>
     <tr><td>AutoKernel <code>bench.py</code></td>
@@ -84,14 +85,14 @@ didn't make sense in the Modal re-run. They are listed in the order they were fo
       <td>An early run read problems 1–50 twice</td>
       <td>List only <code>.py</code>. The two runs are kept as a repeatability check</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <p>Net effect on KernelBench: only <span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100 Level 1
 problems were passable even by a copy of the reference. The figure below shows it: identity
 "speedup" should be exactly 1.0, and failures should be zero.</p>
 
 <figure class="fig">
-  <img src="assets/figures/03_kb_identity_noise.png" alt="KernelBench Level 1 identity test under the original harness: per-problem verdicts and identity speedup spread" loading="lazy">
+  <img src="assets/figures/03_kb_identity_noise.png" alt="KernelBench Level 1 identity test under the original harness: per-problem verdicts and identity speedup spread" loading="lazy" width="1533" height="857" loading="lazy" decoding="async">
   <figcaption>Identity <code>ModelNew(Model)</code> on KernelBench L1 under the original <code>bench_kb.py</code>.
   Data: <code>results/kb_sanity.jsonl</code>.</figcaption>
 </figure>
@@ -125,7 +126,7 @@ identical to the starter (difflib). Apart from the docstring, this is the whole 
 <span class="d-add">+    w = tl.load(W_ptr + offs, mask=mask, other=0.0).to(tl.float16)</span></code></pre>
 
 <h3>Speed: the starter already had the 2.9×</h3>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>L4, 4096×4096 fp16</th><th>cold median (µs)</th><th>GB/s (% peak)</th><th>vs eager</th></tr></thead>
   <tbody>
     <tr><td>starter (fp32 accumulate)</td><td>287.7</td><td>233 (78%)</td><td>2.90×</td></tr>
@@ -133,7 +134,7 @@ identical to the starter (difflib). Apart from the docstring, this is the whole 
     <tr><td>torch.compile(reference)</td><td>285.7</td><td>235 (78%)</td><td>2.92×</td></tr>
     <tr><td>eager PyTorch</td><td>833.5</td><td>81 (27%)</td><td>1.00×</td></tr>
   </tbody>
-</table>
+</table></div>
 <p>Eager PyTorch launches 6 kernels (pow, mean, add, sqrt, div, mul) and moves about 7·M·N elements
 through HBM. Any fused kernel moves 2·M·N, so the ideal gain is 7/2 = 3.5×. The starter and the best kernel have the same
 launch config, the same 128-bit vectorized loads and no spills. The fp32 casts live only in registers and do not
@@ -142,35 +143,35 @@ change HBM bytes. Best/starter geomean over 32 L4 shape×dtype configs is 0.999�
 <h3>Numerics: zero rows above RMS 4</h3>
 <p>With fp16 accumulation, the row sum of squares overflows fp16's max (65504) once
 RMS&nbsp;&gt;&nbsp;√(65504/N). That is RMS&nbsp;&gt;&nbsp;4 at N=4096 and RMS&nbsp;&gt;&nbsp;2 at N=16384. The sum becomes inf and the output row becomes 0.</p>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>N=4096, x = randn·scale</th><th>scale 1</th><th>scale 4</th><th>scale 100</th></tr></thead>
   <tbody>
     <tr><td>GRPO best: zero rows / 256</td><td>0</td><td>133</td><td>256</td></tr>
     <tr><td>fp32acc: zero rows / 256</td><td>0</td><td>0</td><td>0</td></tr>
     <tr><td>eager PyTorch reference: zero rows / 256</td><td>0</td><td>0</td><td>256</td></tr>
   </tbody>
-</table>
+</table></div>
 
 <h3>Root cause: the reference overflows too</h3>
 <p>The stability stage's other magnitude cases (×60000, ×1e-6) overflow or underflow the fp16 inputs themselves, and v1 PASSes
 whenever kernel and reference are both NaN/Inf. The case that decides the verdict is <code>mixed_scale</code> (fp16, M=1024, N=768; x and weight scaled by
 1e3 or 1e-3). <code>reference.rmsnorm_ref</code> computes <code>x ** 2</code> in fp16, so any |x|&nbsp;&gt;&nbsp;~256
 squares to inf. The mean becomes inf, rms becomes inf and x/rms becomes 0. The reference returns 1024/1024 zero rows (error vs fp64 truth 1.477e+04).</p>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>kernel</th><th>math</th><th>vs fp64 truth</th><th>full bench verdict</th></tr></thead>
   <tbody>
     <tr><td>starter</td><td>fp32 accumulate</td><td>correct (max err 3.96)</td><td><span class="tag">FAIL</span></td></tr>
     <tr><td>fp32acc</td><td>fp32 accumulate</td><td>correct</td><td><span class="tag">FAIL</span></td></tr>
     <tr><td>GRPO best</td><td>fp16 accumulate</td><td>1024/1024 zero rows, same as the reference</td><td><span class="tag">PASS</span></td></tr>
   </tbody>
-</table>
+</table></div>
 <p>The harness rewarded reproducing its own reference's overflow. The only change GRPO found flips
 FAIL → PASS with no speedup. Correct fp32 kernels, including <code>torch.compile</code> of the reference, get
 reward 0. Its shape sweep uses unit randn, and its stability stage tests fp16 only, so the scale-4 failure is never
 exercised.</p>
 
 <figure class="fig">
-  <img src="assets/figures/02_starter_baselines.png" alt="AutoKernel starter kernels under the original bench: quick vs full verdicts and speedups per kernel type and GPU" loading="lazy">
+  <img src="assets/figures/02_starter_baselines.png" alt="AutoKernel starter kernels under the original bench: quick vs full verdicts and speedups per kernel type and GPU" loading="lazy" width="1600" height="819" loading="lazy" decoding="async">
   <figcaption>Starter baselines under the original bench (quick vs full). RMSNorm's 2.9× is already present here,
   before any training. Data: <code>results/stage1_baselines.jsonl</code>.</figcaption>
 </figure>
@@ -199,7 +200,7 @@ expectation behaved as expected. The upstream reference itself fails its own gol
 matmul, RMSNorm, flash-attention, fused MLP and RoPE.</p>
 
 <h3>Rescore of every old PASS kernel</h3>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>kernel type</th><th>old PASS</th><th>v2 PASS</th><th>real speedup vs starter</th><th>median vs starter</th><th>median vs torch.compile</th></tr></thead>
   <tbody>
     <tr><td>cross_entropy</td><td>71</td><td>70</td><td>0</td><td>0.998</td><td>0.548</td></tr>
@@ -208,7 +209,7 @@ matmul, RMSNorm, flash-attention, fused MLP and RoPE.</p>
     <tr><td>softmax</td><td>95</td><td>94</td><td>0</td><td>1.000</td><td>0.306</td></tr>
     <tr><td><strong>all</strong></td><td><strong>362</strong></td><td><strong>346 (95.6%)</strong></td><td><strong>0</strong></td><td>1.000</td><td></td></tr>
   </tbody>
-</table>
+</table></div>
 <p class="muted">"Real speedup" = &gt;1.05× geomean vs starter and CI-significant at every timing shape. All 12 RMSNorm
 PASS kernels fail only on the adversarial cases. Kernels are distinct by code sha256, from GRPO v1/v2 rollouts and
 agent_eval. Source: <code>results/v3/bench_v2.md</code>, <code>results/v3/rescore_summary.json</code>.</p>
@@ -228,7 +229,7 @@ The identity <code>ModelNew(Model)</code> was run on all 100 Level 1 problems, t
 </ul>
 
 <h3>Per-bug attribution (45 recovered problems)</h3>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>Fix</th><th>Recovered</th><th>Evidence</th></tr></thead>
   <tbody>
     <tr><td>(a) seeded / copied weights</td><td><strong>35</strong> (all conv)</td>
@@ -238,7 +239,7 @@ The identity <code>ModelNew(Model)</code> was run on all 100 Level 1 problems, t
     <tr><td>(c) starter <code>super()</code></td><td>0 identity problems</td>
       <td>Affects every agent run that starts from the bridge starter: 100/100 crash → 100/100 pass.</td></tr>
   </tbody>
-</table>
+</table></div>
 <p class="muted">This validates the harness, not the candidates. The earlier 0/28 before/after KernelBench result was measured
 with the old harness and its 55-problem list.</p>
 </section>
@@ -283,7 +284,7 @@ core <code>modal_app/sft_verify_core.py</code>). It reuses the kb v2 and bench v
 </ul>
 
 <h3>Smoke test: 10 GPU controls + 1 static control</h3>
-<table class="data">
+<div class="table-scroll"><table class="data">
   <thead><tr><th>control</th><th>category</th><th>expected = got</th></tr></thead>
   <tbody>
     <tr><td>correct_softmax</td><td>correct</td><td>PASS</td></tr>
@@ -298,7 +299,7 @@ core <code>modal_app/sft_verify_core.py</code>). It reuses the kb v2 and bench v
     <tr><td>hang_2e62_loop</td><td>crash/hang</td><td>TIMEOUT</td></tr>
     <tr><td>static_bad_tl_symbol</td><td>static</td><td>REJECT_SYMBOL</td></tr>
   </tbody>
-</table>
+</table></div>
 <p class="muted">All controls matched (<code>all_match: true</code>). The 10 GPU controls ran on one L40S container in 78&nbsp;s,
 about $0.05. Source: <code>results/v3/sft/smoke_verify.summary.json</code>, controls in
 <code>modal_app/sft_verify_controls.py</code>.</p>

@@ -37,6 +37,7 @@
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <nav class="nav" aria-label="Site">
     <a href="index.html">Home</a>
@@ -48,28 +49,28 @@
   </nav>
 </header>
 
-<main>
+<main id="main">
 <h1>SFT before RL</h1>
-<p class="lead">GRPO on a 7B coder model barely moved, because most rollout groups either all failed or all
+<p class="lede">GRPO on a 7B coder model barely moved, because most rollout groups either all failed or all
 passed, so there was little to learn from. We went back and ran supervised fine-tuning (SFT) first:
 fix the parts of the setup that were not the model's fault, build a GPU-verified Triton SFT set, train a
 LoRA, and check whether RL would now have a usable signal. Correctness improved a lot. Speed did not.</p>
 
-<div class="cards">
+<div class="stats">
   <div class="stat">
-    <div class="stat-value"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span> → <span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span></div>
+    <div class="stat-num"><span class="from"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span></span><span class="arrow">→</span><span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span></div>
     <div class="stat-label">val pass@1 (62 problems, n=4)</div>
   </div>
   <div class="stat">
-    <div class="stat-value"><span data-k="phase3.json:val.base.compile_error_rate" data-fmt="pct1">8.1%</span> → <span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="pct1">1.9%</span></div>
+    <div class="stat-num"><span class="from"><span data-k="phase3.json:val.base.compile_error_rate" data-fmt="pct1">8.1%</span></span><span class="arrow">→</span><span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="pct1">1.9%</span></div>
     <div class="stat-label">turns that hit a Triton compile error</div>
   </div>
   <div class="stat">
-    <div class="stat-value"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span> → <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span></div>
+    <div class="stat-num"><span class="from"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span></span><span class="arrow">→</span><span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span></div>
     <div class="stat-label">KernelBench L1 (kb v2): correct and launches a Triton kernel</div>
   </div>
   <div class="stat">
-    <div class="stat-value"><span data-k="phase3.json:val.base.speedup_vs_starter_geomean" data-fmt="x2">0.95×</span> → <span data-k="phase3.json:val.sft.speedup_vs_starter_geomean" data-fmt="x2">1.00×</span></div>
+    <div class="stat-num"><span class="from"><span data-k="phase3.json:val.base.speedup_vs_starter_geomean" data-fmt="x2">0.95×</span></span><span class="arrow">→</span><span data-k="phase3.json:val.sft.speedup_vs_starter_geomean" data-fmt="x2">1.00×</span></div>
     <div class="stat-label">speedup vs starter (geomean of solved episodes): flat</div>
   </div>
 </div>
@@ -81,10 +82,10 @@ LoRA, and check whether RL would now have a usable signal. Correctness improved 
 </nav>
 
 <ol class="timeline">
-  <li><strong>Phase 0</strong> (2026-09-30): fixed starters, prompt v2, a 62-problem validation set, and a base-model baseline.</li>
-  <li><strong>Phase 1</strong> (2026-10-06): ingest, static filter, GPU verification, decontamination, and the mix.</li>
-  <li><strong>Phase 2</strong> (2026-10-07): LoRA SFT run <code>sft_v1</code>, 378 steps on 1×H100.</li>
-  <li><strong>Phase 3</strong> (2026-10-07): base vs SFT on the validation set and on KernelBench L1, plus the GRPO gate.</li>
+  <li><span class="when">Phase 0<br><span class="muted">2026-09-30</span></span><div class="what"><p>Fixed starters, prompt v2, a 62-problem validation set, and a base-model baseline.</p></div></li>
+  <li><span class="when">Phase 1<br><span class="muted">2026-10-06</span></span><div class="what"><p>Ingest, static filter, GPU verification, decontamination, and the mix.</p></div></li>
+  <li><span class="when">Phase 2<br><span class="muted">2026-10-07</span></span><div class="what"><p>LoRA SFT run <code>sft_v1</code>, 378 steps on 1×H100.</p></div></li>
+  <li><span class="when">Phase 3<br><span class="muted">2026-10-07</span></span><div class="what"><p>Base vs SFT on the validation set and on KernelBench L1, plus the GRPO gate.</p></div></li>
 </ol>
 
 <!-- ============================================================ -->
@@ -231,11 +232,11 @@ KernelBench L1 or validation problem. Examples longer than 4,096 tokens were dro
 It exceeds "kept" for KernelBook because scarce families (MLP, attention) were upsampled up to 3×. 60 examples went to the dev split.</p>
 
 <h3>The final mix</h3>
-<div class="cards">
-  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span></div><div class="stat-label">train examples</div></div>
-  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span></div><div class="stat-label">dev examples</div></div>
-  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.train.repair_share" data-fmt="pct0">15%</span></div><div class="stat-label">repair examples (failing turn + real feedback → verified fix)</div></div>
-  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:tokens.train_trained_tokens.total" data-fmt="int">3,603,928</span></div><div class="stat-label">loss-bearing (assistant) tokens per epoch</div></div>
+<div class="stats">
+  <div class="stat"><div class="stat-num"><span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span></div><div class="stat-label">train examples</div></div>
+  <div class="stat"><div class="stat-num"><span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span></div><div class="stat-label">dev examples</div></div>
+  <div class="stat"><div class="stat-num"><span data-k="mix_report.json:splits.train.repair_share" data-fmt="pct0">15%</span></div><div class="stat-label">repair examples (failing turn + real feedback → verified fix)</div></div>
+  <div class="stat"><div class="stat-num"><span data-k="mix_report.json:tokens.train_trained_tokens.total" data-fmt="int">3,603,928</span></div><div class="stat-label">loss-bearing (assistant) tokens per epoch</div></div>
 </div>
 <div class="table-wrap two">
 <table class="data">
