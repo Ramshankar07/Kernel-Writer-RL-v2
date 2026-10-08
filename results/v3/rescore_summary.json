@@ -1,0 +1,6909 @@
+{
+ "harness": "bench_v2.0",
+ "gpu": "NVIDIA L4",
+ "significance_rule": "v2 PASS and paired bootstrap 95% CI lower bound of per-rep starter/kernel latency ratio > 1.0 at every timing shape and geomean median ratio > 1.05",
+ "sanity_all_as_expected": true,
+ "n_distinct_old_pass_kernels": 362,
+ "new_verdicts": {
+  "PASS": 346,
+  "FAIL": 14,
+  "TIMEOUT": 2
+ },
+ "old_pass_survive": 346,
+ "old_pass_survive_frac": 0.9558011049723757,
+ "real_speedup_vs_starter_gt_1.05_significant": 0,
+ "pass_with_sig_speedup_at_some_shape_only": [
+  {
+   "code_sha12": "857345b45745",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "shapes": [
+    "gpt2"
+   ],
+   "vs_starter": {
+    "large": {
+     "median": 0.9991243365626183,
+     "ci_lo": 0.9982425174515562,
+     "ci_hi": 1.0
+    },
+    "gpt2": {
+     "median": 1.0501745966837923,
+     "ci_lo": 1.0453896819243278,
+     "ci_hi": 1.0556175447814027
+    }
+   },
+   "vs_compile": {
+    "large": 1.0070294675105653,
+    "gpt2": 0.313937297840947
+   }
+  },
+  {
+   "code_sha12": "a3b8f062d840",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "shapes": [
+    "gpt2"
+   ],
+   "vs_starter": {
+    "large": {
+     "median": 1.0,
+     "ci_lo": 0.9982440604680979,
+     "ci_hi": 1.0008748973217856
+    },
+    "gpt2": {
+     "median": 1.050646001400752,
+     "ci_lo": 1.049002433108109,
+     "ci_hi": 1.0571965320572487
+    }
+   },
+   "vs_compile": {
+    "large": 1.0079120592489457,
+    "gpt2": 0.314078218715913
+   }
+  },
+  {
+   "code_sha12": "a6affa408962",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "shapes": [
+    "gpt2"
+   ],
+   "vs_starter": {
+    "large": {
+     "median": 0.9986845794928195,
+     "ci_lo": 0.9973776023633125,
+     "ci_hi": 1.0004389337787982
+    },
+    "gpt2": {
+     "median": 1.0534527770663817,
+     "ci_lo": 1.046762502837867,
+     "ci_hi": 1.057347734793066
+    }
+   },
+   "vs_compile": {
+    "large": 1.006586231056775,
+    "gpt2": 0.31491727116575896
+   }
+  },
+  {
+   "code_sha12": "aae7840e2865",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "shapes": [
+    "vocab"
+   ],
+   "vs_starter": {
+    "large": {
+     "median": 1.0,
+     "ci_lo": 1.0,
+     "ci_hi": 1.0035842566845188
+    },
+    "vocab": {
+     "median": 2.130924493835689,
+     "ci_lo": 2.1280378858976876,
+     "ci_hi": 2.1327759382258833
+    }
+   },
+   "vs_compile": {
+    "large": 1.0071301498360254,
+    "vocab": 0.19780522075501092
+   }
+  },
+  {
+   "code_sha12": "b5a26e50441d",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "shapes": [
+    "vocab"
+   ],
+   "vs_starter": {
+    "large": {
+     "median": 1.0035778042064638,
+     "ci_lo": 1.0,
+     "ci_hi": 1.0071428073990667
+    },
+    "vocab": {
+     "median": 2.4687240995934276,
+     "ci_lo": 2.465908693676956,
+     "ci_hi": 2.4725882137996193
+    }
+   },
+   "vs_compile": {
+    "large": 1.0107334643225654,
+    "vocab": 0.22916181071451294
+   }
+  }
+ ],
+ "real_speedup_kernels": [],
+ "median_vs_starter_geomean_survivors": 0.9998038288810632,
+ "median_vs_eager_geomean_survivors": 0.990074691595427,
+ "median_old_speedup_vs_pytorch": 0.987,
+ "by_kernel_type": {
+  "cross_entropy": {
+   "old_pass": 71,
+   "new": {
+    "PASS": 70,
+    "FAIL": 1
+   },
+   "survive": 70,
+   "fail_on_adversarial_only": 0,
+   "real_speedup_vs_starter": 0,
+   "vs_starter_geomean_median_over_survivors": 0.9982429411151593,
+   "vs_starter_geomean_max_over_survivors": 1.0257031947303676,
+   "vs_eager_geomean_median_over_survivors": 1.0731545031580236,
+   "vs_compile_geomean_median_over_survivors": 0.5479466449706614,
+   "starter_vs_eager": {
+    "large": 2.030728532974868,
+    "gpt2": 0.5613924664739786
+   },
+   "compile_over_starter": {
+    "large": 1.0079120592489457,
+    "gpt2": 0.2989381944985987
+   },
+   "no_triton_jit": 0
+  },
+  "reduce": {
+   "old_pass": 184,
+   "new": {
+    "PASS": 182,
+    "TIMEOUT": 2
+   },
+   "survive": 182,
+   "fail_on_adversarial_only": 0,
+   "real_speedup_vs_starter": 0,
+   "vs_starter_geomean_median_over_survivors": 0.9992292810982677,
+   "vs_starter_geomean_max_over_survivors": 1.0076402686415091,
+   "vs_eager_geomean_median_over_survivors": 0.990230063123977,
+   "vs_compile_geomean_median_over_survivors": 0.8713859588660124,
+   "starter_vs_eager": {
+    "large": 0.9861324955256784,
+    "wide": 0.9943662362114453
+   },
+   "compile_over_starter": {
+    "large": 0.8597842908374056,
+    "wide": 0.8845070634997217
+   },
+   "no_triton_jit": 0
+  },
+  "rmsnorm": {
+   "old_pass": 12,
+   "new": {
+    "FAIL": 12
+   },
+   "survive": 0,
+   "fail_on_adversarial_only": 12,
+   "real_speedup_vs_starter": 0,
+   "vs_starter_geomean_median_over_survivors": null,
+   "vs_starter_geomean_max_over_survivors": null,
+   "vs_eager_geomean_median_over_survivors": null,
+   "vs_compile_geomean_median_over_survivors": null,
+   "starter_vs_eager": {
+    "large": 2.8852169826866296,
+    "medium": 1.75
+   },
+   "compile_over_starter": {
+    "large": 1.0,
+    "medium": 1.0058823549552824
+   },
+   "no_triton_jit": 0
+  },
+  "softmax": {
+   "old_pass": 95,
+   "new": {
+    "PASS": 94,
+    "FAIL": 1
+   },
+   "survive": 94,
+   "fail_on_adversarial_only": 1,
+   "real_speedup_vs_starter": 0,
+   "vs_starter_geomean_median_over_survivors": 1.0001736437103348,
+   "vs_starter_geomean_max_over_survivors": 1.574025638629038,
+   "vs_eager_geomean_median_over_survivors": 0.2883540745190796,
+   "vs_compile_geomean_median_over_survivors": 0.3058109619796906,
+   "starter_vs_eager": {
+    "large": 1.0142857187403822,
+    "vocab": 0.08250458135376695
+   },
+   "compile_over_starter": {
+    "large": 1.0071301498360254,
+    "vocab": 0.09282601111734334
+   },
+   "no_triton_jit": 0
+  }
+ },
+ "by_source": {
+  "agent_eval_fbv1": {
+   "old_pass": 16,
+   "survive": 15,
+   "real_speedup_vs_starter": 0
+  },
+  "agent_eval_fbv2": {
+   "old_pass": 47,
+   "survive": 46,
+   "real_speedup_vs_starter": 0
+  },
+  "grpo_v1": {
+   "old_pass": 205,
+   "survive": 199,
+   "real_speedup_vs_starter": 0
+  },
+  "grpo_v2": {
+   "old_pass": 120,
+   "survive": 112,
+   "real_speedup_vs_starter": 0
+  }
+ },
+ "rows": [
+  {
+   "code_sha12": "03355cbf108a",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 0.9903801041165944,
+   "vs_eager_geomean": 1.0701525414328752,
+   "vs_compile_geomean": 0.5436306463536295,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "040962ba3fc9",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.036,
+   "vs_starter_geomean": 0.49331351292216097,
+   "vs_eager_geomean": 0.5282968193496344,
+   "vs_compile_geomean": 0.27078526998890706,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "08eb8a17cea5",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.0136834275017645,
+   "vs_eager_geomean": 1.084584390782356,
+   "vs_compile_geomean": 0.5564220995556984,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0a75a2d5eadd",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 0.9880383267167613,
+   "vs_eager_geomean": 1.0583793362883183,
+   "vs_compile_geomean": 0.5423452187120643,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0b90f06806ec",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 0.9894415628423388,
+   "vs_eager_geomean": 1.0581747188063373,
+   "vs_compile_geomean": 0.5431154706171295,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0c0e289f4661",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.0016606229265799,
+   "vs_eager_geomean": 1.0731545031580236,
+   "vs_compile_geomean": 0.5498226485014782,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0ccaf759c497",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.031,
+   "vs_starter_geomean": 0.9941155362078423,
+   "vs_eager_geomean": 1.0651647140642289,
+   "vs_compile_geomean": 0.5456810665445586,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1352d0e01b4c",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.038,
+   "vs_starter_geomean": 1.016245103113182,
+   "vs_eager_geomean": 1.087443312731181,
+   "vs_compile_geomean": 0.5578282317695775,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "161b5b3bdf2b",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.018848858683032,
+   "vs_eager_geomean": 1.0928043847247029,
+   "vs_compile_geomean": 0.5592574621403219,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "172503e3c4bd",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.036,
+   "vs_starter_geomean": 0.7860796742476079,
+   "vs_eager_geomean": 0.852471073722492,
+   "vs_compile_geomean": 0.43148786977890313,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "18547f080e2f",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 0.9900772043245286,
+   "vs_eager_geomean": 1.0708770743108327,
+   "vs_compile_geomean": 0.5434643812912997,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1c77d90f573d",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.042,
+   "vs_starter_geomean": 0.9903266702331729,
+   "vs_eager_geomean": 1.0718345574335433,
+   "vs_compile_geomean": 0.5436013159011487,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "206703eedc0c",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 1.0165763341584906,
+   "vs_eager_geomean": 1.1009626185399595,
+   "vs_compile_geomean": 0.5580100481716892,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "20e241164730",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 0.9892797269353776,
+   "vs_eager_geomean": 1.0706444459890305,
+   "vs_compile_geomean": 0.5430266370891347,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "21dcc1010566",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.044,
+   "vs_starter_geomean": 0.9854883664757482,
+   "vs_eager_geomean": 1.0815468407255098,
+   "vs_compile_geomean": 0.5409455171952063,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "22fbf41cfb58",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 0.9892658185956161,
+   "vs_eager_geomean": 1.0701063492157263,
+   "vs_compile_geomean": 0.5430190026468606,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "28df37aeba64",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.542,
+   "vs_starter_geomean": 0.2355078649732352,
+   "vs_eager_geomean": 0.2572092135730345,
+   "vs_compile_geomean": 0.12927288454664942,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2ae04ae9ea08",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.031,
+   "vs_starter_geomean": 0.9956550538941297,
+   "vs_eager_geomean": 1.0881210792077098,
+   "vs_compile_geomean": 0.5465261249129472,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2c8980fddded",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 0.9764427060360549,
+   "vs_eager_geomean": 1.0686921873333857,
+   "vs_compile_geomean": 0.5359802536452967,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2e35560aa933",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.04,
+   "vs_starter_geomean": 0.9878179150860026,
+   "vs_eager_geomean": 1.0811496463016117,
+   "vs_compile_geomean": 0.5422242323182594,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "316e79e03f9e",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 0.9912672515838301,
+   "vs_eager_geomean": 1.0717363777245401,
+   "vs_compile_geomean": 0.5441176114582591,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "38f62ab099a7",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.027,
+   "vs_starter_geomean": 0.9871205262343192,
+   "vs_eager_geomean": 1.0694666835392284,
+   "vs_compile_geomean": 0.5418414278267065,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3a91aa1c3293",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.0122893225187852,
+   "vs_eager_geomean": 1.0976485589281813,
+   "vs_compile_geomean": 0.5556568598362901,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3b47de6be302",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.031,
+   "vs_starter_geomean": 0.9946426620319366,
+   "vs_eager_geomean": 1.0793905450577386,
+   "vs_compile_geomean": 0.545970411767944,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3c3bea6d22ef",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.027,
+   "vs_starter_geomean": 0.9868005842668208,
+   "vs_eager_geomean": 1.0807915535504682,
+   "vs_compile_geomean": 0.5416658081248731,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3df5ec97bab9",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.04,
+   "vs_starter_geomean": 0.9890196007054294,
+   "vs_eager_geomean": 1.0717539296772307,
+   "vs_compile_geomean": 0.5428838509104418,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4026c2edef91",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.029,
+   "vs_starter_geomean": 1.0144796003380072,
+   "vs_eager_geomean": 1.101862000914641,
+   "vs_compile_geomean": 0.5568591276742731,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4bbc77270b49",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 1.0149229081135427,
+   "vs_eager_geomean": 1.0995929380261333,
+   "vs_compile_geomean": 0.5571024642392407,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4da365003ddf",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.688,
+   "vs_starter_geomean": 0.4910513464150184,
+   "vs_eager_geomean": 0.532652594388916,
+   "vs_compile_geomean": 0.26954354165114486,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "536f1b835007",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 1.0005095496403114,
+   "vs_eager_geomean": 1.0975614658433144,
+   "vs_compile_geomean": 0.549190811581478,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5efbd26cc5f7",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 0.9979930017276933,
+   "vs_eager_geomean": 1.0640423323948505,
+   "vs_compile_geomean": 0.5478094504630248,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5fcf9e042092",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.03,
+   "vs_starter_geomean": 0.9918396807579171,
+   "vs_eager_geomean": 1.0596894650204778,
+   "vs_compile_geomean": 0.5444318241939624,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "60ea8a17226d",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.013915393391961,
+   "vs_eager_geomean": 1.0835670017452441,
+   "vs_compile_geomean": 0.5565494282109241,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6801f9d18d11",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 0.9940076346606198,
+   "vs_eager_geomean": 1.060893699843287,
+   "vs_compile_geomean": 0.5456218381860574,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6b3c3c02fea6",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.0111734276790287,
+   "vs_eager_geomean": 1.0794249921855261,
+   "vs_compile_geomean": 0.5550443327565578,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6f515d20fcbe",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.031,
+   "vs_starter_geomean": 1.0194867131271566,
+   "vs_eager_geomean": 1.088814640882673,
+   "vs_compile_geomean": 0.5596075875338932,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "75b186646438",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.039,
+   "vs_starter_geomean": 1.0082954054850293,
+   "vs_eager_geomean": 1.0772072749755217,
+   "vs_compile_geomean": 0.5534645543875854,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "77b0b55a9132",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 0.9918686945913783,
+   "vs_eager_geomean": 1.057917616086019,
+   "vs_compile_geomean": 0.5444477502096124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "782c575b9b2b",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.54,
+   "vs_starter_geomean": 0.23677448481761018,
+   "vs_eager_geomean": 0.2564632982023055,
+   "vs_compile_geomean": 0.12996814625659267,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "813f72abd18f",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv1",
+    "agent_eval_fbv2",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.04,
+   "vs_starter_geomean": 0.9714304319609881,
+   "vs_eager_geomean": 1.0660629302748905,
+   "vs_compile_geomean": 0.5332289606984734,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8171558dac63",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 1.007436371870995,
+   "vs_eager_geomean": 1.0701645850521595,
+   "vs_compile_geomean": 0.5529930212894387,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8362560dbe45",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.0065937663951914,
+   "vs_eager_geomean": 1.0807543949232596,
+   "vs_compile_geomean": 0.5525305057789511,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "850b4c63fa79",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.539,
+   "vs_starter_geomean": 0.2428442120197472,
+   "vs_eager_geomean": 0.25389064942747047,
+   "vs_compile_geomean": 0.13329988697752654,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "857345b45745",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 1.0243314879406027,
+   "vs_eager_geomean": 1.0727163225798186,
+   "vs_compile_geomean": 0.5622669382744059,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8fd1a01ef15e",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 0.99743195340735,
+   "vs_eager_geomean": 1.0561238392366992,
+   "vs_compile_geomean": 0.5475014848044295,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "936177ab4ef9",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.036,
+   "vs_starter_geomean": 1.0050228669121963,
+   "vs_eager_geomean": 1.0645039394035298,
+   "vs_compile_geomean": 0.5516682215935687,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9b1b06485286",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.04,
+   "vs_starter_geomean": 1.0021852964708324,
+   "vs_eager_geomean": 1.0513177303990124,
+   "vs_compile_geomean": 0.5501106476412037,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a073b0041667",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 1.018730892074192,
+   "vs_eager_geomean": 1.0666185748003858,
+   "vs_compile_geomean": 0.5591927089576345,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a3b8f062d840",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.038,
+   "vs_starter_geomean": 1.0250102445345373,
+   "vs_eager_geomean": 1.075178012810803,
+   "vs_compile_geomean": 0.5626395153125993,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a6affa408962",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 1.0257031947303676,
+   "vs_eager_geomean": 1.0750138029705738,
+   "vs_compile_geomean": 0.5630198833766226,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ab367013e6d5",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 0.9939349902353991,
+   "vs_eager_geomean": 1.0643811476464649,
+   "vs_compile_geomean": 0.5455819628536748,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ae813fbbe67f",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.039,
+   "vs_starter_geomean": 0.9871223685344186,
+   "vs_eager_geomean": 1.0430621534673512,
+   "vs_compile_geomean": 0.5418424390857066,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b1833be0cbd2",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.029,
+   "vs_starter_geomean": 1.009273074646282,
+   "vs_eager_geomean": 1.0791851902125424,
+   "vs_compile_geomean": 0.5540012078561299,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b3d22b06de4d",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2",
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 1.0092610903621821,
+   "vs_eager_geomean": 1.0794548080908122,
+   "vs_compile_geomean": 0.5539946295493929,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b3e6ee79555e",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.028,
+   "vs_starter_geomean": 1.0205228764702095,
+   "vs_eager_geomean": 1.079750383663878,
+   "vs_compile_geomean": 0.5601763491089393,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c5a2b0121571",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.012142352882865,
+   "vs_eager_geomean": 1.0828537640511033,
+   "vs_compile_geomean": 0.5555761865696951,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c7dcc57c0071",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 0.9957457924899183,
+   "vs_eager_geomean": 1.0536530628791791,
+   "vs_compile_geomean": 0.5465759323366552,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d9f499148fb8",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.0195639986055423,
+   "vs_eager_geomean": 1.0932001766324713,
+   "vs_compile_geomean": 0.5596500103919392,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dcd3ee7e0657",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.0054040252364462,
+   "vs_eager_geomean": 1.0760727881282175,
+   "vs_compile_geomean": 0.551877443633989,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ddced48bf19b",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.028,
+   "vs_starter_geomean": 1.022961845958991,
+   "vs_eager_geomean": 1.0809350794140766,
+   "vs_compile_geomean": 0.5615151265683329,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dea8070cccd6",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.027,
+   "vs_starter_geomean": 0.9911804900894263,
+   "vs_eager_geomean": 1.0710566282877199,
+   "vs_compile_geomean": 0.5440699871097032,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "df86ea1c011a",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.042,
+   "vs_starter_geomean": 0.9896174227549651,
+   "vs_eager_geomean": 1.0828280027509758,
+   "vs_compile_geomean": 0.5432120020776984,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e946899637f9",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 1.0159639999633288,
+   "vs_eager_geomean": 1.1138147083574053,
+   "vs_compile_geomean": 0.5576739311264087,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ebc310427cbb",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.038,
+   "vs_starter_geomean": 0.996366021321538,
+   "vs_eager_geomean": 1.0783165265225774,
+   "vs_compile_geomean": 0.5469163828356294,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "sweep/tiny/float32: 1/1 elems out of tol (atol=1e-05, rtol=1e-05), max_abs_err=7.171e-05, nonfinite=0"
+   ]
+  },
+  {
+   "code_sha12": "ed9791edcaf9",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.036,
+   "vs_starter_geomean": 1.0016908054451885,
+   "vs_eager_geomean": 1.0849507805358025,
+   "vs_compile_geomean": 0.5498392160213946,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "edfb3d82af8e",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.032,
+   "vs_starter_geomean": 1.0131952052808333,
+   "vs_eager_geomean": 1.1083085970643016,
+   "vs_compile_geomean": 0.5561541089524686,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ef96a1fe8b00",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.034,
+   "vs_starter_geomean": 0.9907411218834486,
+   "vs_eager_geomean": 1.0718483307892235,
+   "vs_compile_geomean": 0.5438288130182508,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f4aa30683c34",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "agent_eval_fbv2",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.037,
+   "vs_starter_geomean": 1.020037304722883,
+   "vs_eager_geomean": 1.118366726967857,
+   "vs_compile_geomean": 0.5599098133801289,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f67ea456c55d",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.033,
+   "vs_starter_geomean": 1.0189979219439187,
+   "vs_eager_geomean": 1.101528998776297,
+   "vs_compile_geomean": 0.5593392846209296,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f89f6bd4c779",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.035,
+   "vs_starter_geomean": 1.0212102600415613,
+   "vs_eager_geomean": 1.104926445709908,
+   "vs_compile_geomean": 0.5605536615909184,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fd4ec51cf29d",
+   "kernel_type": "cross_entropy",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 2.036,
+   "vs_starter_geomean": 0.9982429411151593,
+   "vs_eager_geomean": 1.0638034266629344,
+   "vs_compile_geomean": 0.5479466449706614,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "01c8f6ffa5c5",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9923897320255702,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "062f0969d677",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9929831633849808,
+   "vs_eager_geomean": 0.9858003659769804,
+   "vs_compile_geomean": 0.8659389815048204,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "07a22cb89792",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9909814979730062,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0d116fa84a2b",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916277174949526,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0d160422bbfc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9978197244950929,
+   "vs_eager_geomean": 0.9898491269486356,
+   "vs_compile_geomean": 0.8701567436543811,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0f212253536a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9999779271891932,
+   "vs_eager_geomean": 0.9908574913602262,
+   "vs_compile_geomean": 0.8720388217315554,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0fe2c630a10b",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9896802254485727,
+   "vs_eager_geomean": 0.9813972502620042,
+   "vs_compile_geomean": 0.8630586278210006,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "100a61110ade",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9900878634109344,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "104eaa896b8c",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9908674069799221,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "116e1aec51ba",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916277174949526,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "11d4f2b0ac53",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.972,
+   "vs_starter_geomean": 0.989694244904208,
+   "vs_eager_geomean": 0.9814128696471229,
+   "vs_compile_geomean": 0.8630708536004315,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1253ee74d5db",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990230063123977,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "13d17b10efd9",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007713133675238,
+   "vs_eager_geomean": 0.9905855274354618,
+   "vs_compile_geomean": 0.8727307005513953,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "13fed19945e7",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.9984964085381217,
+   "vs_eager_geomean": 0.990074691595427,
+   "vs_compile_geomean": 0.8707468514352859,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "14fa2422ac2d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.971,
+   "vs_starter_geomean": 0.9896895812823843,
+   "vs_eager_geomean": 0.9802613532565005,
+   "vs_compile_geomean": 0.8630667866513823,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "165c177e62f3",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9978197244950929,
+   "vs_eager_geomean": 0.9887054469674956,
+   "vs_compile_geomean": 0.8701567436543811,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "171845bfe831",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0014114440906452,
+   "vs_eager_geomean": 0.991593007600399,
+   "vs_compile_geomean": 0.8732889317146711,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "177c6e3fce78",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.000300831654939,
+   "vs_eager_geomean": 0.992265922049416,
+   "vs_compile_geomean": 0.8723204131769111,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "17b4386f0420",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 1.0076402686415091,
+   "vs_eager_geomean": 0.9962450837207326,
+   "vs_compile_geomean": 0.8787208284340076,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "192ffce2b05c",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1a92df9fd200",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0003748149239486,
+   "vs_eager_geomean": 0.9902139241731767,
+   "vs_compile_geomean": 0.8723849308837333,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1ad8fa918ba3",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.155,
+   "vs_starter_geomean": 0.16122300735220316,
+   "vs_eager_geomean": 0.15997598185255754,
+   "vs_compile_geomean": 0.14059582471247223,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1aeb7e9f2a74",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9890873324517703,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1bedbe143d23",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9916330975691805,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1d47fdd790b4",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9897153123555172,
+   "vs_eager_geomean": 0.9821367501079675,
+   "vs_compile_geomean": 0.8630892256413706,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1f4bcb76699e",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.989,
+   "vs_starter_geomean": 0.9992395966380554,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8713949546157358,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "217864ea47cc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0007707193596338,
+   "vs_eager_geomean": 0.9916115557649255,
+   "vs_compile_geomean": 0.8727301825420208,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "22dd7a6c7a86",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2529611213c3",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.551,
+   "vs_starter_geomean": 0.5883115672259249,
+   "vs_eager_geomean": 0.5830170052674128,
+   "vs_compile_geomean": 0.5130418501704352,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "25cfc9d558fb",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.976,
+   "vs_starter_geomean": 0.9929762855417819,
+   "vs_eager_geomean": 0.9850510890343278,
+   "vs_compile_geomean": 0.865932983626151,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "26332fdb254b",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.989,
+   "vs_starter_geomean": 1.0037375787442333,
+   "vs_eager_geomean": 0.9939455953392062,
+   "vs_compile_geomean": 0.8753174562124124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "26664b569f40",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0006396373622735,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8726158714283251,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "266d56f44bb2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007725050546514,
+   "vs_eager_geomean": 0.9916236977067796,
+   "vs_compile_geomean": 0.8727317397717725,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "269d8bb6f3ba",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9933619537856306,
+   "vs_eager_geomean": 0.9850310986555185,
+   "vs_compile_geomean": 0.8662693087307366,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "26c8fe676bd9",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992310585561184,
+   "vs_eager_geomean": 0.9886923793945719,
+   "vs_compile_geomean": 0.8713875089124761,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "26db6dc2765c",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9978236833956226,
+   "vs_eager_geomean": 0.9873275398241104,
+   "vs_compile_geomean": 0.8701601960455383,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "27194edcdfa1",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007701253513912,
+   "vs_eager_geomean": 0.9902627481548257,
+   "vs_compile_geomean": 0.8727296645323389,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "273736530d59",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 0.9992304672852612,
+   "vs_eager_geomean": 0.990074691595427,
+   "vs_compile_geomean": 0.8713869932899533,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2bab8e61e4fc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.982,
+   "vs_starter_geomean": 0.9984615249304111,
+   "vs_eager_geomean": 0.9908495230961784,
+   "vs_compile_geomean": 0.8707164309036535,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2d6659c07b15",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9992310549202793,
+   "vs_eager_geomean": 0.9908614040331916,
+   "vs_compile_geomean": 0.8713875057418133,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "31fe5b2e5026",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9924081201759,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "32790c74c4d8",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9922659178515804,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "336d2b4d365d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908574913602262,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3641e9392351",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.990230063123977,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3701804d63ca",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0008230232342978,
+   "vs_eager_geomean": 0.9908594345795513,
+   "vs_compile_geomean": 0.8727757945580403,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "37cf47d9e8b6",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9984603414769376,
+   "vs_eager_geomean": 0.9911641297604691,
+   "vs_compile_geomean": 0.8707153988635009,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3ab8da3cc45c",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992733823778462,
+   "vs_eager_geomean": 0.9900838498649096,
+   "vs_compile_geomean": 0.8714244177427884,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3c05b33e8275",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9988442165223557,
+   "vs_eager_geomean": 0.9895143377890829,
+   "vs_compile_geomean": 0.871050160194923,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3e783ec624c6",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.557,
+   "vs_starter_geomean": 0.5629714287329439,
+   "vs_eager_geomean": 0.5573588702613796,
+   "vs_compile_geomean": 0.4909437778899329,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3fcb934229aa",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9889571658881507,
+   "vs_eager_geomean": 0.9792741353197167,
+   "vs_compile_geomean": 0.8624280778958793,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "41324ccf282a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9940622499510129,
+   "vs_eager_geomean": 0.9850286933381961,
+   "vs_compile_geomean": 0.8668800076535015,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "420c867f0997",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916277174949526,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4278e6fdddb2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990990242003471,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "448427e2a001",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9923889693244339,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "462eaa9e5338",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9985925262572614,
+   "vs_eager_geomean": 0.9902085183071927,
+   "vs_compile_geomean": 0.87083067166798,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "49a18309b383",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 0.9992286861736913,
+   "vs_eager_geomean": 0.9916330975691805,
+   "vs_compile_geomean": 0.8713854400572342,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "49d830cce9cc",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9905226038163851,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4cd7a911716c",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916169692314334,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4d48620be9a8",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992286861736913,
+   "vs_eager_geomean": 0.9908415137578594,
+   "vs_compile_geomean": 0.8713854400572342,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4d5c99090a1a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9922197774288743,
+   "vs_eager_geomean": 0.9842742131578948,
+   "vs_compile_geomean": 0.865273264620888,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4ea0c0a99820",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9999547030397771,
+   "vs_eager_geomean": 0.9887054469674956,
+   "vs_compile_geomean": 0.8720185689246266,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4ed0d49602f1",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908455303752592,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "52b86da1c9f1",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9978254638328887,
+   "vs_eager_geomean": 0.9880761855642127,
+   "vs_compile_geomean": 0.8701617486902252,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "53f37af4c469",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.999951771237209,
+   "vs_eager_geomean": 0.9909062208673959,
+   "vs_compile_geomean": 0.872016012222536,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "55016af85dd1",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.991,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916223433777557,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5736f8d4f99f",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916384776142192,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "59384aa89e11",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9978260560926211,
+   "vs_eager_geomean": 0.9876723258468918,
+   "vs_compile_geomean": 0.8701622651751048,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5a4e125f7670",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.558,
+   "vs_starter_geomean": 0.5860711118930884,
+   "vs_eager_geomean": 0.5807380651777574,
+   "vs_compile_geomean": 0.5110880430158306,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5a69e8fe6894",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.972,
+   "vs_starter_geomean": 0.989698908504056,
+   "vs_eager_geomean": 0.9806740716434342,
+   "vs_compile_geomean": 0.8630749205303165,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5d6eb1b46bf6",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9933491958551004,
+   "vs_eager_geomean": 0.9829211734326093,
+   "vs_compile_geomean": 0.8662581830744548,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5d7b4d38344d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007713133675238,
+   "vs_eager_geomean": 0.9902193300096487,
+   "vs_compile_geomean": 0.8727307005513953,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5fa1277644b2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.941,
+   "vs_starter_geomean": 0.8937539134263893,
+   "vs_eager_geomean": 0.886201982894537,
+   "vs_compile_geomean": 0.7794053132483363,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "5fbc5fc65cda",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9909451352620013,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6096eb69fa8e",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "609fe113f032",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.999955950241756,
+   "vs_eager_geomean": 0.9886844674132752,
+   "vs_compile_geomean": 0.8720196565571778,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "63b485a7b683",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9889454204221187,
+   "vs_eager_geomean": 0.9806761856036296,
+   "vs_compile_geomean": 0.8624178351674343,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6429cf92ea06",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.989,
+   "vs_starter_geomean": 1.0003856984702546,
+   "vs_eager_geomean": 0.9901951492386406,
+   "vs_compile_geomean": 0.8723944219681251,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "644419a93be0",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9889454204221187,
+   "vs_eager_geomean": 0.9806761856036296,
+   "vs_compile_geomean": 0.8624178351674343,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "68264b0d8f8f",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9978260560926211,
+   "vs_eager_geomean": 0.9894549539790344,
+   "vs_compile_geomean": 0.8701622651751048,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "69cd8edf3056",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9896383691491776,
+   "vs_eager_geomean": 0.9802825136269327,
+   "vs_compile_geomean": 0.8630221266973117,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "69eb960d9175",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.991612949486831,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6ec9fb60f109",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908335096072343,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6f34eb346e81",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "70c1e05c0af1",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9971588780997047,
+   "vs_eager_geomean": 0.9887054469674956,
+   "vs_compile_geomean": 0.8695804472219192,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "71f76c60033e",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.961,
+   "vs_starter_geomean": 0.9472033792045798,
+   "vs_eager_geomean": 0.937210972016803,
+   "vs_compile_geomean": 0.8260163512443538,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "72a09e0c70be",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908335096072343,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "73652fc3bfd2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007713133675238,
+   "vs_eager_geomean": 0.9916061422688639,
+   "vs_compile_geomean": 0.8727307005513953,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "745d6778fa0b",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9984591543750212,
+   "vs_eager_geomean": 0.9893259584095738,
+   "vs_compile_geomean": 0.8707143636416942,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "80b3e94d6793",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0013912751965561,
+   "vs_eager_geomean": 0.9912408281583449,
+   "vs_compile_geomean": 0.8732713432678076,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "853233f025bd",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1",
+    "agent_eval_fbv2",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "85d9759ac534",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.992011400729936,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "866e66643b4f",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916277174949526,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "86a2996ac38e",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9697640084424458,
+   "vs_eager_geomean": 0.9599071761815952,
+   "vs_compile_geomean": 0.8456905300468915,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "871d32b5ccac",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9922659178515804,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "875a1182d771",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9894609225881148,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "880324eb08a9",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.298,
+   "vs_starter_geomean": 0.3341010488976158,
+   "vs_eager_geomean": 0.3316452803700752,
+   "vs_compile_geomean": 0.2913555160551372,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "88322b658643",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916985542592295,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "88734e4b83c8",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9984567765030204,
+   "vs_eager_geomean": 0.9908574913602262,
+   "vs_compile_geomean": 0.8707122899992252,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8a0ffc54b9fc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0003851367837886,
+   "vs_eager_geomean": 0.9916257076029029,
+   "vs_compile_geomean": 0.8723939321449092,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8aec524b1572",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.981,
+   "vs_starter_geomean": 0.9918276168848531,
+   "vs_eager_geomean": 0.9850204403920104,
+   "vs_compile_geomean": 0.864931277853541,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8bdc50ee4516",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916277174949526,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8df315b7b7f5",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9901009494280065,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8e28f02cf01f",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0014114440906452,
+   "vs_eager_geomean": 0.9900878634109344,
+   "vs_compile_geomean": 0.8732889317146711,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8f6d3480c27d",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2",
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.972,
+   "vs_starter_geomean": 0.9889454204221187,
+   "vs_eager_geomean": 0.981428401075177,
+   "vs_compile_geomean": 0.8624178351674343,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "939372db097d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992304672852612,
+   "vs_eager_geomean": 0.9894847226708646,
+   "vs_compile_geomean": 0.8713869932899533,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "94b0dbc98465",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9933531276773501,
+   "vs_eager_geomean": 0.9836376330358684,
+   "vs_compile_geomean": 0.8662616118517794,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "94fae1301883",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990489137961331,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "953a3dcd22f4",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990230063123977,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "98602e7be9c8",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9984603414769376,
+   "vs_eager_geomean": 0.9901205652859577,
+   "vs_compile_geomean": 0.8707153988635009,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9973b613ebd5",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9978220971826777,
+   "vs_eager_geomean": 0.9887162953008347,
+   "vs_compile_geomean": 0.8701588127757381,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9cd17143d6b3",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9900878634109344,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9def9b3640d5",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9889349512554897,
+   "vs_eager_geomean": 0.9806629443612331,
+   "vs_compile_geomean": 0.8624087054461839,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9f25581db015",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0014114440906452,
+   "vs_eager_geomean": 0.9908993093813786,
+   "vs_compile_geomean": 0.8732889317146711,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a19a86e2846b",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9915764292511413,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a2ff4c0b6041",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9897703245434728,
+   "vs_eager_geomean": 0.980615755489637,
+   "vs_compile_geomean": 0.8631371994638535,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a35f8b6f53f9",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908395292991669,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a496a3d63207",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0007713133675238,
+   "vs_eager_geomean": 0.9902246965813549,
+   "vs_compile_geomean": 0.8727307005513953,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a55c8296f605",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908614429266097,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a67c5695f7e2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0014094575250676,
+   "vs_eager_geomean": 0.9908495230961784,
+   "vs_compile_geomean": 0.8732871993141265,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a68495f36f29",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.9992539019668316,
+   "vs_eager_geomean": 0.9915967956366956,
+   "vs_compile_geomean": 0.8714074296931463,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a78975fb5ee9",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9909163847456378,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a82b565452a8",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908574913602262,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a8b4e41e2243",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9889512931725719,
+   "vs_eager_geomean": 0.9806235588701272,
+   "vs_compile_geomean": 0.862422956546863,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "aa259fe51493",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.995,
+   "vs_starter_geomean": 1.0068772778270059,
+   "vs_eager_geomean": 0.998436310975936,
+   "vs_compile_geomean": 0.8780554561364994,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "abaf7a380ed3",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916169692314334,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "aeb5020b8d65",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.559,
+   "vs_starter_geomean": 0.5566750494328935,
+   "vs_eager_geomean": 0.5519219786882306,
+   "vs_compile_geomean": 0.48545296950636735,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b177091b97bd",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0007713133675238,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.8727307005513953,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b3528c60eb34",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9889571658881507,
+   "vs_eager_geomean": 0.981420635391874,
+   "vs_compile_geomean": 0.8624280778958793,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b47434a75170",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0014114440906452,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.8732889317146711,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b5867c15f805",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b7f63cd8a997",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9909823116335972,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b9457087462c",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9956528860982704,
+   "vs_eager_geomean": 0.9880702424198669,
+   "vs_compile_geomean": 0.8682671347429534,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bb38289b3a7f",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9896954584519599,
+   "vs_eager_geomean": 0.9813829868049124,
+   "vs_compile_geomean": 0.8630719118845425,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bfa4c8d779fe",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.296,
+   "vs_starter_geomean": 0.3179376377669099,
+   "vs_eager_geomean": 0.3156301277853436,
+   "vs_compile_geomean": 0.2772600829317251,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bff7bdb56d9a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0000120777921828,
+   "vs_eager_geomean": 0.9905741278558017,
+   "vs_compile_geomean": 0.8720686030405052,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c26222eb7b03",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9664558440965405,
+   "vs_eager_geomean": 0.9571505899650661,
+   "vs_compile_geomean": 0.8428056186304901,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c278f4d72d27",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.98,
+   "vs_starter_geomean": 0.9947541955668472,
+   "vs_eager_geomean": 0.9850617433016621,
+   "vs_compile_geomean": 0.8674834244121399,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c656673cd21d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.997820912667561,
+   "vs_eager_geomean": 0.990230063123977,
+   "vs_compile_geomean": 0.870157779809771,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c7d6eb87fc76",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9889558576570079,
+   "vs_eager_geomean": 0.9806527300532367,
+   "vs_compile_geomean": 0.8624269370423531,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c857ca0c0bfc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 0.999227494484434,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8713844008349998,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c9df623e0cae",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "TIMEOUT",
+   "old_speedup_vs_pytorch": 0.0,
+   "vs_starter_geomean": null,
+   "vs_eager_geomean": null,
+   "vs_compile_geomean": null,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "caa3c90df5ac",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.991612949486831,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "cba1d241b211",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.001415398438792,
+   "vs_eager_geomean": 0.9930245283572914,
+   "vs_compile_geomean": 0.873292380135886,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "cca374e9fb99",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9978203185815038,
+   "vs_eager_geomean": 0.9886844674132752,
+   "vs_compile_geomean": 0.8701572617322303,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "cd3786e82db7",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9999879407009904,
+   "vs_eager_geomean": 0.990081277525085,
+   "vs_compile_geomean": 0.8720475540953324,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ce66480f3399",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.542,
+   "vs_starter_geomean": 0.5781847176265131,
+   "vs_eager_geomean": 0.572795364324345,
+   "vs_compile_geomean": 0.5042106492484842,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "cf4d97acbbf1",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908634554614999,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d0ab738f04b6",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9908594345795513,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d19e24bffcc9",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.979,
+   "vs_starter_geomean": 0.9889454204221187,
+   "vs_eager_geomean": 0.9802346913071387,
+   "vs_compile_geomean": 0.8624178351674343,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d38c89fbee4e",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.941,
+   "vs_starter_geomean": 0.8945332321785577,
+   "vs_eager_geomean": 0.8853127460319862,
+   "vs_compile_geomean": 0.7800849244556601,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d6401cfb2fea",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0007707193596338,
+   "vs_eager_geomean": 0.9912903738779115,
+   "vs_compile_geomean": 0.8727301825420208,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d66ffba764c7",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "TIMEOUT",
+   "old_speedup_vs_pytorch": 0.0,
+   "vs_starter_geomean": null,
+   "vs_eager_geomean": null,
+   "vs_compile_geomean": null,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d8636deb5fb4",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992286861736913,
+   "vs_eager_geomean": 0.9894668740972637,
+   "vs_compile_geomean": 0.8713854400572342,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d87c0ea0bd51",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9894668740972637,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d9bcfdadab13",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 0.9703651416098256,
+   "vs_eager_geomean": 0.9608370421942318,
+   "vs_compile_geomean": 0.8462147530769528,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d9cc71f37fd8",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9933540900556987,
+   "vs_eager_geomean": 0.9842742131578948,
+   "vs_compile_geomean": 0.8662624511015852,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dafc82d44545",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9902192907741804,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dba04569b66a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.99,
+   "vs_starter_geomean": 0.9992883972158545,
+   "vs_eager_geomean": 0.9894549710431678,
+   "vs_compile_geomean": 0.8714375115534508,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dbbbd9342053",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990230063123977,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dd42a6abd826",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9984579672716933,
+   "vs_eager_geomean": 0.9901100264428365,
+   "vs_compile_geomean": 0.8707133284186566,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "de54b1cf3d90",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.990990242003471,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e07c1bb8d6af",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.974,
+   "vs_starter_geomean": 0.9889349512554897,
+   "vs_eager_geomean": 0.9814128696471229,
+   "vs_compile_geomean": 0.8624087054461839,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e132d9a3b7a7",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9908594345795513,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e602bc09c6dc",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9996147148287087,
+   "vs_eager_geomean": 0.9908515314150063,
+   "vs_compile_geomean": 0.871722079461288,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e7df6b4004ec",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.079,
+   "vs_starter_geomean": 0.0828494197204761,
+   "vs_eager_geomean": 0.08210810025381976,
+   "vs_compile_geomean": 0.07224950510384413,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e8860de7c247",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9908634512695975,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e9065e63b0a4",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9916926216286065,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ed7ab3ce3b59",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.001415398438792,
+   "vs_eager_geomean": 0.993798387490429,
+   "vs_compile_geomean": 0.873292380135886,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ef6f7738f6da",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.357,
+   "vs_starter_geomean": 0.3831503351155564,
+   "vs_eager_geomean": 0.3798046276431643,
+   "vs_compile_geomean": 0.33412934195397037,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f2afd3ad2c14",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9992280912487607,
+   "vs_eager_geomean": 0.9908415137578594,
+   "vs_compile_geomean": 0.871384921248147,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f334765996f1",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.973,
+   "vs_starter_geomean": 0.9910833006954924,
+   "vs_eager_geomean": 0.980644679131004,
+   "vs_compile_geomean": 0.8642821909136018,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f3a8f75ed5ee",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9900746712368428,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f3fdb633b20d",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9898431735534089,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f4353f65c911",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9900786011772926,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f5932e00d322",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.976,
+   "vs_starter_geomean": 0.9933501929439672,
+   "vs_eager_geomean": 0.9842681414346124,
+   "vs_compile_geomean": 0.8662590525938481,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f82566fff7c6",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.975,
+   "vs_starter_geomean": 0.9889676032470004,
+   "vs_eager_geomean": 0.980612966274187,
+   "vs_compile_geomean": 0.8624371798788989,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f96f16f33953",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9984603414769376,
+   "vs_eager_geomean": 0.9893330818263596,
+   "vs_compile_geomean": 0.8707153988635009,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f990776a9341",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9898323186251636,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f9b9938d6a8b",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9984615249304111,
+   "vs_eager_geomean": 0.9896942784573658,
+   "vs_compile_geomean": 0.8707164309036535,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fb201e7f0387",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 0.9992292810982677,
+   "vs_eager_geomean": 0.9901009494280065,
+   "vs_compile_geomean": 0.8713859588660124,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fb321835091a",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.985,
+   "vs_starter_geomean": 1.002185039492991,
+   "vs_eager_geomean": 0.9923985482849781,
+   "vs_compile_geomean": 0.8739635518285919,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fca0e79720d8",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0007725050546514,
+   "vs_eager_geomean": 0.9923985482849781,
+   "vs_compile_geomean": 0.8727317397717725,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fe6ab432e8e2",
+   "kernel_type": "reduce",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0007725050546514,
+   "vs_eager_geomean": 0.9916782150626164,
+   "vs_compile_geomean": 0.8727317397717725,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ff6322291346",
+   "kernel_type": "reduce",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 0.9923841238085822,
+   "vs_compile_geomean": 0.8720580705043584,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "07104d367c8e",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.887,
+   "vs_starter_geomean": 1.001749801343983,
+   "vs_eager_geomean": 2.2501110189086653,
+   "vs_compile_geomean": 1.0046918051640648,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4037618/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.543e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4041874/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.440e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3249525/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.502e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "1218ba79894a",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.913,
+   "vs_starter_geomean": 1.0017590515185997,
+   "vs_eager_geomean": 2.244829846148419,
+   "vs_compile_geomean": 1.0047010825051945,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4041548/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.326e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4044469/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.291e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3219828/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.383e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "23ebfedf8c00",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.911,
+   "vs_starter_geomean": 1.0035026644739602,
+   "vs_eager_geomean": 2.2580390884104364,
+   "vs_compile_geomean": 1.0064498162162254,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4038466/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.497e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4035312/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.227e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1679250/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.170e+01, nonfinite=0, zero_rows=425"
+   ]
+  },
+  {
+   "code_sha12": "266168b04963",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.902,
+   "vs_starter_geomean": 1.001749801343983,
+   "vs_eager_geomean": 2.2586127726734704,
+   "vs_compile_geomean": 1.0046918051640648,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4036301/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.503e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4029615/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.433e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1720069/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.351e+01, nonfinite=0, zero_rows=435"
+   ]
+  },
+  {
+   "code_sha12": "6c4b19c1131e",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.891,
+   "vs_starter_geomean": 1.0017376139841343,
+   "vs_eager_geomean": 2.2502826949278893,
+   "vs_compile_geomean": 1.004679582011587,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4048565/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.417e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4042310/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.462e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3231020/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.293e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "7019acbda0ea",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.869,
+   "vs_starter_geomean": 1.0082670057463665,
+   "vs_eager_geomean": 2.244233797955007,
+   "vs_compile_geomean": 1.0112281497152382,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4037276/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.431e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4048249/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.297e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1660589/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.242e+01, nonfinite=0, zero_rows=422"
+   ]
+  },
+  {
+   "code_sha12": "7f25df72c8c0",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.858,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 2.2460116606071248,
+   "vs_compile_geomean": 1.0029368648899504,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4048971/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.344e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4050692/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.766e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1745801/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.288e+01, nonfinite=0, zero_rows=442"
+   ]
+  },
+  {
+   "code_sha12": "87f5311911f5",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.885,
+   "vs_starter_geomean": 0.9991130067879149,
+   "vs_eager_geomean": 2.2503143258108524,
+   "vs_compile_geomean": 1.002047266698643,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4033345/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.656e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4039442/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.259e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1758701/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.274e+01, nonfinite=0, zero_rows=445"
+   ]
+  },
+  {
+   "code_sha12": "9c069eb3f08e",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.868,
+   "vs_starter_geomean": 0.9983072335423148,
+   "vs_eager_geomean": 2.2443898025806166,
+   "vs_compile_geomean": 1.0012391270058887,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4034603/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.269e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4038584/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.452e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3244665/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.249e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "c45bd6a226e2",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.926,
+   "vs_starter_geomean": 0.9935690627207653,
+   "vs_eager_geomean": 2.246086271563369,
+   "vs_compile_geomean": 0.9964870408168107,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4051639/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.398e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4046199/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.660e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3234654/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.539e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "e0c8703d1dcc",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.9,
+   "vs_starter_geomean": 1.0,
+   "vs_eager_geomean": 2.2467259330226366,
+   "vs_compile_geomean": 1.0029368648899504,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4032692/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.470e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4034113/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.165e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/row_mixed_scale/float16: 1670576/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.294e+01, nonfinite=0, zero_rows=423"
+   ]
+  },
+  {
+   "code_sha12": "fe799c350897",
+   "kernel_type": "rmsnorm",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 2.859,
+   "vs_starter_geomean": 1.0008981023435586,
+   "vs_eager_geomean": 2.263336144239501,
+   "vs_compile_geomean": 1.0038376048387494,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/rms_8_N4096/float16: 4051083/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.694e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/float16: 4049487/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.303e+01, nonfinite=0, zero_rows=1024",
+    "adversarial/rms_300_N4096/bfloat16: 3233338/4194304 elems out of tol (atol=0.1, rtol=0.05), max_abs_err=1.505e+01, nonfinite=0, zero_rows=1024"
+   ]
+  },
+  {
+   "code_sha12": "0115ac7ee249",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 0.9807766168554143,
+   "vs_eager_geomean": 0.2831438664308421,
+   "vs_compile_geomean": 0.2998801683826468,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "025b48043735",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.991,
+   "vs_starter_geomean": 1.002726261829788,
+   "vs_eager_geomean": 0.2893638766433791,
+   "vs_compile_geomean": 0.3065914450563901,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "059e1fc0d774",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 1.0000657816311156,
+   "vs_eager_geomean": 0.2855565648149728,
+   "vs_compile_geomean": 0.30577798230019726,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0b723604f00a",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.999,
+   "vs_starter_geomean": 1.000685635259806,
+   "vs_eager_geomean": 0.285736713127765,
+   "vs_compile_geomean": 0.30596750742482787,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "0db3370ae5f3",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.998,
+   "vs_starter_geomean": 1.0004005332540014,
+   "vs_eager_geomean": 0.28718670086378195,
+   "vs_compile_geomean": 0.30588033524307157,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "160685867364",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.004,
+   "vs_starter_geomean": 0.9997601648136737,
+   "vs_eager_geomean": 0.28717097727610214,
+   "vs_compile_geomean": 0.3056845375533508,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1711d1166a5e",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.983,
+   "vs_starter_geomean": 0.9996072410026605,
+   "vs_eager_geomean": 0.28440948826851853,
+   "vs_compile_geomean": 0.3056377798947686,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1c5c4266d089",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 0.9973749864584187,
+   "vs_eager_geomean": 0.2881603825263314,
+   "vs_compile_geomean": 0.3049552505021466,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "1d7d940febe4",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.011,
+   "vs_starter_geomean": 0.9980833688755772,
+   "vs_eager_geomean": 0.2887400924427703,
+   "vs_compile_geomean": 0.30517184400048863,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "20fd727bc29a",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 0.9991325200232487,
+   "vs_eager_geomean": 0.2892304645118201,
+   "vs_compile_geomean": 0.30549263021971085,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "24c465e68f3c",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 0.9991144161445429,
+   "vs_eager_geomean": 0.28845499831458593,
+   "vs_compile_geomean": 0.30548709481633624,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "292e5a5c05c8",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 0.9992263817078664,
+   "vs_eager_geomean": 0.2892148594431125,
+   "vs_compile_geomean": 0.3055213291683849,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2934d741b899",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv1",
+    "agent_eval_fbv2",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.0004269325345148,
+   "vs_eager_geomean": 0.28925025128383586,
+   "vs_compile_geomean": 0.3058884070308257,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2946c0ed545e",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.006,
+   "vs_starter_geomean": 0.999886147553438,
+   "vs_eager_geomean": 0.2892408098933129,
+   "vs_compile_geomean": 0.30572305776739805,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2c070af5757f",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.0023605742751103,
+   "vs_eager_geomean": 0.2896508606897461,
+   "vs_compile_geomean": 0.3064796332089342,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "2cf2eb66ae8c",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.996,
+   "vs_starter_geomean": 0.9989469584319816,
+   "vs_eager_geomean": 0.2879146127392113,
+   "vs_compile_geomean": 0.3054358933029877,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3121db5c91f5",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.995,
+   "vs_starter_geomean": 1.0014277698891152,
+   "vs_eager_geomean": 0.28765256729165567,
+   "vs_compile_geomean": 0.3061944209276328,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "31f4313654e6",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.0,
+   "vs_starter_geomean": 1.0009252753613769,
+   "vs_eager_geomean": 0.29019318440154335,
+   "vs_compile_geomean": 0.3060407792716229,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "335a87b97baa",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 0.9995079988180828,
+   "vs_eager_geomean": 0.29020736268769387,
+   "vs_compile_geomean": 0.30560743581589234,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "386f6cf12a2a",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.998,
+   "vs_starter_geomean": 0.9982199150215508,
+   "vs_eager_geomean": 0.2893347679608618,
+   "vs_compile_geomean": 0.3052135940591084,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "390ac17e2291",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 0.9993129793776817,
+   "vs_eager_geomean": 0.2887431859189922,
+   "vs_compile_geomean": 0.3055478070873722,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3ca944132f3e",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.997,
+   "vs_starter_geomean": 1.0005636655351937,
+   "vs_eager_geomean": 0.288829650954935,
+   "vs_compile_geomean": 0.30593021422174194,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "3e07933e9fce",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.999,
+   "vs_starter_geomean": 1.0009041813421191,
+   "vs_eager_geomean": 0.28954399406856934,
+   "vs_compile_geomean": 0.3060343296092449,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "460a8f64bcf9",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.000125903856914,
+   "vs_eager_geomean": 0.28861579047685093,
+   "vs_compile_geomean": 0.30579636514383984,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "49c5fe016b5f",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.001536656240516,
+   "vs_eager_geomean": 0.28823013330267916,
+   "vs_compile_geomean": 0.3062277137864056,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "4eeb3ad4c2e4",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.003,
+   "vs_starter_geomean": 1.0001736437103348,
+   "vs_eager_geomean": 0.2878313073852278,
+   "vs_compile_geomean": 0.3058109619796906,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "552ff3dbba95",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0012523738975525,
+   "vs_eager_geomean": 0.28707903641998345,
+   "vs_compile_geomean": 0.3061407922230129,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "56af0694c7c3",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.0,
+   "vs_starter_geomean": 1.0016557009319573,
+   "vs_eager_geomean": 0.28750550599782015,
+   "vs_compile_geomean": 0.30626411263758224,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "56e1f2b9173d",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 1.000645747073336,
+   "vs_eager_geomean": 0.2862159388175015,
+   "vs_compile_geomean": 0.30595531129793263,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "61e01d05438a",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.003,
+   "vs_starter_geomean": 1.0002569866238495,
+   "vs_eager_geomean": 0.2846149916154391,
+   "vs_compile_geomean": 0.3058364447313271,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "69cc26ce75da",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 1.0002876357116406,
+   "vs_eager_geomean": 0.2882943915849047,
+   "vs_compile_geomean": 0.30584581593109844,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6aa314879a86",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.0012845507223362,
+   "vs_eager_geomean": 0.2894361198762491,
+   "vs_compile_geomean": 0.3061506305403915,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "6dbdf27f92f2",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.997,
+   "vs_starter_geomean": 0.9992809138458941,
+   "vs_eager_geomean": 0.28775455872409056,
+   "vs_compile_geomean": 0.3055380027987029,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "70b5228b4004",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.987,
+   "vs_starter_geomean": 1.0001076029319005,
+   "vs_eager_geomean": 0.28773168680586375,
+   "vs_compile_geomean": 0.3057907694920062,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "712e52f3ddd6",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.99,
+   "vs_starter_geomean": 0.9994175140244185,
+   "vs_eager_geomean": 0.2885461676643734,
+   "vs_compile_geomean": 0.30557976937820025,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "7473745e1584",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.0022932168944176,
+   "vs_eager_geomean": 0.2884067665242179,
+   "vs_compile_geomean": 0.30645903815974884,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "772777459266",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.006,
+   "vs_starter_geomean": 1.0002223145819464,
+   "vs_eager_geomean": 0.2882085612199718,
+   "vs_compile_geomean": 0.3058258434816793,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "77bdb9b9626b",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.0,
+   "vs_starter_geomean": 0.9988128608940555,
+   "vs_eager_geomean": 0.28929279171536987,
+   "vs_compile_geomean": 0.30539489192554675,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "7ae6c35dff2a",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.99,
+   "vs_starter_geomean": 1.0002885168561217,
+   "vs_eager_geomean": 0.2868576608162123,
+   "vs_compile_geomean": 0.3058460853479573,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8428c57f0380",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.996,
+   "vs_starter_geomean": 0.9979019070647992,
+   "vs_eager_geomean": 0.2866851163497274,
+   "vs_compile_geomean": 0.30511636062391145,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "89a6f4ba2933",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.996,
+   "vs_starter_geomean": 1.0000598235456637,
+   "vs_eager_geomean": 0.2884211519793108,
+   "vs_compile_geomean": 0.3057761605686859,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8a95365cd2c6",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.0001802689782846,
+   "vs_eager_geomean": 0.28904634114891437,
+   "vs_compile_geomean": 0.30581298770750076,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8c930d5582b5",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 0.9995995386763559,
+   "vs_eager_geomean": 0.28895181484669913,
+   "vs_compile_geomean": 0.3056354248478909,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8cb3a055fc92",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.0,
+   "vs_starter_geomean": 0.9996819865919065,
+   "vs_eager_geomean": 0.28925461811518055,
+   "vs_compile_geomean": 0.3056606339468572,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "8e4853ae4255",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.996,
+   "vs_starter_geomean": 0.7688244963766162,
+   "vs_eager_geomean": 0.22090876620549732,
+   "vs_compile_geomean": 0.2350741396846655,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9046af6274b8",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 0.9973503881069739,
+   "vs_eager_geomean": 0.29172164367768805,
+   "vs_compile_geomean": 0.3049477293626267,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "914632f0de8e",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.989,
+   "vs_starter_geomean": 0.9995387900811856,
+   "vs_eager_geomean": 0.29004092673162624,
+   "vs_compile_geomean": 0.30561685048688403,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "920568e40b0c",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.007,
+   "vs_starter_geomean": 1.0025493028903465,
+   "vs_eager_geomean": 0.28841068958921356,
+   "vs_compile_geomean": 0.3065373384681573,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "951399c71c4e",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.986,
+   "vs_starter_geomean": 1.0042073141839318,
+   "vs_eager_geomean": 0.2880747814618563,
+   "vs_compile_geomean": 0.30704428846814286,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9c499a618893",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.906,
+   "vs_starter_geomean": 0.9516135584691554,
+   "vs_eager_geomean": 0.27377027950109006,
+   "vs_compile_geomean": 0.2909633337955173,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "9ca0e67ee2b7",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "FAIL",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 0.6878455449353916,
+   "vs_eager_geomean": 0.19776709742879148,
+   "vs_compile_geomean": 0.2103141880541868,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": [
+    "adversarial/large_N_131072/float16: TIMEOUT"
+   ]
+  },
+  {
+   "code_sha12": "9f9635135108",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.007,
+   "vs_starter_geomean": 0.9997795914895069,
+   "vs_eager_geomean": 0.2890949780333611,
+   "vs_compile_geomean": 0.3056904774123562,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a3f66d66ef49",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.995,
+   "vs_starter_geomean": 1.002607481199294,
+   "vs_eager_geomean": 0.2882002698918996,
+   "vs_compile_geomean": 0.30655512694392595,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a767c2e86cca",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.011,
+   "vs_starter_geomean": 1.0004362162723741,
+   "vs_eager_geomean": 0.2868910752129804,
+   "vs_compile_geomean": 0.3058912456067304,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "a9da8e3767a5",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.004,
+   "vs_starter_geomean": 1.0002562495893408,
+   "vs_eager_geomean": 0.2870972840168646,
+   "vs_compile_geomean": 0.3058362193772263,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "aa3c1c51a087",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.999,
+   "vs_starter_geomean": 0.9988584694101393,
+   "vs_eager_geomean": 0.28918402066135,
+   "vs_compile_geomean": 0.30540883708823496,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "aae7840e2865",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.99,
+   "vs_starter_geomean": 1.4597686439418025,
+   "vs_eager_geomean": 0.4168276114470505,
+   "vs_compile_geomean": 0.4463357498759675,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "acf9b8826723",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 0.9998038288810632,
+   "vs_eager_geomean": 0.2893829410532676,
+   "vs_compile_geomean": 0.3056978881855498,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "adc49324f0d8",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.998,
+   "vs_starter_geomean": 0.9988616520421425,
+   "vs_eager_geomean": 0.28547984973557466,
+   "vs_compile_geomean": 0.3054098102030143,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "aff3fb36cb16",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.981,
+   "vs_starter_geomean": 1.0005821177746002,
+   "vs_eager_geomean": 0.2853866667388916,
+   "vs_compile_geomean": 0.3059358561391421,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b2a5f6b4cb33",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.002,
+   "vs_starter_geomean": 1.001256367644301,
+   "vs_eager_geomean": 0.2898468772557473,
+   "vs_compile_geomean": 0.3061420133425083,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b35e69c640d2",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.005,
+   "vs_starter_geomean": 0.998070373214442,
+   "vs_eager_geomean": 0.28995272463820354,
+   "vs_compile_geomean": 0.30516787047483307,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b43303cca405",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.996,
+   "vs_starter_geomean": 1.0022584402244723,
+   "vs_eager_geomean": 0.2884756045295776,
+   "vs_compile_geomean": 0.30644840491925374,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b568c0fcf340",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 1.0006420074307727,
+   "vs_eager_geomean": 0.2891407076190218,
+   "vs_compile_geomean": 0.3059541678727914,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b5a26e50441d",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 1.574025638629038,
+   "vs_eager_geomean": 0.45378044284925084,
+   "vs_compile_geomean": 0.4812707250954619,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b735de1cbe99",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.006,
+   "vs_starter_geomean": 0.9992423289783674,
+   "vs_eager_geomean": 0.287991739269639,
+   "vs_compile_geomean": 0.3055262051718305,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "b92bbcb67332",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.995,
+   "vs_starter_geomean": 1.0001921630406676,
+   "vs_eager_geomean": 0.287531012323038,
+   "vs_compile_geomean": 0.3058166244106693,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ba7e8a8cc746",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.991,
+   "vs_starter_geomean": 0.9986173815292025,
+   "vs_eager_geomean": 0.2883540745190796,
+   "vs_compile_geomean": 0.30533512257150625,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bc138901eb09",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.981,
+   "vs_starter_geomean": 0.9990149918707049,
+   "vs_eager_geomean": 0.2873312168856468,
+   "vs_compile_geomean": 0.30545669506223583,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bcefe4b4ce14",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.982,
+   "vs_starter_geomean": 0.9999102382380989,
+   "vs_eager_geomean": 0.286664462698324,
+   "vs_compile_geomean": 0.3057304236838039,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "bff62e01128f",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.002,
+   "vs_starter_geomean": 1.0005897784471205,
+   "vs_eager_geomean": 0.2885581184061192,
+   "vs_compile_geomean": 0.3059381984500473,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c2e11c141293",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.999,
+   "vs_starter_geomean": 0.9995670180076414,
+   "vs_eager_geomean": 0.29017984126463264,
+   "vs_compile_geomean": 0.30562548139752477,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "c76161b8b757",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 1.001440821807337,
+   "vs_eager_geomean": 0.288832123347472,
+   "vs_compile_geomean": 0.3061984116543353,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ce234588df35",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.99,
+   "vs_starter_geomean": 1.0017597158920961,
+   "vs_eager_geomean": 0.2871852362583365,
+   "vs_compile_geomean": 0.30629591603014356,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "cfe960816834",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 0.9990246056981147,
+   "vs_eager_geomean": 0.28689764711952054,
+   "vs_compile_geomean": 0.3054596345656181,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d3949853242d",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.984,
+   "vs_starter_geomean": 0.9993724728256826,
+   "vs_eager_geomean": 0.2865979054322066,
+   "vs_compile_geomean": 0.3055659976772553,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d6e77f16d934",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.991,
+   "vs_starter_geomean": 0.7679251120089082,
+   "vs_eager_geomean": 0.22053405752024677,
+   "vs_compile_geomean": 0.2347991458369393,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d74685ff251b",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.0005455376532422,
+   "vs_eager_geomean": 0.2871494530229211,
+   "vs_compile_geomean": 0.3059246714791861,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "d9b9c159cd15",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.000239480344823,
+   "vs_eager_geomean": 0.286883756107292,
+   "vs_compile_geomean": 0.30583109204875697,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "dededf1ac416",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.98,
+   "vs_starter_geomean": 0.9999820981585845,
+   "vs_eager_geomean": 0.2871793957786178,
+   "vs_compile_geomean": 0.3057523954199616,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "df2895f1e068",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.0001497612719086,
+   "vs_eager_geomean": 0.28925717109598187,
+   "vs_compile_geomean": 0.3058036597362097,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e1e8d3745964",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.981,
+   "vs_starter_geomean": 0.9987446944694658,
+   "vs_eager_geomean": 0.28946412749231815,
+   "vs_compile_geomean": 0.30537404950482355,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e5635b09366b",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.997,
+   "vs_starter_geomean": 0.9990120883343514,
+   "vs_eager_geomean": 0.2903001018924903,
+   "vs_compile_geomean": 0.3054558072831477,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e5e8a182459b",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.992,
+   "vs_starter_geomean": 1.003912827740343,
+   "vs_eager_geomean": 0.28804972661535155,
+   "vs_compile_geomean": 0.3069542469206874,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "e951961b4494",
+   "kernel_type": "softmax",
+   "sources": [
+    "agent_eval_fbv1",
+    "agent_eval_fbv2",
+    "grpo_v1",
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.988,
+   "vs_starter_geomean": 1.0021391424732564,
+   "vs_eager_geomean": 0.2886734899977489,
+   "vs_compile_geomean": 0.3064119286930596,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ec719158411d",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.001,
+   "vs_starter_geomean": 1.0018942114186884,
+   "vs_eager_geomean": 0.2867886033095302,
+   "vs_compile_geomean": 0.306337039095751,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "ef32b940fe13",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.993,
+   "vs_starter_geomean": 1.0016630541240548,
+   "vs_eager_geomean": 0.28722063313698876,
+   "vs_compile_geomean": 0.3062663609339287,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f02bb28f6e1d",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.998,
+   "vs_starter_geomean": 0.7673593765945542,
+   "vs_eager_geomean": 0.21990604869809963,
+   "vs_compile_geomean": 0.2346261677822009,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f1e93f4fc4a4",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.0,
+   "vs_starter_geomean": 1.0020090090303166,
+   "vs_eager_geomean": 0.28642112273903664,
+   "vs_compile_geomean": 0.3063721393688543,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f1e9b229b6f9",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.997,
+   "vs_starter_geomean": 1.0004733132040324,
+   "vs_eager_geomean": 0.2863512012234714,
+   "vs_compile_geomean": 0.3059025882855025,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f2f538233c14",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 1.007,
+   "vs_starter_geomean": 1.0005714175784122,
+   "vs_eager_geomean": 0.28867876928951003,
+   "vs_compile_geomean": 0.30593258446995714,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f616c5e9669f",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.978,
+   "vs_starter_geomean": 0.9998741234261186,
+   "vs_eager_geomean": 0.29001005828235316,
+   "vs_compile_geomean": 0.3057193812958517,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "f9d8764d1cf2",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.989,
+   "vs_starter_geomean": 1.0000120093340548,
+   "vs_eager_geomean": 0.2876304469637007,
+   "vs_compile_geomean": 0.3057615409972341,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fb5972a5d581",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v1"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.991,
+   "vs_starter_geomean": 1.0005886407868105,
+   "vs_eager_geomean": 0.2887531835466165,
+   "vs_compile_geomean": 0.30593785060145523,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  },
+  {
+   "code_sha12": "fc94a342d619",
+   "kernel_type": "softmax",
+   "sources": [
+    "grpo_v2"
+   ],
+   "old_verdict": "PASS",
+   "new_verdict": "PASS",
+   "old_speedup_vs_pytorch": 0.994,
+   "vs_starter_geomean": 1.001657856123069,
+   "vs_eager_geomean": 0.28965451784606555,
+   "vs_compile_geomean": 0.30626477160422394,
+   "real_speedup_vs_starter": false,
+   "uses_triton": true,
+   "fail_reasons": []
+  }
+ ],
+ "baselines": {
+  "cross_entropy": {
+   "large": {
+    "starter_us": 1166.3360595703125,
+    "eager_us": 2368.511915206909,
+    "starter_cv": 0.0028256701958510994,
+    "starter_vs_eager": 2.030728532974868,
+    "compile_us": 1175.5520105361938,
+    "compile_over_starter": 1.0079120592489457,
+    "compile_cv": 0.0012719886925533063,
+    "n_repeats": 6
+   },
+   "gpt2": {
+    "starter_us": 6507.008075714111,
+    "eager_us": 3651.5839099884033,
+    "starter_cv": 0.005633379190523534,
+    "starter_vs_eager": 0.5613924664739786,
+    "compile_us": 1943.552017211914,
+    "compile_over_starter": 0.2989381944985987,
+    "compile_cv": 0.0038640511092966107,
+    "n_repeats": 6
+   }
+  },
+  "reduce": {
+   "large": {
+    "starter_us": 663.5519862174988,
+    "eager_us": 654.3359756469727,
+    "starter_cv": 0.0019023539491441225,
+    "starter_vs_eager": 0.9861324955256784,
+    "compile_us": 571.3919997215271,
+    "compile_over_starter": 0.8597842908374056,
+    "compile_cv": 0.0024252730458579697,
+    "n_repeats": 6
+   },
+   "wide": {
+    "starter_us": 363.5199964046478,
+    "eager_us": 361.4720106124878,
+    "starter_cv": 0.002381077579118462,
+    "starter_vs_eager": 0.9943662362114453,
+    "compile_us": 321.53600454330444,
+    "compile_over_starter": 0.8845070634997217,
+    "compile_cv": 0.003544387256937361,
+    "n_repeats": 6
+   }
+  },
+  "rmsnorm": {
+   "large": {
+    "starter_us": 293.88800263404846,
+    "eager_us": 847.8720188140869,
+    "starter_cv": 0.010046854145923134,
+    "starter_vs_eager": 2.8852169826866296,
+    "compile_us": 294.9120104312897,
+    "compile_over_starter": 1.0,
+    "compile_cv": 0.009451528048810446,
+    "n_repeats": 6
+   },
+   "medium": {
+    "starter_us": 83.96799862384796,
+    "eager_us": 144.3839967250824,
+    "starter_cv": 0.027839158246035486,
+    "starter_vs_eager": 1.75,
+    "compile_us": 84.99199897050858,
+    "compile_over_starter": 1.0058823549552824,
+    "compile_cv": 0.023803861435272623,
+    "n_repeats": 6
+   }
+  },
+  "softmax": {
+   "large": {
+    "starter_us": 287.7439856529236,
+    "eager_us": 291.83998703956604,
+    "starter_cv": 0.02897133545849465,
+    "starter_vs_eager": 1.0142857187403822,
+    "compile_us": 288.7679934501648,
+    "compile_over_starter": 1.0071301498360254,
+    "compile_cv": 0.027989939964381042,
+    "n_repeats": 6
+   },
+   "vocab": {
+    "starter_us": 42735.103607177734,
+    "eager_us": 3524.095892906189,
+    "starter_cv": 0.004672423913212807,
+    "starter_vs_eager": 0.08250458135376695,
+    "compile_us": 3969.0239429473877,
+    "compile_over_starter": 0.09282601111734334,
+    "compile_cv": 0.003213662091420206,
+    "n_repeats": 6
+   }
+  },
+  "matmul": {
+   "large": {
+    "starter_us": 327.67999172210693,
+    "eager_us": 280.5759906768799,
+    "starter_cv": 0.006683066765596537,
+    "starter_vs_eager": 0.8566978159252534,
+    "compile_us": 280.5759906768799,
+    "compile_over_starter": 0.8566978159252534,
+    "compile_cv": 0.007951018205729903,
+    "n_repeats": 3
+   },
+   "llm_qkv": {
+    "starter_us": 353.2800078392029,
+    "eager_us": 287.7439856529236,
+    "starter_cv": 0.007827965618986093,
+    "starter_vs_eager": 0.8155619777822865,
+    "compile_us": 288.7679934501648,
+    "compile_over_starter": 0.8162092732863491,
+    "compile_cv": 0.010012287461745902,
+    "n_repeats": 3
+   }
+  },
+  "layernorm": {
+   "large": {
+    "starter_us": 150.52799880504608,
+    "eager_us": 158.720001578331,
+    "starter_cv": 0.017739955480150286,
+    "starter_vs_eager": 1.0547971103679035,
+    "compile_us": 152.5759994983673,
+    "compile_over_starter": 1.0136054468908051,
+    "compile_cv": 0.012793913970197163,
+    "n_repeats": 3
+   },
+   "llm_7b": {
+    "starter_us": 290.8160090446472,
+    "eager_us": 296.9599962234497,
+    "starter_cv": 0.009524472309291373,
+    "starter_vs_eager": 1.020942479431646,
+    "compile_us": 289.792001247406,
+    "compile_over_starter": 0.9964849370110148,
+    "compile_cv": 0.007474935397426749,
+    "n_repeats": 3
+   }
+  },
+  "flash_attention": {
+   "large": {
+    "starter_us": 399.3600010871887,
+    "eager_us": 5898.240089416504,
+    "starter_cv": 0.02470234918268338,
+    "starter_vs_eager": 14.792583183522762,
+    "compile_us": 2475.008010864258,
+    "compile_over_starter": 6.198462212353709,
+    "compile_cv": 0.003759744110330277,
+    "n_repeats": 3
+   },
+   "xlarge": {
+    "starter_us": 1414.6560430526733,
+    "eager_us": 26706.944465637207,
+    "starter_cv": 0.033296173470017315,
+    "starter_vs_eager": 18.832359555396835,
+    "compile_us": 9133.055686950684,
+    "compile_over_starter": 6.454354333554539,
+    "compile_cv": 0.002469552070886634,
+    "n_repeats": 3
+   }
+  },
+  "rotary_embedding": {
+   "large": {
+    "starter_us": 223.7439975142479,
+    "eager_us": 462.8480076789856,
+    "starter_cv": 0.0066412022272661075,
+    "starter_vs_eager": 2.064220138168432,
+    "compile_us": 153.60000729560852,
+    "compile_over_starter": 0.6863636318537453,
+    "compile_cv": 0.013219696448909473,
+    "n_repeats": 3
+   },
+   "llm_7b": {
+    "starter_us": 225.2800017595291,
+    "eager_us": 472.06398844718933,
+    "starter_cv": 0.007227489381644616,
+    "starter_vs_eager": 2.093598813846187,
+    "compile_us": 154.62400019168854,
+    "compile_over_starter": 0.686931797655774,
+    "compile_cv": 0.014507680496048512,
+    "n_repeats": 3
+   }
+  }
+ },
+ "audit": {
+  "matmul": {
+   "n_cases": 41,
+   "n_ref_fail": 10,
+   "adversarial_fail": [
+    "big_scale_K4096/bfloat16",
+    "big_scale_K4096/float16"
+   ],
+   "base_fail": [
+    "edge/edge_1023/bfloat16",
+    "edge/edge_1023/float16",
+    "sweep/deep_k/bfloat16",
+    "sweep/deep_k/float16",
+    "sweep/large/bfloat16",
+    "sweep/large/float16",
+    "sweep/medium/bfloat16",
+    "sweep/medium/float16"
+   ],
+   "mechanism": "mild: torch.matmul with PyTorch's default allow_fp16/bf16_reduced_precision_reduction=True lets cuBLAS reduce split-K partials in fp16/bf16; errors of several output ulps at K>=1024 exceed upstream tol, so v1 FAILs a correctly rounded matmul (golden_cast)"
+  },
+  "softmax": {
+   "n_cases": 34,
+   "n_ref_fail": 0,
+   "adversarial_fail": [],
+   "base_fail": [],
+   "mechanism": "none: F.softmax upcasts to fp32 internally (max-subtracted)"
+  },
+  "layernorm": {
+   "n_cases": 33,
+   "n_ref_fail": 0,
+   "adversarial_fail": [],
+   "base_fail": [],
+   "mechanism": "none in the reference (fp32 Welford); but upstream bf16 rtol 2e-3 < bf16 unit roundoff, so v1 FAILs the correctly rounded output (and the starter); weight=1/bias=0 in sweep"
+  },
+  "rmsnorm": {
+   "n_cases": 20,
+   "n_ref_fail": 2,
+   "adversarial_fail": [
+    "rms_300_N4096/float16",
+    "row_mixed_scale/float16"
+   ],
+   "base_fail": [],
+   "mechanism": "`x ** 2` materialised in fp16: overflows elementwise at |x|>256 -> mean=inf -> output rows = 0 (the mean itself accumulates in fp32, so RMS 8 is fine for the reference). fp16-accumulating kernels (GRPO) overflow the row SUM already at RMS > sqrt(65504/N) = 4 at N=4096"
+  },
+  "flash_attention": {
+   "n_cases": 25,
+   "n_ref_fail": 4,
+   "adversarial_fail": [
+    "qk_x4/bfloat16",
+    "qk_x4/float16",
+    "qk_x40_overflow/bfloat16",
+    "qk_x40_overflow/float16"
+   ],
+   "base_fail": [],
+   "mechanism": "`Q @ K^T` materialised in fp16/bf16 BEFORE `* sm_scale`: raw scores are rounded at their unscaled magnitude (and overflow when |q.k| > 65504), P is rounded before P@V; errors up to 1.9 (fp16) at Q,K x40"
+  },
+  "fused_mlp": {
+   "n_cases": 27,
+   "n_ref_fail": 5,
+   "adversarial_fail": [
+    "big_act/bfloat16",
+    "big_act/float16"
+   ],
+   "base_fail": [
+    "sweep/llm_13b/bfloat16",
+    "sweep/llm_7b/bfloat16",
+    "sweep/xlarge/bfloat16"
+   ],
+   "mechanism": "gate, up and silu(gate)*up materialised in fp16/bf16 (|silu(g)*u| > 65504 -> inf); bf16 intermediates already exceed tol on the xlarge/llm sweep shapes"
+  },
+  "cross_entropy": {
+   "n_cases": 28,
+   "n_ref_fail": 0,
+   "adversarial_fail": [],
+   "base_fail": [],
+   "mechanism": "none: F.cross_entropy log-softmax + NLL accumulate in fp32"
+  },
+  "rotary_embedding": {
+   "n_cases": 28,
+   "n_ref_fail": 16,
+   "adversarial_fail": [
+    "big_x_x1000/bfloat16",
+    "big_x_x1000/float16",
+    "long_16384/float16"
+   ],
+   "base_fail": [
+    "edge/edge_1023/bfloat16",
+    "edge/edge_127/bfloat16",
+    "sweep/large/bfloat16",
+    "sweep/large/float16",
+    "sweep/llm_13b/bfloat16",
+    "sweep/llm_13b/float16",
+    "sweep/llm_7b/bfloat16",
+    "sweep/llm_7b/float16",
+    "sweep/medium/bfloat16",
+    "sweep/small/bfloat16",
+    "sweep/tiny/bfloat16",
+    "sweep/xlarge/bfloat16",
+    "sweep/xlarge/float16"
+   ],
+   "mechanism": "x1*cos, x2*sin and their difference each rounded to fp16/bf16 (3 roundings + cancellation): the reference's own error exceeds upstream tol (fp16 atol 1e-3) on normal inputs, which is why v1 FAILs the fp32-computing starter at smoke"
+  },
+  "reduce": {
+   "n_cases": 15,
+   "n_ref_fail": 0,
+   "adversarial_fail": [],
+   "base_fail": [],
+   "mechanism": "none: x.sum accumulates fp16/bf16 in fp32"
+  }
+ },
+ "sanity": [
+  {
+   "id": "matmul:starter",
+   "kernel_type": "matmul",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": "sweep/tiny/float32: 15672/16384 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=4.190e-02, nonfinite=0; sweep/small/float32: 252009/262144 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=7.815e-02, nonfinite=0; sweep/medium/float32: 1010486/1"
+  },
+  {
+   "id": "matmul:golden_cast",
+   "kernel_type": "matmul",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "matmul:upstream_ref_native",
+   "kernel_type": "matmul",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": "sweep/medium/float16: 288/1048576 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=9.568e-02, nonfinite=0; sweep/medium/bfloat16: 14430/1048576 elems out of tol (atol=0.02, rtol=0.02), max_abs_err=6.842e-01, nonfinite=0; sweep/large/float16: 1358/4194304 e"
+  },
+  {
+   "id": "matmul:zeros",
+   "kernel_type": "matmul",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 16371/16384 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=4.664e+01, nonfinite=0, zero_rows=128"
+  },
+  {
+   "id": "matmul:perturbed_5pct",
+   "kernel_type": "matmul",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 16093/16384 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=2.329e+00, nonfinite=0"
+  },
+  {
+   "id": "softmax:starter",
+   "kernel_type": "softmax",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "softmax:golden_cast",
+   "kernel_type": "softmax",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "softmax:upstream_ref_native",
+   "kernel_type": "softmax",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "PASS",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "softmax:zeros",
+   "kernel_type": "softmax",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 3838/4096 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=1.155e-01, nonfinite=0, zero_rows=32"
+  },
+  {
+   "id": "softmax:perturbed_5pct",
+   "kernel_type": "softmax",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 287/4096 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=1.260e-02, nonfinite=0"
+  },
+  {
+   "id": "layernorm:starter",
+   "kernel_type": "layernorm",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "layernorm:golden_cast",
+   "kernel_type": "layernorm",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "layernorm:upstream_ref_native",
+   "kernel_type": "layernorm",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "PASS",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "layernorm:zeros",
+   "kernel_type": "layernorm",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 4094/4096 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=7.772e+00, nonfinite=0, zero_rows=32"
+  },
+  {
+   "id": "layernorm:perturbed_5pct",
+   "kernel_type": "layernorm",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 4050/4096 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=3.684e-01, nonfinite=0"
+  },
+  {
+   "id": "layernorm:ignores_weight_bias",
+   "kernel_type": "layernorm",
+   "kind": "ignores_weight_bias",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 4092/4096 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=9.079e+00, nonfinite=0"
+  },
+  {
+   "id": "rmsnorm:starter",
+   "kernel_type": "rmsnorm",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "rmsnorm:golden_cast",
+   "kernel_type": "rmsnorm",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "rmsnorm:upstream_ref_native",
+   "kernel_type": "rmsnorm",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": "adversarial/rms_300_N4096/float16: 4037493/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.379e+01, nonfinite=0, zero_rows=1024; adversarial/row_mixed_scale/float16: 563304/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.394e+01, "
+  },
+  {
+   "id": "rmsnorm:zeros",
+   "kernel_type": "rmsnorm",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/small/float16: 759989/786432 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.183e+01, nonfinite=0, zero_rows=1024"
+  },
+  {
+   "id": "rmsnorm:perturbed_5pct",
+   "kernel_type": "rmsnorm",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/small/float16: 492273/786432 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=6.681e-01, nonfinite=0"
+  },
+  {
+   "id": "rmsnorm:fp32acc",
+   "kernel_type": "rmsnorm",
+   "kind": "fp32acc",
+   "expected": "PASS",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "rmsnorm:grpo_best",
+   "kernel_type": "rmsnorm",
+   "kind": "grpo_best",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS",
+   "matches_expectation": true,
+   "why": "adversarial/rms_8_N4096/float16: 4038663/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.342e+01, nonfinite=0, zero_rows=1024; adversarial/rms_300_N4096/float16: 4042122/4194304 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.482e+01, non"
+  },
+  {
+   "id": "flash_attention:starter",
+   "kernel_type": "flash_attention",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": "sweep/gqa/float16: EXC OutOfResources: out of resource: shared memory, Required: 131072, Hardware limit: 101376. Reducing block sizes or `num_stages` may help.; sweep/gqa/bfloat16: EXC OutOfResources: out of resource: shared memory, Required: 131072, Hardware "
+  },
+  {
+   "id": "flash_attention:golden_cast",
+   "kernel_type": "flash_attention",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "flash_attention:upstream_ref_native",
+   "kernel_type": "flash_attention",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": "adversarial/qk_x4/float16: 681/524288 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=3.052e-02, nonfinite=0; adversarial/qk_x4/bfloat16: 29291/524288 elems out of tol (atol=0.02, rtol=0.02), max_abs_err=2.320e-01, nonfinite=0; adversarial/qk_x40_overflow"
+  },
+  {
+   "id": "flash_attention:zeros",
+   "kernel_type": "flash_attention",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 15930/16384 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=2.543e+00, nonfinite=0"
+  },
+  {
+   "id": "flash_attention:perturbed_5pct",
+   "kernel_type": "flash_attention",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 6158/16384 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.367e-01, nonfinite=0"
+  },
+  {
+   "id": "fused_mlp:starter",
+   "kernel_type": "fused_mlp",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "CRASH",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": "EXC AttributeError: module 'triton.language.math' has no attribute 'tanh'"
+  },
+  {
+   "id": "fused_mlp:golden_cast",
+   "kernel_type": "fused_mlp",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "fused_mlp:upstream_ref_native",
+   "kernel_type": "fused_mlp",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": "sweep/xlarge/bfloat16: 5926/16777216 elems out of tol (atol=0.02, rtol=0.02), max_abs_err=5.020e-02, nonfinite=0; sweep/llm_7b/bfloat16: 4737/8388608 elems out of tol (atol=0.02, rtol=0.02), max_abs_err=6.352e-02, nonfinite=0; sweep/llm_13b/bfloat16: 45857/104"
+  },
+  {
+   "id": "fused_mlp:zeros",
+   "kernel_type": "fused_mlp",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 812/4096 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=3.312e-02, nonfinite=0, zero_rows=32"
+  },
+  {
+   "id": "fused_mlp:perturbed_5pct",
+   "kernel_type": "fused_mlp",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float32: 3319/4096 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=2.287e-03, nonfinite=0; sweep/small/float16: 64/131072 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.724e-02, nonfinite=0; sweep/small/float32: 128056/131072 elems "
+  },
+  {
+   "id": "cross_entropy:starter",
+   "kernel_type": "cross_entropy",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "cross_entropy:golden_cast",
+   "kernel_type": "cross_entropy",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "cross_entropy:upstream_ref_native",
+   "kernel_type": "cross_entropy",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "PASS",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "cross_entropy:zeros",
+   "kernel_type": "cross_entropy",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 1/1 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=5.854e+00, nonfinite=0"
+  },
+  {
+   "id": "cross_entropy:perturbed_5pct",
+   "kernel_type": "cross_entropy",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 1/1 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=3.009e-01, nonfinite=0"
+  },
+  {
+   "id": "rotary_embedding:starter",
+   "kernel_type": "rotary_embedding",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "rotary_embedding:golden_cast",
+   "kernel_type": "rotary_embedding",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "rotary_embedding:upstream_ref_native",
+   "kernel_type": "rotary_embedding",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "FAIL",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": "sweep/tiny/bfloat16: 52/16384 elems out of tol (atol=0.002, rtol=0.0078125), max_abs_err=2.161e-02, nonfinite=0; sweep/small/bfloat16: 949/262144 elems out of tol (atol=0.002, rtol=0.0078125), max_abs_err=2.959e-02, nonfinite=0; sweep/medium/bfloat16: 3654/104"
+  },
+  {
+   "id": "rotary_embedding:zeros",
+   "kernel_type": "rotary_embedding",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 16373/16384 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=4.242e+00, nonfinite=0"
+  },
+  {
+   "id": "rotary_embedding:perturbed_5pct",
+   "kernel_type": "rotary_embedding",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/tiny/float16: 16099/16384 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=2.175e-01, nonfinite=0"
+  },
+  {
+   "id": "reduce:starter",
+   "kernel_type": "reduce",
+   "kind": "starter",
+   "expected": "PASS if starter is correct",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "reduce:golden_cast",
+   "kernel_type": "reduce",
+   "kind": "golden_cast",
+   "expected": "PASS (tolerance calibration)",
+   "v2": "PASS",
+   "v1_full_bench": "PASS",
+   "matches_expectation": true,
+   "why": ""
+  },
+  {
+   "id": "reduce:upstream_ref_native",
+   "kernel_type": "reduce",
+   "kind": "upstream_ref_native",
+   "expected": "FAIL iff reference has a low-precision bug",
+   "v2": "PASS",
+   "v1_full_bench": "PASS (is the reference)",
+   "matches_expectation": null,
+   "why": ""
+  },
+  {
+   "id": "reduce:zeros",
+   "kernel_type": "reduce",
+   "kind": "zeros",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/small/float16: 1024/1024 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=1.279e+02, nonfinite=0"
+  },
+  {
+   "id": "reduce:perturbed_5pct",
+   "kernel_type": "reduce",
+   "kind": "perturbed_5pct",
+   "expected": "FAIL",
+   "v2": "FAIL",
+   "v1_full_bench": "FAIL",
+   "matches_expectation": true,
+   "why": "sweep/small/float16: 1017/1024 elems out of tol (atol=0.01, rtol=0.01), max_abs_err=5.523e+00, nonfinite=0"
+  }
+ ]
+}

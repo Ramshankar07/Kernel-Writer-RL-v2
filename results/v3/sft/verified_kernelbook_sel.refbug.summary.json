@@ -1,0 +1,24 @@
+[
+ {
+  "n": 1029,
+  "verdicts": {
+   "REF_ERROR": 964,
+   "CRASH": 11,
+   "FAIL_SHAPE2": 23,
+   "FAIL": 26,
+   "PASS": 5
+  },
+  "per_candidate_s_mean": 0.5,
+  "per_candidate_s_median": 0.13,
+  "container_s": {
+   "NVIDIA L40S": 551.3500000000001
+  },
+  "batches": 21,
+  "est_usd": 0.3472,
+  "container_s_per_candidate": 0.54,
+  "source": "kernelbook_sel",
+  "local_wall_s": 148.8,
+  "skipped_static": 0,
+  "skipped_done": 0
+ }
+]

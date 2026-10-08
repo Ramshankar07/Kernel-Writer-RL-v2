@@ -1,0 +1,90 @@
+{
+ "id": "softmax/log_softmax",
+ "family": "softmax",
+ "variant": "log_softmax",
+ "desc": "log_softmax over the last dim",
+ "gen": "softmax",
+ "gen_args": {},
+ "sizes": [
+  [
+   "r2048_c4096",
+   {
+    "shape": [
+     2048,
+     4096
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "r100_c30000",
+   {
+    "shape": [
+     100,
+     30000
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "shape": [
+     512,
+     4096
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "r4096_c8192",
+   {
+    "shape": [
+     4096,
+     8192
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "softmax",
+  "log_softmax"
+ ],
+ "val_set_version": "v1"
+}

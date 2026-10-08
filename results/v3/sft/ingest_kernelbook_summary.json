@@ -1,0 +1,117 @@
+{
+ "dataset": "GPUMODE/KernelBook",
+ "revision": "1576375bc92745b490e1cdf2fce01eba76d9f847",
+ "file": "dataset_permissive.parquet",
+ "license_at_revision": "MIT",
+ "steps": {
+  "load": 18162,
+  "synthetic_true": 0,
+  "pure_triton": 7415,
+  "after_rename": 7390,
+  "static_ok": 7153,
+  "after_dedup": 5523
+ },
+ "drops": {
+  "static_fail": 237,
+  "rename_collision": 25,
+  "duplicate_pair": 1630
+ },
+ "static_fail_reasons": {
+  "torch.ops": 262,
+  "try": 19
+ },
+ "n_candidates": 5523,
+ "family_histogram": {
+  "reduce": 2714,
+  "other": 1878,
+  "activation": 1152,
+  "softmax": 491,
+  "cross_entropy": 349,
+  "layernorm": 196,
+  "matmul": 63,
+  "attention": 56,
+  "conv": 43,
+  "mlp": 22,
+  "rmsnorm": 4,
+  "rotary": 1
+ },
+ "family_primary_histogram": {
+  "reduce": 2000,
+  "other": 1878,
+  "activation": 590,
+  "softmax": 491,
+  "cross_entropy": 235,
+  "layernorm": 195,
+  "matmul": 52,
+  "attention": 29,
+  "conv": 26,
+  "mlp": 22,
+  "rmsnorm": 4,
+  "rotary": 1
+ },
+ "n_multi_family": 1156,
+ "tokens_chars_div_3_5": {
+  "prompt": {
+   "p50": 198.28571428571428,
+   "p90": 594.0,
+   "mean": 321.9586146245571
+  },
+  "target": {
+   "p50": 763.1428571428571,
+   "p90": 1770.5714285714287,
+   "mean": 1054.142572618401
+  },
+  "prompt_plus_target": {
+   "p50": 1014.8571428571429,
+   "p90": 2310.8571428571427,
+   "n_gt_4096": 139
+  }
+ },
+ "inductor_imports": {
+  "rows_with_any": 5523,
+  "by_import": {
+   "torch._inductor.runtime.triton_heuristics.grid": 5523,
+   "torch._inductor.runtime.triton_helpers": 2595,
+   "torch._inductor.runtime.triton_helpers.libdevice": 1746,
+   "torch._inductor.runtime.triton_helpers.math": 1716,
+   "torch._inductor.runtime.triton_heuristics.split_scan_grid": 1
+  }
+ },
+ "jit_kernels_per_row": {
+  "p50": 1,
+  "p90": 2
+ },
+ "tl_symbols_top": {
+  "tl.arange": 5523,
+  "tl.constexpr": 5523,
+  "tl.program_id": 5523,
+  "tl.store": 5523,
+  "tl.load": 5506,
+  "tl.full": 3112,
+  "tl.broadcast_to": 2605,
+  "tl.int32": 2438,
+  "tl.int1": 2424,
+  "tl.sum": 2291,
+  "tl.debug_barrier": 1917,
+  "tl.where": 1536,
+  "tl.int64": 718,
+  "tl.float32": 556,
+  "tl.sigmoid": 408,
+  "tl.device_assert": 158,
+  "tl.int8": 39,
+  "tl.int16": 34,
+  "tl.associative_scan": 33,
+  "tl.float64": 10,
+  "tl.atomic_add": 3,
+  "tl.num_programs": 1,
+  "tl.pointer_type": 1,
+  "tl.reduce": 1,
+  "tl.uint32": 1,
+  "tl.uint64": 1,
+  "tl.uint8": 1,
+  "tl.zeros": 1
+ },
+ "n_distinct_tl_symbols": 28,
+ "distinct_prompts_ast": 5092,
+ "distinct_targets_ast": 5382
+}

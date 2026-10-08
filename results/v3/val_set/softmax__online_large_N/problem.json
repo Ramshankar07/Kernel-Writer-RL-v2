@@ -1,0 +1,88 @@
+{
+ "id": "softmax/online_large_N",
+ "family": "softmax",
+ "variant": "online_large_N",
+ "desc": "row softmax with rows of 300k-1M elements (needs a looped/online kernel)",
+ "gen": "softmax",
+ "gen_args": {},
+ "sizes": [
+  [
+   "r8_c1048576",
+   {
+    "shape": [
+     8,
+     1048576
+    ]
+   },
+   [
+    "float16",
+    "float32"
+   ]
+  ],
+  [
+   "r13_c300007",
+   {
+    "shape": [
+     13,
+     300007
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "shape": [
+     4,
+     500000
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "r32_c262144",
+   {
+    "shape": [
+     32,
+     262144
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "softmax",
+  "large_N",
+  "online"
+ ],
+ "val_set_version": "v1"
+}

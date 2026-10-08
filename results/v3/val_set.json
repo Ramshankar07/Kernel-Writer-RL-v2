@@ -1,0 +1,1682 @@
+{
+ "version": "v1",
+ "created": "2026-09-30",
+ "n_problems": 62,
+ "by_family": {
+  "softmax": 7,
+  "layernorm": 7,
+  "rmsnorm": 7,
+  "reduce": 7,
+  "cross_entropy": 7,
+  "rotary_embedding": 7,
+  "matmul": 7,
+  "flash_attention": 7,
+  "fused_mlp": 6
+ },
+ "harness": "modal_app/val_bench_core.py (bench v2 conventions)",
+ "generator": "modal_app/val_set_v1.py",
+ "not_kernelbench": true,
+ "decontamination": "SFT data must drop examples whose (family, variant tags) match a problem here at the op level (same reference semantics), and report seen/unseen families separately.",
+ "problems": [
+  {
+   "id": "softmax/nonpow2_cols",
+   "dir": "softmax__nonpow2_cols",
+   "family": "softmax",
+   "variant": "nonpow2_cols",
+   "desc": "row softmax, non-power-of-2 column counts",
+   "tags": [
+    "softmax",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r4096_c3000",
+    {
+     "shape": [
+      4096,
+      3000
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 10
+  },
+  {
+   "id": "softmax/bf16_wide",
+   "dir": "softmax__bf16_wide",
+   "family": "softmax",
+   "variant": "bf16_wide",
+   "desc": "row softmax, bf16 only",
+   "tags": [
+    "softmax",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "r8192_c8192",
+    {
+     "shape": [
+      8192,
+      8192
+     ]
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "softmax/online_large_N",
+   "dir": "softmax__online_large_N",
+   "family": "softmax",
+   "variant": "online_large_N",
+   "desc": "row softmax with rows of 300k-1M elements (needs a looped/online kernel)",
+   "tags": [
+    "softmax",
+    "large_N",
+    "online"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r32_c262144",
+    {
+     "shape": [
+      32,
+      262144
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "softmax/dim0",
+   "dir": "softmax__dim0",
+   "family": "softmax",
+   "variant": "dim0",
+   "desc": "softmax over dim 0 (columns)",
+   "tags": [
+    "softmax",
+    "dim0"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r8192_c2048",
+    {
+     "shape": [
+      8192,
+      2048
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "softmax/scaled",
+   "dir": "softmax__scaled",
+   "family": "softmax",
+   "variant": "scaled",
+   "desc": "softmax(x * 1/sqrt(128))",
+   "tags": [
+    "softmax",
+    "fused_scale"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r4096_c4096",
+    {
+     "shape": [
+      4096,
+      4096
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "softmax/log_softmax",
+   "dir": "softmax__log_softmax",
+   "family": "softmax",
+   "variant": "log_softmax",
+   "desc": "log_softmax over the last dim",
+   "tags": [
+    "softmax",
+    "log_softmax"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r4096_c8192",
+    {
+     "shape": [
+      4096,
+      8192
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "softmax/4d_scores",
+   "dir": "softmax__4d_scores",
+   "family": "softmax",
+   "variant": "4d_scores",
+   "desc": "softmax over the last dim of a 4-D attention-score tensor (197x197, ViT)",
+   "tags": [
+    "softmax",
+    "4d",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b8_h16_577",
+    {
+     "shape": [
+      8,
+      16,
+      577,
+      577
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "layernorm/no_bias",
+   "dir": "layernorm__no_bias",
+   "family": "layernorm",
+   "variant": "no_bias",
+   "desc": "layer_norm with weight but no bias, D=768/1536/12288",
+   "tags": [
+    "layernorm",
+    "no_bias",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r8192_d768",
+    {
+     "shape": [
+      8192,
+      768
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 10
+  },
+  {
+   "id": "layernorm/no_affine",
+   "dir": "layernorm__no_affine",
+   "family": "layernorm",
+   "variant": "no_affine",
+   "desc": "layer_norm without weight or bias",
+   "tags": [
+    "layernorm",
+    "no_affine",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r8192_d1600",
+    {
+     "shape": [
+      8192,
+      1600
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 10
+  },
+  {
+   "id": "layernorm/bf16",
+   "dir": "layernorm__bf16",
+   "family": "layernorm",
+   "variant": "bf16",
+   "desc": "layer_norm, bf16 only, D=2560/3000",
+   "tags": [
+    "layernorm",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "r8192_d2560",
+    {
+     "shape": [
+      8192,
+      2560
+     ]
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "layernorm/3d_eps1e-6",
+   "dir": "layernorm__3d_eps1e-6",
+   "family": "layernorm",
+   "variant": "3d_eps1e-6",
+   "desc": "layer_norm on [B, S, D] with eps=1e-6",
+   "tags": [
+    "layernorm",
+    "3d",
+    "eps"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b16_s1024_d1024",
+    {
+     "shape": [
+      16,
+      1024,
+      1024
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 10
+  },
+  {
+   "id": "layernorm/large_D",
+   "dir": "layernorm__large_D",
+   "family": "layernorm",
+   "variant": "large_D",
+   "desc": "layer_norm with D = 100k-300k (needs a looped kernel)",
+   "tags": [
+    "layernorm",
+    "large_N"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r64_d131072",
+    {
+     "shape": [
+      64,
+      131072
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "layernorm/residual_add",
+   "dir": "layernorm__residual_add",
+   "family": "layernorm",
+   "variant": "residual_add",
+   "desc": "layer_norm(x + residual) fused",
+   "tags": [
+    "layernorm",
+    "residual",
+    "fusion"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "r8192_d4096",
+    {
+     "shape": [
+      8192,
+      4096
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "layernorm/fp32",
+   "dir": "layernorm__fp32",
+   "family": "layernorm",
+   "variant": "fp32",
+   "desc": "layer_norm, fp32 only (tol 1e-5)",
+   "tags": [
+    "layernorm",
+    "fp32"
+   ],
+   "dtypes": [
+    "float32"
+   ],
+   "timing": [
+    "r4096_d4096",
+    {
+     "shape": [
+      4096,
+      4096
+     ]
+    },
+    "float32"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "rmsnorm/N16384",
+   "dir": "rmsnorm__N16384",
+   "family": "rmsnorm",
+   "variant": "N16384",
+   "desc": "rmsnorm with N=16384",
+   "tags": [
+    "rmsnorm",
+    "large_N"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m2048_n16384",
+    {
+     "shape": [
+      2048,
+      16384
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "rmsnorm/nonpow2",
+   "dir": "rmsnorm__nonpow2",
+   "family": "rmsnorm",
+   "variant": "nonpow2",
+   "desc": "rmsnorm with N=5120/3000/1000",
+   "tags": [
+    "rmsnorm",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m4096_n5120",
+    {
+     "shape": [
+      4096,
+      5120
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 9
+  },
+  {
+   "id": "rmsnorm/bf16",
+   "dir": "rmsnorm__bf16",
+   "family": "rmsnorm",
+   "variant": "bf16",
+   "desc": "rmsnorm, bf16 only",
+   "tags": [
+    "rmsnorm",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "m8192_n4096",
+    {
+     "shape": [
+      8192,
+      4096
+     ]
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "rmsnorm/3d",
+   "dir": "rmsnorm__3d",
+   "family": "rmsnorm",
+   "variant": "3d",
+   "desc": "rmsnorm on [B, S, D]",
+   "tags": [
+    "rmsnorm",
+    "3d"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b8_s2048_d4096",
+    {
+     "shape": [
+      8,
+      2048,
+      4096
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "rmsnorm/gemma_offset",
+   "dir": "rmsnorm__gemma_offset",
+   "family": "rmsnorm",
+   "variant": "gemma_offset",
+   "desc": "Gemma-style rmsnorm: (x / rms) * (1 + weight)",
+   "tags": [
+    "rmsnorm",
+    "offset_weight",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m4096_n3072",
+    {
+     "shape": [
+      4096,
+      3072
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rmsnorm/residual_add",
+   "dir": "rmsnorm__residual_add",
+   "family": "rmsnorm",
+   "variant": "residual_add",
+   "desc": "rmsnorm(x + residual) * weight fused",
+   "tags": [
+    "rmsnorm",
+    "residual",
+    "fusion"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m8192_n4096",
+    {
+     "shape": [
+      8192,
+      4096
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rmsnorm/fp32",
+   "dir": "rmsnorm__fp32",
+   "family": "rmsnorm",
+   "variant": "fp32",
+   "desc": "rmsnorm, fp32 only (tol 1e-5)",
+   "tags": [
+    "rmsnorm",
+    "fp32"
+   ],
+   "dtypes": [
+    "float32"
+   ],
+   "timing": [
+    "m4096_n4096",
+    {
+     "shape": [
+      4096,
+      4096
+     ]
+    },
+    "float32"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "reduce/sum_nonpow2",
+   "dir": "reduce__sum_nonpow2",
+   "family": "reduce",
+   "variant": "sum_nonpow2",
+   "desc": "row sum, non-power-of-2 widths",
+   "tags": [
+    "reduce",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m8192_n6000",
+    {
+     "shape": [
+      8192,
+      6000
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "reduce/max",
+   "dir": "reduce__max",
+   "family": "reduce",
+   "variant": "max",
+   "desc": "row max (values)",
+   "tags": [
+    "reduce",
+    "max"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m8192_n8192",
+    {
+     "shape": [
+      8192,
+      8192
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "reduce/mean",
+   "dir": "reduce__mean",
+   "family": "reduce",
+   "variant": "mean",
+   "desc": "row mean",
+   "tags": [
+    "reduce",
+    "mean"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m8192_n8192",
+    {
+     "shape": [
+      8192,
+      8192
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "reduce/sum_dim0",
+   "dir": "reduce__sum_dim0",
+   "family": "reduce",
+   "variant": "sum_dim0",
+   "desc": "column sum (reduce over dim 0)",
+   "tags": [
+    "reduce",
+    "dim0"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m16384_n4096",
+    {
+     "shape": [
+      16384,
+      4096
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "reduce/sum_dim1_3d",
+   "dir": "reduce__sum_dim1_3d",
+   "family": "reduce",
+   "variant": "sum_dim1_3d",
+   "desc": "sum over the middle dim of [B, N, D]",
+   "tags": [
+    "reduce",
+    "3d",
+    "middle_dim"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b32_n4096_d512",
+    {
+     "shape": [
+      32,
+      4096,
+      512
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "reduce/sum_bf16_long",
+   "dir": "reduce__sum_bf16_long",
+   "family": "reduce",
+   "variant": "sum_bf16_long",
+   "desc": "row sum of 1M-4M-element bf16 rows",
+   "tags": [
+    "reduce",
+    "bf16",
+    "large_N"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "m16_n4194304",
+    {
+     "shape": [
+      16,
+      4194304
+     ]
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "reduce/sum_of_squares",
+   "dir": "reduce__sum_of_squares",
+   "family": "reduce",
+   "variant": "sum_of_squares",
+   "desc": "row sum of squares",
+   "tags": [
+    "reduce",
+    "sumsq"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "m8192_n8192",
+    {
+     "shape": [
+      8192,
+      8192
+     ]
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "cross_entropy/nonpow2_vocab",
+   "dir": "cross_entropy__nonpow2_vocab",
+   "family": "cross_entropy",
+   "variant": "nonpow2_vocab",
+   "desc": "mean CE, vocab 3001 / 32003",
+   "tags": [
+    "cross_entropy",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b4096_v32003",
+    {
+     "lead": [
+      4096
+     ],
+     "vocab": 32003
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "cross_entropy/vocab_151936",
+   "dir": "cross_entropy__vocab_151936",
+   "family": "cross_entropy",
+   "variant": "vocab_151936",
+   "desc": "mean CE with Qwen vocab 151936 (looped/online LSE)",
+   "tags": [
+    "cross_entropy",
+    "large_vocab",
+    "online"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b1024_v151936",
+    {
+     "lead": [
+      1024
+     ],
+     "vocab": 151936
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "cross_entropy/reduction_none",
+   "dir": "cross_entropy__reduction_none",
+   "family": "cross_entropy",
+   "variant": "reduction_none",
+   "desc": "per-row CE losses (reduction='none')",
+   "tags": [
+    "cross_entropy",
+    "no_reduction"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b4096_v32000",
+    {
+     "lead": [
+      4096
+     ],
+     "vocab": 32000
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "cross_entropy/ignore_index",
+   "dir": "cross_entropy__ignore_index",
+   "family": "cross_entropy",
+   "variant": "ignore_index",
+   "desc": "mean CE with ~10% targets = -100 (ignored)",
+   "tags": [
+    "cross_entropy",
+    "ignore_index"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b4096_v32000",
+    {
+     "lead": [
+      4096
+     ],
+     "vocab": 32000
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "cross_entropy/label_smoothing",
+   "dir": "cross_entropy__label_smoothing",
+   "family": "cross_entropy",
+   "variant": "label_smoothing",
+   "desc": "mean CE with label_smoothing=0.1",
+   "tags": [
+    "cross_entropy",
+    "label_smoothing"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b4096_v32000",
+    {
+     "lead": [
+      4096
+     ],
+     "vocab": 32000
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "cross_entropy/3d_logits",
+   "dir": "cross_entropy__3d_logits",
+   "family": "cross_entropy",
+   "variant": "3d_logits",
+   "desc": "mean CE on [B, S, V] logits",
+   "tags": [
+    "cross_entropy",
+    "3d"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b8_s512_v32000",
+    {
+     "lead": [
+      8,
+      512
+     ],
+     "vocab": 32000
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "cross_entropy/bf16_vocab_100277",
+   "dir": "cross_entropy__bf16_vocab_100277",
+   "family": "cross_entropy",
+   "variant": "bf16_vocab_100277",
+   "desc": "mean CE, bf16, vocab 100277",
+   "tags": [
+    "cross_entropy",
+    "bf16",
+    "large_vocab"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "b2048_v100277",
+    {
+     "lead": [
+      2048
+     ],
+     "vocab": 100277
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "rotary_embedding/head_dim_96",
+   "dir": "rotary_embedding__head_dim_96",
+   "family": "rotary_embedding",
+   "variant": "head_dim_96",
+   "desc": "interleaved RoPE, head_dim 96",
+   "tags": [
+    "rotary_embedding",
+    "head_dim_96"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2_h32_s2048_d96",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 96
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rotary_embedding/head_dim_80",
+   "dir": "rotary_embedding__head_dim_80",
+   "family": "rotary_embedding",
+   "variant": "head_dim_80",
+   "desc": "interleaved RoPE, head_dim 80",
+   "tags": [
+    "rotary_embedding",
+    "head_dim_80"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b4_h20_s2048_d80",
+    {
+     "b": 4,
+     "h": 20,
+     "s": 2048,
+     "d": 80
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rotary_embedding/head_dim_256",
+   "dir": "rotary_embedding__head_dim_256",
+   "family": "rotary_embedding",
+   "variant": "head_dim_256",
+   "desc": "interleaved RoPE, head_dim 256",
+   "tags": [
+    "rotary_embedding",
+    "head_dim_256"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2_h8_s4096_d256",
+    {
+     "b": 2,
+     "h": 8,
+     "s": 4096,
+     "d": 256
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "rotary_embedding/head_dim_32",
+   "dir": "rotary_embedding__head_dim_32",
+   "family": "rotary_embedding",
+   "variant": "head_dim_32",
+   "desc": "interleaved RoPE, head_dim 32",
+   "tags": [
+    "rotary_embedding",
+    "head_dim_32"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b8_h32_s2048_d32",
+    {
+     "b": 8,
+     "h": 32,
+     "s": 2048,
+     "d": 32
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "rotary_embedding/neox_rotate_half",
+   "dir": "rotary_embedding__neox_rotate_half",
+   "family": "rotary_embedding",
+   "variant": "neox_rotate_half",
+   "desc": "NeoX/Llama-HF rotate-half RoPE (first half / second half)",
+   "tags": [
+    "rotary_embedding",
+    "rotate_half"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2_h32_s2048_d128",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 128
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rotary_embedding/bshd_layout",
+   "dir": "rotary_embedding__bshd_layout",
+   "family": "rotary_embedding",
+   "variant": "bshd_layout",
+   "desc": "interleaved RoPE on [B, S, H, D] layout",
+   "tags": [
+    "rotary_embedding",
+    "bshd"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2_s2048_h32_d128",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 128
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 8
+  },
+  {
+   "id": "rotary_embedding/bf16",
+   "dir": "rotary_embedding__bf16",
+   "family": "rotary_embedding",
+   "variant": "bf16",
+   "desc": "interleaved RoPE, bf16 only",
+   "tags": [
+    "rotary_embedding",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "b2_h32_s2048_d128",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 128
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "matmul/nonpow2",
+   "dir": "matmul__nonpow2",
+   "family": "matmul",
+   "variant": "nonpow2",
+   "desc": "A @ B with non-power-of-2 M, N, K",
+   "tags": [
+    "matmul",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m4000_n3000_k1000",
+    {
+     "M": 4000,
+     "N": 3000,
+     "K": 1000
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 10
+  },
+  {
+   "id": "matmul/bf16",
+   "dir": "matmul__bf16",
+   "family": "matmul",
+   "variant": "bf16",
+   "desc": "A @ B, bf16 only",
+   "tags": [
+    "matmul",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "m4096_n4096_k2048",
+    {
+     "M": 4096,
+     "N": 4096,
+     "K": 2048
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "matmul/fp32_exact",
+   "dir": "matmul__fp32_exact",
+   "family": "matmul",
+   "variant": "fp32_exact",
+   "desc": "A @ B, fp32 only (tol 1e-4 vs an fp64 golden; TF32 is not accurate enough)",
+   "tags": [
+    "matmul",
+    "fp32"
+   ],
+   "dtypes": [
+    "float32"
+   ],
+   "timing": [
+    "m2048_n2048_k2048",
+    {
+     "M": 2048,
+     "N": 2048,
+     "K": 2048
+    },
+    "float32"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "matmul/linear_xwT",
+   "dir": "matmul__linear_xwT",
+   "family": "matmul",
+   "variant": "linear_xwT",
+   "desc": "x @ w.T with w stored [N, K] (nn.Linear, no bias)",
+   "tags": [
+    "matmul",
+    "transposed_B",
+    "linear"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m4096_n4096_k1024",
+    {
+     "M": 4096,
+     "N": 4096,
+     "K": 1024
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "matmul/bias_relu",
+   "dir": "matmul__bias_relu",
+   "family": "matmul",
+   "variant": "bias_relu",
+   "desc": "relu(A @ B + bias) fused epilogue",
+   "tags": [
+    "matmul",
+    "epilogue",
+    "fusion"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m2048_n2048_k2048",
+    {
+     "M": 2048,
+     "N": 2048,
+     "K": 2048
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "matmul/batched_bmm",
+   "dir": "matmul__batched_bmm",
+   "family": "matmul",
+   "variant": "batched_bmm",
+   "desc": "batched matmul [b, M, K] @ [b, K, N]",
+   "tags": [
+    "matmul",
+    "batched"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b64_m512_n512_k128",
+    {
+     "M": 512,
+     "N": 512,
+     "K": 128,
+     "batch": 64
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "matmul/skinny_M",
+   "dir": "matmul__skinny_M",
+   "family": "matmul",
+   "variant": "skinny_M",
+   "desc": "decode-style skinny matmul, M = 1-16",
+   "tags": [
+    "matmul",
+    "skinny",
+    "gemv"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "m8_n11008_k4096",
+    {
+     "M": 8,
+     "N": 11008,
+     "K": 4096
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "flash_attention/non_causal",
+   "dir": "flash_attention__non_causal",
+   "family": "flash_attention",
+   "variant": "non_causal",
+   "desc": "non-causal attention, head_dim 64",
+   "tags": [
+    "flash_attention",
+    "non_causal"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b2_h16_s2048_d64",
+    {
+     "b": 2,
+     "h": 16,
+     "s": 2048,
+     "d": 64
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 6
+  },
+  {
+   "id": "flash_attention/head_dim_128",
+   "dir": "flash_attention__head_dim_128",
+   "family": "flash_attention",
+   "variant": "head_dim_128",
+   "desc": "causal attention, head_dim 128 (L4 shared-memory limit)",
+   "tags": [
+    "flash_attention",
+    "head_dim_128"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b1_h16_s2048_d128",
+    {
+     "b": 1,
+     "h": 16,
+     "s": 2048,
+     "d": 128
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "flash_attention/head_dim_32",
+   "dir": "flash_attention__head_dim_32",
+   "family": "flash_attention",
+   "variant": "head_dim_32",
+   "desc": "causal attention, head_dim 32",
+   "tags": [
+    "flash_attention",
+    "head_dim_32"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b4_h16_s2048_d32",
+    {
+     "b": 4,
+     "h": 16,
+     "s": 2048,
+     "d": 32
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "flash_attention/nonpow2_seq",
+   "dir": "flash_attention__nonpow2_seq",
+   "family": "flash_attention",
+   "variant": "nonpow2_seq",
+   "desc": "causal attention, seq 1000 / 777 / 1",
+   "tags": [
+    "flash_attention",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b2_h16_s1500_d64",
+    {
+     "b": 2,
+     "h": 16,
+     "s": 1500,
+     "d": 64
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "flash_attention/bf16",
+   "dir": "flash_attention__bf16",
+   "family": "flash_attention",
+   "variant": "bf16",
+   "desc": "causal attention, bf16 only",
+   "tags": [
+    "flash_attention",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "b2_h32_s2048_d64",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 64
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "flash_attention/gqa",
+   "dir": "flash_attention__gqa",
+   "family": "flash_attention",
+   "variant": "gqa",
+   "desc": "causal grouped-query attention (32 query heads, 8 KV heads)",
+   "tags": [
+    "flash_attention",
+    "gqa"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b2_h32_kv8_s2048_d64",
+    {
+     "b": 2,
+     "h": 32,
+     "s": 2048,
+     "d": 64,
+     "hkv": 8
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "flash_attention/cross_attention",
+   "dir": "flash_attention__cross_attention",
+   "family": "flash_attention",
+   "variant": "cross_attention",
+   "desc": "non-causal cross-attention, 256 queries x 2048 keys",
+   "tags": [
+    "flash_attention",
+    "cross",
+    "non_causal"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16"
+   ],
+   "timing": [
+    "b4_h16_q512_k4096_d64",
+    {
+     "b": 4,
+     "h": 16,
+     "s": 512,
+     "d": 64,
+     "sk": 4096
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 4
+  },
+  {
+   "id": "fused_mlp/gelu_tanh",
+   "dir": "fused_mlp__gelu_tanh",
+   "family": "fused_mlp",
+   "variant": "gelu_tanh",
+   "desc": "GeGLU-style MLP with tanh-approximate GELU gate",
+   "tags": [
+    "fused_mlp",
+    "gelu_tanh"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2048_d2048_h5632",
+    {
+     "lead": [
+      2048
+     ],
+     "dim": 2048,
+     "hidden": 5632
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "fused_mlp/nonpow2",
+   "dir": "fused_mlp__nonpow2",
+   "family": "fused_mlp",
+   "variant": "nonpow2",
+   "desc": "SwiGLU MLP with non-multiple-of-64 dims",
+   "tags": [
+    "fused_mlp",
+    "nonpow2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2048_d2048_h5461",
+    {
+     "lead": [
+      2048
+     ],
+     "dim": 2048,
+     "hidden": 5461
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  },
+  {
+   "id": "fused_mlp/bf16",
+   "dir": "fused_mlp__bf16",
+   "family": "fused_mlp",
+   "variant": "bf16",
+   "desc": "SwiGLU MLP, bf16 only",
+   "tags": [
+    "fused_mlp",
+    "bf16"
+   ],
+   "dtypes": [
+    "bfloat16"
+   ],
+   "timing": [
+    "b2048_d4096_h11008",
+    {
+     "lead": [
+      2048
+     ],
+     "dim": 4096,
+     "hidden": 11008
+    },
+    "bfloat16"
+   ],
+   "n_correctness_cases": 3
+  },
+  {
+   "id": "fused_mlp/relu2",
+   "dir": "fused_mlp__relu2",
+   "family": "fused_mlp",
+   "variant": "relu2",
+   "desc": "MLP with squared-ReLU gate",
+   "tags": [
+    "fused_mlp",
+    "relu2"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2048_d2048_h5632",
+    {
+     "lead": [
+      2048
+     ],
+     "dim": 2048,
+     "hidden": 5632
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "fused_mlp/gate_up_only",
+   "dir": "fused_mlp__gate_up_only",
+   "family": "fused_mlp",
+   "variant": "gate_up_only",
+   "desc": "silu(x @ w_gate.T) * (x @ w_up.T) without the down projection",
+   "tags": [
+    "fused_mlp",
+    "no_down_proj"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b2048_d4096_h11008",
+    {
+     "lead": [
+      2048
+     ],
+     "dim": 4096,
+     "hidden": 11008
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 5
+  },
+  {
+   "id": "fused_mlp/3d_input",
+   "dir": "fused_mlp__3d_input",
+   "family": "fused_mlp",
+   "variant": "3d_input",
+   "desc": "SwiGLU MLP on [B, S, D] input",
+   "tags": [
+    "fused_mlp",
+    "3d"
+   ],
+   "dtypes": [
+    "bfloat16",
+    "float16",
+    "float32"
+   ],
+   "timing": [
+    "b8_s512_d2048_h5632",
+    {
+     "lead": [
+      8,
+      512
+     ],
+     "dim": 2048,
+     "hidden": 5632
+    },
+    "float16"
+   ],
+   "n_correctness_cases": 7
+  }
+ ]
+}

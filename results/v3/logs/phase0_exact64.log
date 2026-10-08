@@ -1,0 +1,30 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-ZCzoMqZvKhUfLklHzAkeVe
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/bench_v2_modal.py
+├── 🔨 Created mount PythonPackage:common, PythonPackage:bench_v2_core
+└── 🔨 Created function BenchV2.*.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.map currently leaks an internal exception wrapping type             │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.map(..., return_exceptions=True, wrap_returned_exceptions=False)       │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/phase0_starters.p │
+│ y:57                                                                         │
+│   for r in BenchV2().run_batch.map([[j] for j in jobs],                      │
+│ return_exceptions=True):                                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+probe:mm_exact64 FAIL 6.36 
+    sweep xlarge float32 False 1941/16777216 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=9.766e-04, nonfinite=0
+    sweep deep_k float32 False 288/1048576 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=4.959e-04, nonfinite=0
+    sweep llm_mlp float32 False 5169/45088768 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=1.099e-03, nonfinite=0
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-ZCzoMqZvKhUfLklHzAkeVe

@@ -1,0 +1,77 @@
+{
+ "id": "fused_mlp/relu2",
+ "family": "fused_mlp",
+ "variant": "relu2",
+ "desc": "MLP with squared-ReLU gate",
+ "gen": "mlp",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b1024_d1024_h4096",
+   {
+    "lead": [
+     1024
+    ],
+    "dim": 1024,
+    "hidden": 4096
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b100_d512_h1000",
+   {
+    "lead": [
+     100
+    ],
+    "dim": 512,
+    "hidden": 1000
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [],
+ "timing": [
+  [
+   "b2048_d2048_h5632",
+   {
+    "lead": [
+     2048
+    ],
+    "dim": 2048,
+    "hidden": 5632
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "fused_mlp",
+  "relu2"
+ ],
+ "val_set_version": "v1"
+}

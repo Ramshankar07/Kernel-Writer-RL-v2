@@ -1,0 +1,125 @@
+{
+ "id": "layernorm/3d_eps1e-6",
+ "family": "layernorm",
+ "variant": "3d_eps1e-6",
+ "desc": "layer_norm on [B, S, D] with eps=1e-6",
+ "gen": "layernorm",
+ "gen_args": {
+  "weight": true,
+  "bias": true
+ },
+ "sizes": [
+  [
+   "b8_s512_d1024",
+   {
+    "shape": [
+     8,
+     512,
+     1024
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "b3_s5_d640",
+   {
+    "shape": [
+     3,
+     5,
+     640
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_x300",
+   {
+    "shape": [
+     4,
+     256,
+     1024
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "large_mean",
+   "mean_1000",
+   {
+    "shape": [
+     4,
+     256,
+     1024
+    ]
+   },
+   [
+    "float16"
+   ]
+  ],
+  [
+   "constant",
+   "constant",
+   {
+    "shape": [
+     256,
+     1024
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b16_s1024_d1024",
+   {
+    "shape": [
+     16,
+     1024,
+     1024
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "layernorm",
+  "3d",
+  "eps"
+ ],
+ "val_set_version": "v1"
+}

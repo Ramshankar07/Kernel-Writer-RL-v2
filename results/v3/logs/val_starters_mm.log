@@ -1,0 +1,20 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-NXTN9U41ALOPYhlBvxOuE8
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/val_bench_modal.p
+│   y
+├── 🔨 Created mount PythonPackage:common, PythonPackage:bench_v2_core, 
+│   PythonPackage:val_bench_core
+└── 🔨 Created function ValBench.*.
+matmul/nonpow2#0 PASS 11.45   launch 10 starter/eager 0.230 compile/starter 0.230
+matmul/bf16#0 PASS 7.63   launch 4 starter/eager 0.695 compile/starter 0.695
+matmul/fp32_exact#0 PASS 6.42   launch 4 starter/eager 0.314 compile/starter 0.314
+matmul/linear_xwT#0 PASS 7.36   launch 6 starter/eager 0.744 compile/starter 0.743
+matmul/bias_relu#0 PASS 8.77   launch 6 starter/eager 1.043 compile/starter 0.945
+matmul/batched_bmm#0 PASS 8.7   launch 7 starter/eager 1.009 compile/starter 1.018
+matmul/skinny_M#0 PASS 6.97   launch 5 starter/eager 0.951 compile/starter 0.951
+wrote /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/v3/val_set_starters_mm.jsonl 7
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-NXTN9U41ALOPYhlBvxOuE8

@@ -1,0 +1,90 @@
+{
+ "id": "rotary_embedding/head_dim_96",
+ "family": "rotary_embedding",
+ "variant": "head_dim_96",
+ "desc": "interleaved RoPE, head_dim 96",
+ "gen": "rotary",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b1_h32_s2048_d96",
+   {
+    "b": 1,
+    "h": 32,
+    "s": 2048,
+    "d": 96
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "b2_h4_s100_d96",
+   {
+    "b": 2,
+    "h": 4,
+    "s": 100,
+    "d": 96
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_x",
+   "big_x_x1000",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 1024,
+    "d": 96
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2_h32_s2048_d96",
+   {
+    "b": 2,
+    "h": 32,
+    "s": 2048,
+    "d": 96
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "rotary_embedding",
+  "head_dim_96"
+ ],
+ "val_set_version": "v1"
+}

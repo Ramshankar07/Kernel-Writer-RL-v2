@@ -1,0 +1,86 @@
+{
+ "id": "layernorm/bf16",
+ "family": "layernorm",
+ "variant": "bf16",
+ "desc": "layer_norm, bf16 only, D=2560/3000",
+ "gen": "layernorm",
+ "gen_args": {
+  "weight": true,
+  "bias": true
+ },
+ "sizes": [
+  [
+   "r8192_d2560",
+   {
+    "shape": [
+     8192,
+     2560
+    ]
+   },
+   [
+    "bfloat16"
+   ]
+  ],
+  [
+   "r100_d3000",
+   {
+    "shape": [
+     100,
+     3000
+    ]
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_x300",
+   {
+    "shape": [
+     1024,
+     2560
+    ]
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "r8192_d2560",
+   {
+    "shape": [
+     8192,
+     2560
+    ]
+   },
+   "bfloat16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "layernorm",
+  "bf16"
+ ],
+ "val_set_version": "v1"
+}

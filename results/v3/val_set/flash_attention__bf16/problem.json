@@ -1,0 +1,83 @@
+{
+ "id": "flash_attention/bf16",
+ "family": "flash_attention",
+ "variant": "bf16",
+ "desc": "causal attention, bf16 only",
+ "gen": "attention",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2_h32_s1024_d64",
+   {
+    "b": 2,
+    "h": 32,
+    "s": 1024,
+    "d": 64
+   },
+   [
+    "bfloat16"
+   ]
+  ],
+  [
+   "b1_h8_s127_d64",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 127,
+    "d": 64
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "qk_40",
+   "qk_x40",
+   {
+    "b": 2,
+    "h": 8,
+    "s": 512,
+    "d": 64
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2_h32_s2048_d64",
+   {
+    "b": 2,
+    "h": 32,
+    "s": 2048,
+    "d": 64
+   },
+   "bfloat16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "flash_attention",
+  "bf16"
+ ],
+ "val_set_version": "v1"
+}

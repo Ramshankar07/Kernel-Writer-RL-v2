@@ -1,0 +1,180 @@
+{
+ "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+ "lora": null,
+ "runs": [
+  "half1+mmfix1",
+  "half2+mmfix2"
+ ],
+ "n_per_problem": [
+  4
+ ],
+ "max_turns": 4,
+ "temperature": 0.8,
+ "problems": 62,
+ "run_files": [
+  "half1",
+  "mmfix1",
+  "half2",
+  "mmfix2"
+ ],
+ "episodes": 248,
+ "turns": 992,
+ "definitions": {
+  "solve": "a turn whose verdict is PASS (val_bench_v1: full case list, fp32/fp64 golden, launch check, determinism) and whose code is not AST-identical to the starter",
+  "pass@1": "mean over problems of (episodes with >= 1 solve) / n",
+  "pass@n": "fraction of problems with >= 1 solving episode",
+  "compile_error_rate": "turns failing with a Triton compile error / all benchmarked turns (share of failing turns also given)",
+  "repeat_error_rate": "consecutive fail->fail turn pairs with the same category + normalised message (numerics compared by category only) / all fail->fail pairs",
+  "speedup": "best solving turn per episode (by vs_starter); geomean over solving episodes; vs torch.compile = vs_starter x per-problem compile/starter baseline",
+  "beat_starter": "solve with paired vs_starter median > 1.05 and 95% CI lower bound > 1.0",
+  "near_starter": "difflib ratio >= 0.9 between the solving code and the starter"
+ },
+ "pass@1": 0.3831,
+ "pass@n": 0.7742,
+ "pass@1_turn0": 0.1452,
+ "pass@n_turn0": 0.3065,
+ "pass@1_incl_starter_resubmits": 0.7782,
+ "pass@n_incl_starter_resubmits": 0.871,
+ "beat_starter@1": 0.0282,
+ "beat_starter@n": 0.0484,
+ "pass@1_per_run": {
+  "half1+mmfix1": 0.3871,
+  "half2+mmfix2": 0.379
+ },
+ "turn_categories": {
+  "pass": 495,
+  "compile": 80,
+  "numerics": 95,
+  "format": 90,
+  "python": 194,
+  "runtime_resources": 30,
+  "runtime": 8
+ },
+ "turn_category_share": {
+  "pass": 0.499,
+  "compile": 0.0806,
+  "numerics": 0.0958,
+  "format": 0.0907,
+  "python": 0.1956,
+  "runtime_resources": 0.0302,
+  "runtime": 0.0081
+ },
+ "compile_error_rate": 0.0806,
+ "compile_share_of_failures": 0.161,
+ "starter_resubmit_turns": 293,
+ "repeat_error_rate": 0.338,
+ "fail_fail_pairs": 287,
+ "p_pass_next_given_fail": 0.0716,
+ "solving_episodes": 95,
+ "speedup_vs_starter_geomean": 0.9495070088254566,
+ "speedup_vs_starter_median": 1.0,
+ "speedup_vs_compile_geomean": 0.8457113293955763,
+ "speedup_vs_compile_median": 0.9884364411386014,
+ "speedup_vs_eager_geomean": 1.6405273683973007,
+ "by_family": {
+  "rmsnorm": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 19,
+   "problems_solved": 7,
+   "turns": 112,
+   "compile_turns": 22,
+   "pass_turns_nonstarter": 41,
+   "pass@1": 0.6786,
+   "compile_error_rate": 0.1964
+  },
+  "fused_mlp": {
+   "problems": 6,
+   "episodes": 24,
+   "solved_episodes": 1,
+   "problems_solved": 1,
+   "turns": 96,
+   "compile_turns": 9,
+   "pass_turns_nonstarter": 1,
+   "pass@1": 0.0417,
+   "compile_error_rate": 0.0938
+  },
+  "matmul": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 9,
+   "problems_solved": 5,
+   "turns": 112,
+   "compile_turns": 5,
+   "pass_turns_nonstarter": 18,
+   "pass@1": 0.3214,
+   "compile_error_rate": 0.0446
+  },
+  "cross_entropy": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 14,
+   "problems_solved": 7,
+   "turns": 112,
+   "compile_turns": 7,
+   "pass_turns_nonstarter": 35,
+   "pass@1": 0.5,
+   "compile_error_rate": 0.0625
+  },
+  "rotary_embedding": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 9,
+   "problems_solved": 5,
+   "turns": 112,
+   "compile_turns": 7,
+   "pass_turns_nonstarter": 16,
+   "pass@1": 0.3214,
+   "compile_error_rate": 0.0625
+  },
+  "softmax": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 9,
+   "problems_solved": 6,
+   "turns": 112,
+   "compile_turns": 4,
+   "pass_turns_nonstarter": 23,
+   "pass@1": 0.3214,
+   "compile_error_rate": 0.0357
+  },
+  "layernorm": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 13,
+   "problems_solved": 7,
+   "turns": 112,
+   "compile_turns": 6,
+   "pass_turns_nonstarter": 26,
+   "pass@1": 0.4643,
+   "compile_error_rate": 0.0536
+  },
+  "flash_attention": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 3,
+   "problems_solved": 3,
+   "turns": 112,
+   "compile_turns": 10,
+   "pass_turns_nonstarter": 3,
+   "pass@1": 0.1071,
+   "compile_error_rate": 0.0893
+  },
+  "reduce": {
+   "problems": 7,
+   "episodes": 28,
+   "solved_episodes": 18,
+   "problems_solved": 7,
+   "turns": 112,
+   "compile_turns": 10,
+   "pass_turns_nonstarter": 39,
+   "pass@1": 0.6429,
+   "compile_error_rate": 0.0893
+  }
+ },
+ "wall_s": 2427.4557390213013,
+ "bench_job_wall_s": 2779.569999999998,
+ "completion_tokens": 693817,
+ "solving_turns": 202,
+ "solving_turns_near_starter_share": 0.9208
+}

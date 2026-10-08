@@ -1,0 +1,87 @@
+{
+ "id": "matmul/linear_xwT",
+ "family": "matmul",
+ "variant": "linear_xwT",
+ "desc": "x @ w.T with w stored [N, K] (nn.Linear, no bias)",
+ "gen": "matmul",
+ "gen_args": {
+  "mode": "linear"
+ },
+ "sizes": [
+  [
+   "m1000_n3000_k777",
+   {
+    "M": 1000,
+    "N": 3000,
+    "K": 777
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "m4096_n4096_k1024",
+   {
+    "M": 4096,
+    "N": 4096,
+    "K": 1024
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_K4096",
+   {
+    "M": 1024,
+    "N": 1024,
+    "K": 4096
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m4096_n4096_k1024",
+   {
+    "M": 4096,
+    "N": 4096,
+    "K": 1024
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "matmul",
+  "transposed_B",
+  "linear"
+ ],
+ "val_set_version": "v1"
+}

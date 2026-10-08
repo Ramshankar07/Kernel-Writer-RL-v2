@@ -1,0 +1,93 @@
+{
+ "id": "cross_entropy/3d_logits",
+ "family": "cross_entropy",
+ "variant": "3d_logits",
+ "desc": "mean CE on [B, S, V] logits",
+ "gen": "cross_entropy",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b4_s512_v32000",
+   {
+    "lead": [
+     4,
+     512
+    ],
+    "vocab": 32000
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b2_s7_v1000",
+   {
+    "lead": [
+     2,
+     7
+    ],
+    "vocab": 1000
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "lead": [
+     2,
+     256
+    ],
+    "vocab": 32000
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b8_s512_v32000",
+   {
+    "lead": [
+     8,
+     512
+    ],
+    "vocab": 32000
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "cross_entropy",
+  "3d"
+ ],
+ "val_set_version": "v1"
+}

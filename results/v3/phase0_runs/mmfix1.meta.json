@@ -1,0 +1,18 @@
+{
+ "tag": "mmfix1",
+ "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+ "lora": null,
+ "policy_gpu": "L40S",
+ "bench_gpu": "L4",
+ "n": 2,
+ "max_turns": 4,
+ "temperature": 0.8,
+ "top_p": 0.95,
+ "max_new_tokens": 4096,
+ "tasks": 7,
+ "wall_s": 214.42531085014343,
+ "prompt": "v2 (modal_app/prompts_v2.py)",
+ "bench": "val_bench_v1 (bench v2 conventions)",
+ "bench_job_wall_s": 259.58,
+ "completion_tokens": 55713
+}

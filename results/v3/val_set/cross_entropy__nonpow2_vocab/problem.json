@@ -1,0 +1,89 @@
+{
+ "id": "cross_entropy/nonpow2_vocab",
+ "family": "cross_entropy",
+ "variant": "nonpow2_vocab",
+ "desc": "mean CE, vocab 3001 / 32003",
+ "gen": "cross_entropy",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b1000_v3001",
+   {
+    "lead": [
+     1000
+    ],
+    "vocab": 3001
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "b4096_v32003",
+   {
+    "lead": [
+     4096
+    ],
+    "vocab": 32003
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "lead": [
+     1024
+    ],
+    "vocab": 32003
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b4096_v32003",
+   {
+    "lead": [
+     4096
+    ],
+    "vocab": 32003
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "cross_entropy",
+  "nonpow2"
+ ],
+ "val_set_version": "v1"
+}

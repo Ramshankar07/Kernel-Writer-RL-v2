@@ -1,0 +1,906 @@
+{
+ "generated_by": "presentation/v2/make_extra.py",
+ "time_breakdown": {
+  "grpo_v1": {
+   "steps_in_metrics": 18,
+   "steps_with_per_turn_split": 18,
+   "source": "results/grpo/grpo_v1/train.log per-turn 'gen Xs, bench Ys' lines + metrics.jsonl train_s",
+   "mean_step_s": {
+    "generation": 156.6111,
+    "benchmarking": 288.4444,
+    "rollout_other": 0.0853,
+    "policy_update": 31.7659
+   },
+   "share_pct": {
+    "generation": 32.8,
+    "benchmarking": 60.5,
+    "rollout_other": 0.0,
+    "policy_update": 6.7
+   },
+   "bench_share_of_rollout_pct": 64.8,
+   "bench_turn_s_range": [
+    9,
+    242
+   ],
+   "gen_turn_s_range": [
+    27,
+    52
+   ],
+   "abandoned_turn_lines": 2,
+   "unfinished_turn_lines_after_last_step": 2,
+   "rollout_vs_update_pct": {
+    "rollout": 93.3,
+    "policy_update": 6.7
+   },
+   "mean_rollout_s": 445.1409,
+   "mean_train_s": 31.7659,
+   "trainer_gpu_idle_pct": 93.3
+  },
+  "grpo_v2": {
+   "rollout_vs_update_pct": {
+    "rollout": 85.4,
+    "policy_update": 14.6
+   },
+   "mean_rollout_s": 434.2099,
+   "mean_train_s": 74.1131,
+   "trainer_gpu_idle_pct": 85.4,
+   "per_turn_split": null,
+   "note": "no per-turn gen/bench log was saved for grpo_v2 (no train.log in results/), so only rollout_s vs train_s from metrics.jsonl"
+  },
+  "base_eval_fbv1": {
+   "turns": 8,
+   "gen_s": 361,
+   "bench_s": 399,
+   "bench_share_pct": 52.5
+  },
+  "base_eval_fbv2": {
+   "turns": 8,
+   "gen_s": 367,
+   "bench_s": 1327,
+   "bench_share_pct": 78.3
+  },
+  "definition": "trainer_gpu_idle_pct = rollout_s / (rollout_s + train_s): the trainer H100 holds the model but does nothing while vLLM generates and L4s benchmark (synchronous loop). Checkpoint save time is outside both timers and not counted."
+ },
+ "dr_grpo_whatif": {
+  "grpo_v1": {
+   "training_reward": "original reward.py",
+   "steps": 18,
+   "groups_total": 162,
+   "zero_variance_groups": 106,
+   "noise_level_groups_0_lt_std_lt_0.02": 42,
+   "noise_level_group_kernels": {
+    "softmax": 18,
+    "reduce": 17,
+    "cross_entropy": 7
+   },
+   "abs_adv_mass_share_from_noise_groups_pct": {
+    "grpo_std_as_trained": 78.9,
+    "grpo_std_no_floor": 78.9,
+    "grpo_std_floor_0.02": 0.0,
+    "dr_grpo_no_std": 6.2
+   },
+   "abs_adv_mass_total": {
+    "grpo_std_as_trained": 358.4028,
+    "grpo_std_no_floor": 358.4028,
+    "grpo_std_floor_0.02": 75.7156,
+    "dr_grpo_no_std": 31.5451
+   },
+   "dapo_filter_removed_groups_pct": 65.4,
+   "dapo_eff_batch_trajs": {
+    "mean": 24.8889,
+    "min": 16,
+    "max": 32,
+    "nominal": 72
+   },
+   "dapo_plus_noise_floor_removed_pct": 91.4,
+   "dapo_plus_noise_floor_eff_batch_trajs": {
+    "mean": 6.2222,
+    "min": 0,
+    "max": 16
+   },
+   "check_max_abs_diff_vs_logged_advantage": 0.0,
+   "per_step": [
+    {
+     "step": 1,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 1,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 2,
+     "eff_batch_floor": 16
+    },
+    {
+     "step": 2,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 2,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 3,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 4,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 2,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 5,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 6,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 7,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 2,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 8,
+     "groups": 9,
+     "zero_var": 5,
+     "noise_level": 3,
+     "kept_groups_dapo": 4,
+     "eff_batch_dapo": 32,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 9,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 2,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 10,
+     "groups": 9,
+     "zero_var": 7,
+     "noise_level": 2,
+     "kept_groups_dapo": 2,
+     "eff_batch_dapo": 16,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 11,
+     "groups": 9,
+     "zero_var": 7,
+     "noise_level": 2,
+     "kept_groups_dapo": 2,
+     "eff_batch_dapo": 16,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 12,
+     "groups": 9,
+     "zero_var": 5,
+     "noise_level": 2,
+     "kept_groups_dapo": 4,
+     "eff_batch_dapo": 32,
+     "kept_groups_floor": 2,
+     "eff_batch_floor": 16
+    },
+    {
+     "step": 13,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 14,
+     "groups": 9,
+     "zero_var": 5,
+     "noise_level": 2,
+     "kept_groups_dapo": 4,
+     "eff_batch_dapo": 32,
+     "kept_groups_floor": 2,
+     "eff_batch_floor": 16
+    },
+    {
+     "step": 15,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 2,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 1,
+     "eff_batch_floor": 8
+    },
+    {
+     "step": 16,
+     "groups": 9,
+     "zero_var": 5,
+     "noise_level": 2,
+     "kept_groups_dapo": 4,
+     "eff_batch_dapo": 32,
+     "kept_groups_floor": 2,
+     "eff_batch_floor": 16
+    },
+    {
+     "step": 17,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    },
+    {
+     "step": 18,
+     "groups": 9,
+     "zero_var": 6,
+     "noise_level": 3,
+     "kept_groups_dapo": 3,
+     "eff_batch_dapo": 24,
+     "kept_groups_floor": 0,
+     "eff_batch_floor": 0
+    }
+   ]
+  },
+  "grpo_v2": {
+   "training_reward": "reward_v2",
+   "steps": 10,
+   "groups_total": 90,
+   "zero_variance_groups": 21,
+   "noise_level_groups_0_lt_std_lt_0.02": 13,
+   "noise_level_group_kernels": {
+    "cross_entropy": 5,
+    "softmax": 4,
+    "flash_attention": 4
+   },
+   "abs_adv_mass_share_from_noise_groups_pct": {
+    "grpo_std_as_trained": 0.0,
+    "grpo_std_no_floor": 17.4,
+    "grpo_std_floor_0.02": 0.0,
+    "dr_grpo_no_std": 0.5
+   },
+   "abs_adv_mass_total": {
+    "grpo_std_as_trained": 348.4417,
+    "grpo_std_no_floor": 421.7847,
+    "grpo_std_floor_0.02": 348.4417,
+    "dr_grpo_no_std": 62.4648
+   },
+   "dapo_filter_removed_groups_pct": 23.3,
+   "dapo_eff_batch_trajs": {
+    "mean": 55.2,
+    "min": 32,
+    "max": 72,
+    "nominal": 72
+   },
+   "dapo_plus_noise_floor_removed_pct": 37.8,
+   "dapo_plus_noise_floor_eff_batch_trajs": {
+    "mean": 44.8,
+    "min": 32,
+    "max": 64
+   },
+   "check_max_abs_diff_vs_logged_advantage": 0.0,
+   "per_step": [
+    {
+     "step": 1,
+     "groups": 9,
+     "zero_var": 1,
+     "noise_level": 1,
+     "kept_groups_dapo": 8,
+     "eff_batch_dapo": 64,
+     "kept_groups_floor": 7,
+     "eff_batch_floor": 56
+    },
+    {
+     "step": 2,
+     "groups": 9,
+     "zero_var": 0,
+     "noise_level": 1,
+     "kept_groups_dapo": 9,
+     "eff_batch_dapo": 72,
+     "kept_groups_floor": 8,
+     "eff_batch_floor": 64
+    },
+    {
+     "step": 3,
+     "groups": 9,
+     "zero_var": 0,
+     "noise_level": 2,
+     "kept_groups_dapo": 9,
+     "eff_batch_dapo": 72,
+     "kept_groups_floor": 7,
+     "eff_batch_floor": 56
+    },
+    {
+     "step": 4,
+     "groups": 9,
+     "zero_var": 1,
+     "noise_level": 3,
+     "kept_groups_dapo": 8,
+     "eff_batch_dapo": 64,
+     "kept_groups_floor": 5,
+     "eff_batch_floor": 40
+    },
+    {
+     "step": 5,
+     "groups": 9,
+     "zero_var": 5,
+     "noise_level": 0,
+     "kept_groups_dapo": 4,
+     "eff_batch_dapo": 32,
+     "kept_groups_floor": 4,
+     "eff_batch_floor": 32
+    },
+    {
+     "step": 6,
+     "groups": 9,
+     "zero_var": 3,
+     "noise_level": 0,
+     "kept_groups_dapo": 6,
+     "eff_batch_dapo": 48,
+     "kept_groups_floor": 6,
+     "eff_batch_floor": 48
+    },
+    {
+     "step": 7,
+     "groups": 9,
+     "zero_var": 3,
+     "noise_level": 2,
+     "kept_groups_dapo": 6,
+     "eff_batch_dapo": 48,
+     "kept_groups_floor": 4,
+     "eff_batch_floor": 32
+    },
+    {
+     "step": 8,
+     "groups": 9,
+     "zero_var": 2,
+     "noise_level": 2,
+     "kept_groups_dapo": 7,
+     "eff_batch_dapo": 56,
+     "kept_groups_floor": 5,
+     "eff_batch_floor": 40
+    },
+    {
+     "step": 9,
+     "groups": 9,
+     "zero_var": 2,
+     "noise_level": 1,
+     "kept_groups_dapo": 7,
+     "eff_batch_dapo": 56,
+     "kept_groups_floor": 6,
+     "eff_batch_floor": 48
+    },
+    {
+     "step": 10,
+     "groups": 9,
+     "zero_var": 4,
+     "noise_level": 1,
+     "kept_groups_dapo": 5,
+     "eff_batch_dapo": 40,
+     "kept_groups_floor": 4,
+     "eff_batch_floor": 32
+    }
+   ]
+  },
+  "definitions": {
+   "grpo_std": "A = (r - mean) / (pstdev + 1e-6), groups with pstdev <= min_std -> 0 (train_grpo.grpo_advantages)",
+   "dr_grpo_no_std": "A = r - mean (no std division)",
+   "noise_level_group": "0 < pstdev(group reward) < 0.02 (bench timing noise, log2 units)",
+   "dapo_filter": "drop groups whose 8 rewards are identical (pstdev == 0)"
+  }
+ },
+ "group_explorer": {
+  "run": "grpo_v1",
+  "step": 10,
+  "task_id": "layernorm",
+  "kernel_type": "layernorm",
+  "selection": "grpo_v1 layernorm/matmul group with all 8 original rewards 0; most distinct reward_v2 values, then highest reward_v2 std, then earliest step",
+  "candidates_all_zero_layernorm_matmul": 36,
+  "rollouts": [
+   {
+    "sample": 0,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   },
+   {
+    "sample": 1,
+    "reward_v1": 0.0,
+    "reward_v2": 0.0,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": -2.645,
+    "adv_v2_dr_grpo": -0.2305,
+    "best_stage": "smoke fail"
+   },
+   {
+    "sample": 2,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   },
+   {
+    "sample": 3,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   },
+   {
+    "sample": 4,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   },
+   {
+    "sample": 5,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2687,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.4393,
+    "adv_v2_dr_grpo": 0.0383,
+    "best_stage": "smoke ok, sweep 19/24, stab ok"
+   },
+   {
+    "sample": 6,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   },
+   {
+    "sample": 7,
+    "reward_v1": 0.0,
+    "reward_v2": 0.2625,
+    "adv_v1": 0.0,
+    "adv_v2_std_floor": 0.3676,
+    "adv_v2_dr_grpo": 0.032,
+    "best_stage": "smoke ok, sweep 18/24, stab ok"
+   }
+  ],
+  "reward_v2_std": 0.0871,
+  "tied_under_v1_separable_under_v2": {
+   "grpo_v1": {
+    "per_step": [
+     1,
+     3,
+     5,
+     3,
+     2,
+     5,
+     2,
+     3,
+     4,
+     4,
+     5,
+     2,
+     5,
+     2,
+     4,
+     3,
+     5,
+     4
+    ],
+    "mean": 3.4444,
+    "min": 1,
+    "max": 5,
+    "of_groups_per_step": 9
+   },
+   "grpo_v2": {
+    "per_step": [
+     6,
+     6,
+     6,
+     4,
+     2,
+     4,
+     1,
+     4,
+     4,
+     3
+    ],
+    "mean": 4.0,
+    "min": 1,
+    "max": 6,
+    "of_groups_per_step": 9
+   }
+  },
+  "tied_definition": "pstdev(original reward) == 0 and pstdev(reward_v2) > 0.02 within a 9-kernel step",
+  "stored_reward_v2_matches_recompute_grpo_v2": true
+ },
+ "entropy_proxy": {
+  "definition": "-mean_token_logp from metrics.jsonl: mean negative log-prob (nats) of the sampled assistant tokens of the trajectories that were trained on (|advantage| > 0), under the current policy before the update. A proxy, NOT true entropy (sampling at T=1.0; the token population changes with which groups are trained).",
+  "grpo_v1": {
+   "per_step": [
+    0.0763,
+    0.0703,
+    0.0727,
+    0.0707,
+    0.0746,
+    0.0829,
+    0.0687,
+    0.0774,
+    0.0759,
+    0.079,
+    0.0737,
+    0.0762,
+    0.0713,
+    0.0694,
+    0.0641,
+    0.0742,
+    0.0687,
+    0.0723
+   ],
+   "first": 0.0763,
+   "last": 0.0723,
+   "mean": 0.0732,
+   "min": 0.0641,
+   "max": 0.0829,
+   "n_trained_trajs_per_step": [
+    24,
+    24,
+    24,
+    24,
+    24,
+    24,
+    24,
+    32,
+    24,
+    16,
+    16,
+    32,
+    24,
+    32,
+    24,
+    32,
+    24,
+    24
+   ]
+  },
+  "grpo_v2": {
+   "per_step": [
+    0.0577,
+    0.0571,
+    0.0527,
+    0.0544,
+    0.0532,
+    0.051,
+    0.0566,
+    0.053,
+    0.0525,
+    0.045
+   ],
+   "first": 0.0577,
+   "last": 0.045,
+   "mean": 0.0533,
+   "min": 0.045,
+   "max": 0.0577,
+   "n_trained_trajs_per_step": [
+    56,
+    64,
+    56,
+    40,
+    32,
+    48,
+    32,
+    40,
+    48,
+    32
+   ]
+  }
+ },
+ "turn_transitions": {
+  "base_fbv2": {
+   "file": "results/agent_eval/autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.jsonl",
+   "trajectories": 72,
+   "transitions": 504,
+   "counts": {
+    "PASS": {
+     "FAIL": 18,
+     "PASS": 69,
+     "CRASH": 4
+    },
+    "FAIL": {
+     "FAIL": 340,
+     "CRASH": 16,
+     "PASS": 6
+    },
+    "CRASH": {
+     "FAIL": 12,
+     "CRASH": 36,
+     "PASS": 3
+    }
+   },
+   "P_next_given_current": {
+    "PASS": {
+     "PASS": 0.7582,
+     "FAIL": 0.1978,
+     "CRASH": 0.044
+    },
+    "FAIL": {
+     "PASS": 0.0166,
+     "FAIL": 0.9392,
+     "CRASH": 0.0442
+    },
+    "CRASH": {
+     "PASS": 0.0588,
+     "FAIL": 0.2353,
+     "CRASH": 0.7059
+    }
+   },
+   "P_pass_broken_next_turn": 0.2418,
+   "pass_to_pass_same_code_sha_frac": 0.4058,
+   "folded_into_CRASH": {
+    "TIMEOUT": 5
+   }
+  },
+  "base_fbv1": {
+   "file": "results/agent_eval/autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.jsonl",
+   "trajectories": 72,
+   "transitions": 504,
+   "counts": {
+    "PASS": {
+     "PASS": 36,
+     "CRASH": 1,
+     "FAIL": 18
+    },
+    "FAIL": {
+     "FAIL": 319,
+     "CRASH": 21,
+     "PASS": 1
+    },
+    "CRASH": {
+     "FAIL": 17,
+     "CRASH": 91
+    }
+   },
+   "P_next_given_current": {
+    "PASS": {
+     "PASS": 0.6545,
+     "FAIL": 0.3273,
+     "CRASH": 0.0182
+    },
+    "FAIL": {
+     "PASS": 0.0029,
+     "FAIL": 0.9355,
+     "CRASH": 0.0616
+    },
+    "CRASH": {
+     "PASS": 0.0,
+     "FAIL": 0.1574,
+     "CRASH": 0.8426
+    }
+   },
+   "P_pass_broken_next_turn": 0.3455,
+   "pass_to_pass_same_code_sha_frac": 0.7222,
+   "folded_into_CRASH": {}
+  }
+ },
+ "best_kernel": {
+  "kernel_type": "rmsnorm",
+  "speedup": 2.926,
+  "source": "grpo_v2",
+  "step": 9,
+  "sample": 7,
+  "turn": 3,
+  "code_sha": "c45bd6a226e2",
+  "cached": false,
+  "same_code_sha_pass_count": 1,
+  "same_code_sha_speedup_range": [
+   2.926,
+   2.926
+  ],
+  "similarity_to_starter_difflib": 0.9542,
+  "diff_vs_starter": [
+   "-AutoKernel starter -- RMS Normalization",
+   "-Basic Triton kernel. The agent improves this.",
+   "+AutoKernel improved -- RMS Normalization",
+   "+Improved Triton kernel to handle mixed precision inputs more robustly.",
+   "-    # Load row into float32 for numerical stability",
+   "-    x = tl.load(X_ptr + row * stride_xm + offs * stride_xn, mask=mask, other=0.0).to(tl.float32)",
+   "+    # Load row into float16 for numerical stability",
+   "+    x = tl.load(X_ptr + row * stride_xm + offs * stride_xn, mask=mask, other=0.0).to(tl.float16)",
+   "-    w = tl.load(W_ptr + offs, mask=mask, other=0.0).to(tl.float32)",
+   "+    w = tl.load(W_ptr + offs, mask=mask, other=0.0).to(tl.float16)"
+  ],
+  "starter_L4_stage1": {
+   "speedup_quick": 2.904,
+   "full": "FAIL"
+  },
+  "saved_to": "presentation/v2/best_kernel.py",
+  "excerpt_25_lines": "@triton.jit\ndef rmsnorm_kernel(\n    X_ptr, W_ptr, OUT_ptr,\n    M, N,\n    stride_xm, stride_xn,\n    stride_om, stride_on,\n    eps,\n    BLOCK_SIZE: tl.constexpr,\n):\n    \"\"\"Row-parallel RMS normalization.\"\"\"\n    row = tl.program_id(0)\n    offs = tl.arange(0, BLOCK_SIZE)\n    mask = offs < N\n\n    # Load row into float16 for numerical stability\n    x = tl.load(X_ptr + row * stride_xm + offs * stride_xn, mask=mask, other=0.0).to(tl.float16)\n\n    # Compute RMS\n    sq_mean = tl.sum(x * x, axis=0) / N\n    rms = tl.sqrt(sq_mean + eps)\n\n    # Normalize\n    x_norm = x / rms\n\n    # Scale by weight",
+  "top10": [
+   {
+    "speedup": 2.926,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 9,
+    "code_sha": "c45bd6a226e2"
+   },
+   {
+    "speedup": 2.913,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 4,
+    "code_sha": "1218ba79894a"
+   },
+   {
+    "speedup": 2.911,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 7,
+    "code_sha": "23ebfedf8c00"
+   },
+   {
+    "speedup": 2.902,
+    "kernel": "rmsnorm",
+    "source": "grpo_v1",
+    "step": 8,
+    "code_sha": "266168b04963"
+   },
+   {
+    "speedup": 2.9,
+    "kernel": "rmsnorm",
+    "source": "base_eval_fbv2",
+    "step": null,
+    "code_sha": "e0c8703d1dcc"
+   },
+   {
+    "speedup": 2.891,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 4,
+    "code_sha": "6c4b19c1131e"
+   },
+   {
+    "speedup": 2.887,
+    "kernel": "rmsnorm",
+    "source": "grpo_v1",
+    "step": 16,
+    "code_sha": "07104d367c8e"
+   },
+   {
+    "speedup": 2.885,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 9,
+    "code_sha": "87f5311911f5"
+   },
+   {
+    "speedup": 2.869,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 7,
+    "code_sha": "7019acbda0ea"
+   },
+   {
+    "speedup": 2.869,
+    "kernel": "rmsnorm",
+    "source": "grpo_v2",
+    "step": 7,
+    "code_sha": "7019acbda0ea"
+   }
+  ]
+ },
+ "pass_speedups": {
+  "pass_turns": 1126,
+  "pass_turns_speedup_gt0": 1124,
+  "pass_turns_speedup_0": 2,
+  "unique_code_sha": 360,
+  "by_source": {
+   "base model evals": 161,
+   "GRPO v1 rollouts": 599,
+   "GRPO v2 rollouts": 364
+  },
+  "by_source_file": {
+   "base_eval_fbv1": 58,
+   "base_eval_fbv2": 101,
+   "agent_eval/smoke": 2,
+   "grpo_v1": 599,
+   "grpo_v2": 364
+  },
+  "by_kernel": {
+   "softmax": 319,
+   "cross_entropy": 360,
+   "reduce": 432,
+   "rmsnorm": 13
+  },
+  "median_speedup": 0.989,
+  "frac_ge_1x": 0.3568,
+  "frac_lt_1x": 0.6432,
+  "min": 0.079,
+  "max": 2.926,
+  "note": "every PASS turn counted (identical resubmitted code counts again; see unique_code_sha)",
+  "per_kernel": {
+   "reduce": {
+    "n": 432,
+    "min": 0.079,
+    "median": 0.985,
+    "max": 0.995,
+    "unique_codes": 182,
+    "median_similarity_to_starter": 0.9748
+   },
+   "cross_entropy": {
+    "n": 360,
+    "min": 0.539,
+    "median": 2.04,
+    "max": 2.044,
+    "unique_codes": 71,
+    "median_similarity_to_starter": 0.9056
+   },
+   "softmax": {
+    "n": 319,
+    "min": 0.906,
+    "median": 0.993,
+    "max": 1.011,
+    "unique_codes": 95,
+    "median_similarity_to_starter": 0.9447
+   },
+   "rmsnorm": {
+    "n": 13,
+    "min": 2.858,
+    "median": 2.887,
+    "max": 2.926,
+    "unique_codes": 12,
+    "median_similarity_to_starter": 0.9736
+   }
+  },
+  "bands": {
+   "lt_0.95x": 21,
+   "0.95_to_1.05x": 734,
+   "ge_1.05x": 369
+  }
+ }
+}

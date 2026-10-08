@@ -1,0 +1,86 @@
+{
+ "id": "layernorm/fp32",
+ "family": "layernorm",
+ "variant": "fp32",
+ "desc": "layer_norm, fp32 only (tol 1e-5)",
+ "gen": "layernorm",
+ "gen_args": {
+  "weight": true,
+  "bias": true
+ },
+ "sizes": [
+  [
+   "r2048_d4096",
+   {
+    "shape": [
+     2048,
+     4096
+    ]
+   },
+   [
+    "float32"
+   ]
+  ],
+  [
+   "r333_d1000",
+   {
+    "shape": [
+     333,
+     1000
+    ]
+   },
+   [
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_x300",
+   {
+    "shape": [
+     512,
+     4096
+    ]
+   },
+   [
+    "float32"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "r4096_d4096",
+   {
+    "shape": [
+     4096,
+     4096
+    ]
+   },
+   "float32"
+  ]
+ ],
+ "dtypes": [
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "layernorm",
+  "fp32"
+ ],
+ "val_set_version": "v1"
+}

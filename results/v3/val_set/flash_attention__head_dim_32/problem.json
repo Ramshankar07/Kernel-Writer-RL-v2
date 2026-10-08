@@ -1,0 +1,85 @@
+{
+ "id": "flash_attention/head_dim_32",
+ "family": "flash_attention",
+ "variant": "head_dim_32",
+ "desc": "causal attention, head_dim 32",
+ "gen": "attention",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b4_h16_s1024_d32",
+   {
+    "b": 4,
+    "h": 16,
+    "s": 1024,
+    "d": 32
+   },
+   [
+    "float16"
+   ]
+  ],
+  [
+   "b1_h2_s70_d32",
+   {
+    "b": 1,
+    "h": 2,
+    "s": 70,
+    "d": 32
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "qk_40",
+   "qk_x40",
+   {
+    "b": 2,
+    "h": 8,
+    "s": 512,
+    "d": 32
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b4_h16_s2048_d32",
+   {
+    "b": 4,
+    "h": 16,
+    "s": 2048,
+    "d": 32
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "flash_attention",
+  "head_dim_32"
+ ],
+ "val_set_version": "v1"
+}

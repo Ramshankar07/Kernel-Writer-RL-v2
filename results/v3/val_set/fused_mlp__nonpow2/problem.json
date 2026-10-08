@@ -1,0 +1,93 @@
+{
+ "id": "fused_mlp/nonpow2",
+ "family": "fused_mlp",
+ "variant": "nonpow2",
+ "desc": "SwiGLU MLP with non-multiple-of-64 dims",
+ "gen": "mlp",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b777_d1024_h2730",
+   {
+    "lead": [
+     777
+    ],
+    "dim": 1024,
+    "hidden": 2730
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b100_d1000_h3001",
+   {
+    "lead": [
+     100
+    ],
+    "dim": 1000,
+    "hidden": 3001
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_act",
+   "big_act",
+   {
+    "lead": [
+     512
+    ],
+    "dim": 1024,
+    "hidden": 2048
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2048_d2048_h5461",
+   {
+    "lead": [
+     2048
+    ],
+    "dim": 2048,
+    "hidden": 5461
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "fused_mlp",
+  "nonpow2"
+ ],
+ "val_set_version": "v1"
+}

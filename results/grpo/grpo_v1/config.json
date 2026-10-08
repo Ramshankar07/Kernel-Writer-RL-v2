@@ -1,0 +1,12 @@
+{
+  "run": "grpo_v1",
+  "steps": 20,
+  "group": 8,
+  "max_turns": 4,
+  "lr": 1e-05,
+  "lora_r": 64,
+  "max_new": 3072,
+  "temperature": 1.0,
+  "bench_gpu": "L4",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct"
+}

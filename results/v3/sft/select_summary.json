@@ -1,0 +1,29 @@
+{
+ "kernelbook_sel": 1029,
+ "kernelbook_sel_families": {
+  "reduce": 711,
+  "softmax": 491,
+  "cross_entropy": 349,
+  "activation": 205,
+  "layernorm": 196,
+  "matmul": 63,
+  "attention": 56,
+  "mlp": 22,
+  "conv": 17,
+  "rmsnorm": 4,
+  "rotary": 1
+ },
+ "drkernel_repair_sel": 1500,
+ "drkernel_repair_sel_families": {
+  "other": 249,
+  "activation": 249,
+  "softmax": 249,
+  "matmul": 249,
+  "reduce": 248,
+  "conv": 152,
+  "rmsnorm": 52,
+  "layernorm": 47,
+  "cross_entropy": 5
+ },
+ "seed": 0
+}

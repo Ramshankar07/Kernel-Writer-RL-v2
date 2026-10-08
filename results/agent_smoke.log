@@ -1,0 +1,59 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-sY1dDoYE3OajojF75Ibo59
+✓ Created objects.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.starmap currently leaks an internal exception wrapping type         │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.starmap(..., return_exceptions=True, wrap_returned_exceptions=False)   │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/agent_eval.py:148 │
+│   results = dict(zip(idx, bench.run.starmap(args, return_exceptions=True)))  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+an error occurred during closing of asynchronous generator <async_generator object Synchronizer._run_generator_async at 0x12ff99210>
+asyncgen: <async_generator object Synchronizer._run_generator_async at 0x12ff99210>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/modal/_utils/async_utils.py", line 807, in __iter__
+    yield from run_async_gen(runner, self._async_iterable)
+GeneratorExit
+
+During handling of the above exception, another exception occurred:
+
+RuntimeError: aclose(): asynchronous generator is already running
+an error occurred during closing of asynchronous generator <async_generator object async_merge at 0x10330eb60>
+asyncgen: <async_generator object async_merge at 0x10330eb60>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/modal/_utils/async_utils.py", line 807, in __iter__
+    yield from run_async_gen(runner, self._async_iterable)
+GeneratorExit
+
+During handling of the above exception, another exception occurred:
+
+RuntimeError: aclose(): asynchronous generator is already running
+turn 0: 9 active, gen 14s, bench 18s, PASS 2
+wrote exception calling callback for <Future at 0x12fe67ed0 state=finished returned NoneType>
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/concurrent/futures/_base.py", line 340, in _invoke_callbacks
+    callback(self)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/futures.py", line 401, in _call_set_state
+    dest_loop.call_soon_threadsafe(_set_state, destination, source)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/base_events.py", line 803, in call_soon_threadsafe
+    self._check_closed()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/base_events.py", line 519, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+/Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/agent_eval/smoke.jsonl {"suite": "autokernel", "model": "Qwen/Qwen2.5-Coder-7B-Instruct", "lora": "", "n": 1, "max_turns": 1, "temperature": 0.8, "bench_gpu": "L4", "stride": 1, "tasks": 9, "wall_s": 31.993455171585083}
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-sY1dDoYE3OajojF75Ibo59
+Task was destroyed but it is pending!
+task: <Task pending name='Task-346' coro=<<async_generator_athrow without __name__>()> wait_for=<Future pending cb=[Task.task_wakeup()]>>
+Task was destroyed but it is pending!
+task: <Task pending name='Task-354' coro=<Synchronizer._run_function_async() done, defined at /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/synchronicity/synchronizer.py:413> wait_for=<Future pending cb=[shield.<locals>._outer_done_callback() at /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/tasks.py:898, Task.task_wakeup()]> cb=[shield.<locals>._inner_done_callback() at /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/tasks.py:881]>
+Task was destroyed but it is pending!
+task: <Task cancelling name='Task-45' coro=<async_merge.<locals>.producer() running at /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/modal/_utils/async_utils.py:1038> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[gather.<locals>._done_callback() at /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/tasks.py:754]>

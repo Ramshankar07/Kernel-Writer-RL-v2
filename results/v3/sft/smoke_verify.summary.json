@@ -1,0 +1,21 @@
+{
+ "n": 10,
+ "verdicts": {
+  "PASS": 3,
+  "FAIL": 2,
+  "NO_LAUNCH": 2,
+  "CRASH": 1,
+  "FAIL_EXTREME": 1,
+  "TIMEOUT": 1
+ },
+ "per_candidate_s_mean": 7.53,
+ "per_candidate_s_median": 1.72,
+ "container_s": {
+  "NVIDIA L40S": 78.41
+ },
+ "batches": 1,
+ "est_usd": 0.0494,
+ "container_s_per_candidate": 7.84,
+ "local_wall_s": 85.4,
+ "all_match": true
+}

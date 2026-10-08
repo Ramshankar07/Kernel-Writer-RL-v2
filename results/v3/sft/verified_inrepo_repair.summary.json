@@ -1,0 +1,20 @@
+[
+ {
+  "n": 68,
+  "verdicts": {
+   "PASS": 68
+  },
+  "per_candidate_s_mean": 9.5,
+  "per_candidate_s_median": 3.04,
+  "container_s": {
+   "NVIDIA L40S": 657.15
+  },
+  "batches": 4,
+  "est_usd": 0.4138,
+  "container_s_per_candidate": 9.66,
+  "source": "inrepo_repair",
+  "local_wall_s": 235.5,
+  "skipped_static": 1,
+  "skipped_done": 0
+ }
+]

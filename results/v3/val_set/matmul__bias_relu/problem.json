@@ -1,0 +1,87 @@
+{
+ "id": "matmul/bias_relu",
+ "family": "matmul",
+ "variant": "bias_relu",
+ "desc": "relu(A @ B + bias) fused epilogue",
+ "gen": "matmul",
+ "gen_args": {
+  "mode": "bias_relu"
+ },
+ "sizes": [
+  [
+   "m2048_n2048_k2048",
+   {
+    "M": 2048,
+    "N": 2048,
+    "K": 2048
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "m1000_n999_k512",
+   {
+    "M": 1000,
+    "N": 999,
+    "K": 512
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_K4096",
+   {
+    "M": 1024,
+    "N": 1024,
+    "K": 4096
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m2048_n2048_k2048",
+   {
+    "M": 2048,
+    "N": 2048,
+    "K": 2048
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "matmul",
+  "epilogue",
+  "fusion"
+ ],
+ "val_set_version": "v1"
+}

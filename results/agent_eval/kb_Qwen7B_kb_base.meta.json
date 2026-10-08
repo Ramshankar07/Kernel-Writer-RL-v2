@@ -1,0 +1,13 @@
+{
+  "feedback": "v2",
+  "suite": "kb",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "lora": "",
+  "n": 1,
+  "max_turns": 3,
+  "temperature": 0.8,
+  "bench_gpu": "H100",
+  "stride": 2,
+  "tasks": 28,
+  "wall_s": 299.5858497619629
+}

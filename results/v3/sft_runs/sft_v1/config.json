@@ -1,0 +1,18 @@
+{
+  "run": "sft_v1",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "epochs": 2,
+  "lr": 0.0001,
+  "lora_r": 64,
+  "lora_alpha": 128,
+  "warmup_frac": 0.03,
+  "micro_bs": 4,
+  "accum": 4,
+  "max_len": 4096,
+  "steps_per_epoch": 189,
+  "total_steps": 378,
+  "ckpt_every": 94,
+  "n_train": 3022,
+  "n_dev": 60,
+  "seed": 0
+}

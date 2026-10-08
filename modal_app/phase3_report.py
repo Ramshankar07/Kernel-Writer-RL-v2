@@ -1,0 +1,146 @@
+"""
+Phase 3 report (no GPU): base (Phase 0) vs SFT (sft_v1 step 378) on the val set and on KernelBench L1
+under kb v2. Every number below is computed here from result files.
+
+    python3 modal_app/phase3_report.py      # -> results/v3/phase3.md, results/v3/phase3.json
+"""
+import collections
+import json
+import math
+import pathlib
+import statistics as st
+
+V3 = pathlib.Path(__file__).resolve().parents[1] / "results" / "v3"
+
+
+def jl(p):
+    return [json.loads(l) for l in open(p) if l.strip()]
+
+
+def group_stats(path):
+    by = collections.defaultdict(list)
+    for r in jl(path):
+        sp = [t["vs_starter"] for t in r["turns"]
+              if t["verdict"] == "PASS" and not t["is_starter"] and t.get("vs_starter")]
+        rew = (0.5 + max(0.0, math.log2(max(sp)))) if sp else 0.0
+        by[r["task_id"]].append((bool(sp), max(sp) if sp else None, rew))
+    n = len(by)
+    solved = [b for v in by.values() for s, b, _ in v if s]
+    return {
+        "problems": n,
+        "mixed_pass_fail": sum(len({s for s, *_ in v}) > 1 for v in by.values()) / n,
+        "speed_reward_std_gt_0.02": sum(st.pstdev([r for *_, r in v]) > 0.02 for v in by.values()) / n,
+        "all_solve": sum(all(s for s, *_ in v) for v in by.values()),
+        "never_solve": sum(not any(s for s, *_ in v) for v in by.values()),
+        "solved_episodes": len(solved),
+        "solved_beat_starter_5pct": sum(b > 1.05 for b in solved),
+        "solved_vs_starter_median": st.median(solved) if solved else None,
+    }
+
+
+def kb_summary(tag):
+    p = V3 / "phase3_runs" / f"{tag}.meta.json"
+    return json.loads(p.read_text()) if p.exists() else None
+
+
+def kb_failures(tag):
+    p = V3 / "phase3_runs" / f"{tag}.jsonl"
+    if not p.exists():
+        return None
+    c = collections.Counter()
+    for t in jl(p):
+        for x in t["turns"]:
+            if x["correctness"] != "PASS":
+                fl = (x.get("fail_lines") or [""])[0]
+                c[fl.split(":")[0] or x["correctness"]] += 1
+    return dict(c.most_common(6))
+
+
+def kb_seen_split(tag):
+    """KB problems split by op-level overlap with SFT train (decontam op_overlap_flag; verbatim copies
+    were already removed). Reports Triton-launch solves in each part."""
+    p = V3 / "phase3_runs" / f"{tag}.jsonl"
+    if not p.exists():
+        return None
+    seen = set()
+    for r in jl(V3 / "sft" / "sft_train.jsonl"):
+        d = r.get("decontam") or {}
+        if d.get("op_overlap_flag") and d["op_overlap"]["problem"].startswith("kb_l1/"):
+            seen.add(int(d["op_overlap"]["problem"].split("/")[1]))
+    solved = {t["task"]["problem_id"] for t in jl(p) if t.get("any_pass_triton")}
+    return {"seen_problems": len(seen), "solved_seen": len(solved & seen),
+            "unseen_problems": 100 - len(seen), "solved_unseen": len(solved - seen),
+            "unseen_solved_ids": sorted(solved - seen)}
+
+
+def main():
+    base = json.loads((V3 / "phase0_baseline.json").read_text())
+    sft = json.loads((V3 / "phase3_sft_v1.json").read_text())
+    gb, gs = group_stats(V3 / "phase0_baseline.jsonl"), group_stats(V3 / "phase3_sft_v1.jsonl")
+    spread = max(base["pass@1_per_run"].values()) - min(base["pass@1_per_run"].values())
+    gates = {
+        "pass@1 gain >= 2x seed spread": [sft["pass@1"] - base["pass@1"], 2 * spread],
+        "compile share of failures < 15%": [sft["compile_share_of_failures"], 0.15],
+        "mixed-outcome groups >= 30%": [gs["mixed_pass_fail"], 0.30],
+    }
+    passed = {k: (v[0] >= v[1]) if "share" not in k else (v[0] < v[1]) for k, v in gates.items()}
+    kb = {t: kb_summary(t) for t in ("kb2_base", "kb2_sft_v1")}
+    kbf = {t: kb_failures(t) for t in kb}
+    kbs = {t: kb_seen_split(t) for t in kb}
+    out = {"val": {"base": base, "sft": sft}, "groups": {"base": gb, "sft": gs}, "gates": gates,
+           "gates_passed": passed, "kernelbench": kb, "kernelbench_failures": kbf, "kernelbench_seen_split": kbs}
+    (V3 / "phase3.json").write_text(json.dumps(out, indent=1, default=str))
+
+    rows = [("pass@1 (solve = PASS, not the starter)", "pass@1"), ("pass@4", "pass@n"),
+            ("pass on turn 0", "pass@1_turn0"), ("compile-error rate (per turn)", "compile_error_rate"),
+            ("compile share of failures", "compile_share_of_failures"), ("repeat-same-error rate", "repeat_error_rate"),
+            ("solves that are near-copies of the starter", "solving_turns_near_starter_share"),
+            ("beat starter @1", "beat_starter@1"), ("beat starter @4", "beat_starter@n"),
+            ("speedup vs starter, geomean (solving episodes)", "speedup_vs_starter_geomean"),
+            ("speedup vs torch.compile, geomean", "speedup_vs_compile_geomean")]
+    L = ["# Phase 3: SFT (sft_v1) vs base", "",
+         "Base = Qwen2.5-Coder-7B-Instruct (Phase 0). SFT = LoRA r=64, 2 epochs on 3,022 verified examples "
+         "(`results/v3/sft/`), checkpoint step 378. Val set: 62 problems, n=4 (two n=2 runs), 4 turns, prompt v2, "
+         "val bench (bench v2 conventions + launch check). Generated by `modal_app/phase3_report.py`.", "",
+         "## Validation set", "", "| metric | base | SFT |", "|---|---|---|"]
+    for name, k in rows:
+        L.append(f"| {name} | {base[k]:.3f} | {sft[k]:.3f} |")
+    L += ["", "Per-run pass@1: base " + ", ".join(f"{v:.3f}" for v in base["pass@1_per_run"].values())
+          + "; SFT " + ", ".join(f"{v:.3f}" for v in sft["pass@1_per_run"].values()), "",
+          "## Gate for resuming GRPO (`sft_plan.md`)", "", "| gate | value | threshold | pass |", "|---|---|---|---|"]
+    for k, (v, thr) in gates.items():
+        L.append(f"| {k} | {v:.3f} | {thr:.3f} | {'yes' if passed[k] else 'no'} |")
+    L += ["", "## Would GRPO have a speed signal? (offline, from the val runs above)", "",
+          "Reward per episode = 0.5 + max(0, log2 best vs_starter) if solved, else 0 (reward_v2-style PASS floor).", "",
+          "| | base | SFT |", "|---|---|---|"]
+    for k in ("mixed_pass_fail", "speed_reward_std_gt_0.02"):
+        L.append(f"| {k} | {gb[k]:.0%} | {gs[k]:.0%} |")
+    for k in ("all_solve", "never_solve", "solved_episodes", "solved_beat_starter_5pct"):
+        L.append(f"| {k} | {gb[k]} | {gs[k]} |")
+    L.append(f"| solved_vs_starter_median | {gb['solved_vs_starter_median']:.3f} | {gs['solved_vs_starter_median']:.3f} |")
+    L += ["", f"Reading: group variance comes from pass vs fail. Only {gs['solved_beat_starter_5pct']} of "
+          f"{gs['solved_episodes']} solved SFT episodes beat the starter by >5%, so a speed reward would mostly "
+          "re-teach correctness. GRPO was not resumed (user decision 2026-10-07, budget).", "",
+          "## KernelBench L1 (kb v2, 100 valid problems, n=1, 3 turns, ModelNew prompt from prompts_sft.py)", ""]
+    if any(kb.values()):
+        L += ["| | base | SFT |", "|---|---|---|"]
+        for k in ("fast_0_raw", "fast_0_triton", "fast_1_triton"):
+            L.append(f"| {k} | " + " | ".join(f"{kb[t][k]:.2f}" if kb[t] else "pending" for t in kb) + " |")
+        L += ["", "fast_0_triton additionally requires an @triton.jit kernel launched as name[grid](...) (kb v2 has "
+              "no launch check of its own).", "", "Top failure stages: base "
+              f"{kbf['kb2_base']}; SFT {kbf['kb2_sft_v1']}", "",
+              "### Split by op-level overlap with the SFT training set", "",
+              "| | base | SFT |", "|---|---|---|"]
+        for part in ("seen", "unseen"):
+            L.append(f"| solved on op-{part} problems | " + " | ".join(
+                f"{kbs[t]['solved_' + part]}/{kbs[t][part + '_problems']}" if kbs[t] else "pending" for t in kb) + " |")
+        L += ["", "Op-seen = a training example shares most of its ops with the problem (Jaccard >= 0.5); no verbatim "
+              "or near-duplicate KernelBench module is in the training set (`sft_decontam.py`)."]
+    else:
+        L.append("pending")
+    (V3 / "phase3.md").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
+if __name__ == "__main__":
+    main()
