@@ -10,6 +10,7 @@
 <script src="assets/bind.js" defer></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 
 <header class="site-header">
   <div class="wrap">
@@ -25,16 +26,16 @@
   </div>
 </header>
 
-<main class="wrap">
+<main id="main" class="wrap">
 
   <section class="hero">
-    <p class="eyebrow">Research write-up · Qwen2.5-Coder-7B-Instruct · Triton · Modal</p>
     <h1>Can reinforcement learning teach a small model to write faster GPU kernels?</h1>
     <p class="lede">
       An LLM agent writes a Triton kernel, a real GPU checks and times it, and the result is the reward.
       This project re-ran that loop end to end, trained it with GRPO, then audited the verifier and
       tried supervised fine-tuning first. The results are mixed, and this site reports them as they are.
     </p>
+    <p class="byline">Research write-up · Qwen2.5-Coder-7B-Instruct · Triton · Modal</p>
     <p class="thesis">
       GRPO stalled: most of its learning signal came from all-fail groups and benchmark timing noise.
       After fixing the verifier, SFT on verified kernels made the model noticeably more <em>correct</em>,

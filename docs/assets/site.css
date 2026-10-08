@@ -12,7 +12,7 @@
  *
  * LAYOUT
  *   .wrap            centered column, max-width 960px, 16px side gutter on phones
- *   .page-head       page title block: <p class="eyebrow">, <h1>, <p class="lede">
+ *   .page-head       page title block: <h1>, <p class="lede">, optional <p class="byline">
  *   section.block    vertical rhythm between page sections (h2 gets a hairline above)
  *   .grid-2          two columns on desktop, one on phones
  *
@@ -58,6 +58,9 @@
   --selection: #FDE7BF;      /* ink on it: 16:1 */
   --figure-plate: #FFFFFF;   /* figures are light-ground PNGs */
   --figure-pad: 0px;
+  --warn-bg: #FBF1EA;  --warn-line: #E9C4AE;
+  --diff-add: #E6F2E8; --diff-add-ink: #1E5B2C;
+  --diff-del: #F8E6E4; --diff-del-ink: #8A2219;
   --code-bg: #F1F0EB;
   --shadow: 0 1px 2px rgba(20, 33, 61, 0.06), 0 4px 16px rgba(20, 33, 61, 0.05);
 
@@ -90,6 +93,9 @@
     --selection: #5C4513;      /* ink on it: 7.6:1 */
     --figure-plate: #FCFCFB;   /* light charts sit on a deliberate paper plate */
     --figure-pad: 10px;
+    --warn-bg: #24180F;  --warn-line: #5A3A22;
+    --diff-add: #13291A; --diff-add-ink: #9FD9AE;
+    --diff-del: #2E1614; --diff-del-ink: #F2A9A1;
     color-scheme: dark;
   }
 }
@@ -104,7 +110,6 @@ body {
   font-family: var(--sans);
   font-size: 17px;
   line-height: 1.6;
-  overflow-x: hidden;
 }
 img, svg, video { max-width: 100%; height: auto; display: block; }
 a { color: var(--navy); text-decoration-color: color-mix(in srgb, var(--amber) 70%, transparent); text-underline-offset: 3px; }
@@ -182,7 +187,6 @@ section.block > h2 { padding-top: 1.75rem; border-top: 1px solid var(--hairline)
 .stat {
   background: var(--card); border: 1px solid var(--hairline); border-radius: var(--radius);
   padding: 18px 18px 16px; box-shadow: var(--shadow); min-width: 0;
-  border-top: 3px solid var(--navy);
 }
 .stat-num {
   font-family: var(--serif); font-weight: 700; color: var(--navy);
@@ -193,17 +197,16 @@ section.block > h2 { padding-top: 1.75rem; border-top: 1px solid var(--hairline)
 .stat-num .arrow { color: var(--amber-ink); font-size: .55em; margin: 0 .25em; vertical-align: .15em; font-family: var(--sans); }
 .stat-label { margin-top: 8px; font-weight: 600; color: var(--ink); font-size: .95rem; line-height: 1.35; }
 .stat-note { margin-top: 6px; color: var(--muted); font-size: .8rem; line-height: 1.4; }
-.stat.is-neg { border-top-color: var(--muted); }
 .stat.is-neg .stat-num { color: var(--ink-2); }
 
 /* ---------- callout ---------- */
 .callout {
-  background: var(--surface-2); border: 1px solid var(--hairline); border-left: 4px solid var(--amber);
+  background: var(--surface-2); border: 1px solid var(--hairline);
   border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin: 1.25rem 0;
 }
 .callout > :last-child { margin-bottom: 0; }
-.callout.warn { border-left-color: #C2410C; }
-.callout.note { border-left-color: var(--navy); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.callout.note { background: var(--card); }
 
 /* ---------- figures ---------- */
 .fig { margin: 1.5rem 0; }
@@ -280,7 +283,7 @@ pre { background: var(--code-bg); border: 1px solid var(--hairline); border-radi
 .hero .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
 .thesis {
   font-family: var(--serif); font-size: clamp(1.1rem, 1rem + .5vw, 1.3rem); line-height: 1.5;
-  border-left: 4px solid var(--amber); padding: 4px 0 4px 18px; margin: 1.75rem 0; color: var(--ink); max-width: 46em;
+  padding: 14px 0 0; margin: 1.75rem 0; color: var(--ink); max-width: 46em; position: relative;
 }
 
 /* Pages written without .wrap wrappers (header > nav, bare main/footer) get the same centred column. */
@@ -296,3 +299,24 @@ body > main:not(.wrap),
 }
 .site-header > .nav { padding-top: 10px; padding-bottom: 10px; }
 body > main:not(.wrap) { padding-top: 2.5rem; }
+
+/* ---------- shared components promoted from pages (polish) ---------- */
+.stat-num, .stat-label, .stat-note { display: block; }
+.lede { font-size: 1.15rem; color: var(--ink-2); max-width: 44em; }
+.byline { font-size: .875rem; color: var(--muted); margin-top: .75rem; }
+.toc { columns: 2 220px; padding-left: 1.2em; margin: 1.25rem 0; }
+.toc li { break-inside: avoid; margin: 0 0 .3rem; }
+pre.diff { padding: 0; }
+pre.diff code { display: block; padding: 12px 0; }
+pre.diff span { display: block; padding: 0 14px; white-space: pre; }
+pre.diff .d-ctx { color: var(--ink-2); }
+pre.diff .d-add { background: var(--diff-add); color: var(--diff-add-ink); }
+pre.diff .d-del { background: var(--diff-del); color: var(--diff-del-ink); }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 50; padding: 10px 14px; border-radius: 6px;
+  background: var(--card); color: var(--ink); border: 1px solid var(--hairline); text-decoration: none; }
+.skip:focus { top: 10px; }
+@media (pointer: coarse) { .nav a { padding: 12px 10px; } }
+.stats:has(> .stat:nth-child(4):last-child) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.stat-num { white-space: normal; }
+.stat-num .from, .stat-num .arrow { white-space: nowrap; }
+.thesis::before { content: ""; position: absolute; left: 0; top: 0; width: 48px; height: 2px; background: var(--amber); }
