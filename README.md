@@ -41,7 +41,8 @@ a real speed signal: most groups had no variance, and most of the variance it di
 
 ![Architecture: original SkyPilot + verl design vs the Modal re-run](presentation/figures/01_architecture.png)
 
-The April 2026 design used three HTTP-coupled SkyPilot clusters: an 8xH100 verl trainer, a
+The April 2026 design used three HTTP-coupled SkyPilot clusters: an 8-GPU verl trainer (H100:8 in
+the first commit, A100:8 with A40/L4 fallbacks in the last; `src/trainer.yaml`), a
 FastAPI + Redis bench queue, and spot GPU bench workers. The Modal re-run fits the same GRPO loop
 under a 10-GPU cap. One H100 runs the trainer (LoRA r=64), one H100 serves the vLLM policy with the
 LoRA hot-swapped each step, and up to 8 autoscaled L4 benchers run the full AutoKernel bench behind
