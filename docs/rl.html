@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RL results · Kernel-Writer-RL-v2</title>
+<meta name="description" content="What the base model does, what GRPO changed, and why it stalled: every number on this page is read from results/.">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .toc { columns: 2 220px; padding-left: 1.2em; }
+  .verdict li { margin-bottom: .5em; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Site">
+    <a href="index.html">Home</a>
+    <a href="method.html">Method</a>
+    <a href="rl.html" aria-current="page">RL results</a>
+    <a href="verifier.html">Verifier</a>
+    <a href="sft.html">SFT</a>
+    <a href="reproduce.html">Reproduce</a>
+  </nav>
+</header>
+
+<main>
+<article>
+<h1>RL results: GRPO stalled, and the reasons are measurable</h1>
+
+<p class="callout"><strong>Thesis.</strong> Multi-turn GRPO on Qwen2.5-Coder-7B-Instruct did not teach the model to write new kernels. It did not fail because RL "doesn't work". It failed for specific, measurable reasons: most groups gave no gradient, the gradient that did exist was mostly timing noise, the model is far more likely to break a working kernel than to fix a broken one, and most of the wall clock went to benchmarking. Each section below covers one of these findings, with the number that supports it.</p>
+
+<div class="stats">
+  <div class="stat"><strong><span data-k="numbers.json:grpo.grpo_v1.zero_adv_mean" data-fmt="pct1">65.4%</span></strong>of GRPO v1 groups had zero advantage (no gradient)</div>
+  <div class="stat"><strong><span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.grpo_std_as_trained" data-fmt="raw">78.9</span>%</strong>of v1's |advantage| came from timing-noise groups</div>
+  <div class="stat"><strong><span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.benchmarking" data-fmt="raw">60.5</span>%</strong>of each v1 step was spent benchmarking</div>
+  <div class="stat"><strong><span data-k="numbers.json:agent_eval.kb_Qwen7B_grpo_v2_kb_lora.pass_rate" data-fmt="pct0">0%</span></strong>KernelBench pass rate after GRPO (old harness)</div>
+</div>
+
+<p class="muted">Setup: 9 AutoKernel kernel types, full 5-stage <code>bench.py</code> on L4, reward = log2(best speedup) if any turn passes, else 0. All numbers come from <code>results/numbers.json</code> and <code>results/extra_numbers.json</code>; figures come from <code>presentation/</code>. Every run is a single seed.</p>
+
+<nav aria-label="On this page">
+<ol class="toc">
+  <li><a href="#base">The base model barely uses its turns</a></li>
+  <li><a href="#feedback">Better feedback was a free win</a></li>
+  <li><a href="#failures">Correctness is the bottleneck, not speed</a></li>
+  <li><a href="#transitions">The model breaks working kernels</a></li>
+  <li><a href="#groups">Most groups carry no gradient</a></li>
+  <li><a href="#grpo">GRPO v1 vs v2</a></li>
+  <li><a href="#noise">Std-normalisation amplified noise</a></li>
+  <li><a href="#time">Where the time goes</a></li>
+  <li><a href="#kb">KernelBench, before and after</a></li>
+  <li><a href="#verdict">Verdict</a></li>
+</ol>
+</nav>
+
+<section id="base">
+<h2>1. The untrained model barely uses its extra turns</h2>
+<p>Over <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.meta.tasks" data-fmt="int">9</span> kernels × <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.meta.n" data-fmt="int">8</span> samples × <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.meta.max_turns" data-fmt="int">8</span> turns, the base model produces at least one PASS in <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_rate" data-fmt="pct1">34.7%</span> of episodes, with a mean reward of <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.reward_mean" data-fmt="raw">0.1327</span>. Extra turns add very little. Pass@turn goes from <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_at_turn.0" data-fmt="pct1">31.9%</span> on the first turn to <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_at_turn.7" data-fmt="pct1">34.7%</span> after eight. <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.dup_code_frac" data-fmt="pct1">61.1%</span> of turns resubmit code already tried in the same task, mostly the starter kernel.</p>
+<p>Passes come only from kernels whose starter already works. cross_entropy, reduce and softmax pass in every episode. rmsnorm passes in <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.rmsnorm.pass_rate" data-fmt="pct1">12.5%</span> of episodes. The remaining kernels never pass.</p>
+<div class="table-wrap">
+<table class="data">
+  <caption class="muted">Base model per kernel (feedback v2, 8 episodes each). Best speedup is relative to PyTorch on L4.</caption>
+  <thead><tr><th>kernel</th><th>pass rate</th><th>best speedup</th><th>mean reward</th></tr></thead>
+  <tbody>
+    <tr><td>cross_entropy</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.cross_entropy.pass_rate" data-fmt="pct0">100%</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.cross_entropy.best_speedup" data-fmt="f3">2.040</span>×</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.cross_entropy.reward_mean" data-fmt="f3">1.027</span></td></tr>
+    <tr><td>softmax</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.softmax.pass_rate" data-fmt="pct0">100%</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.softmax.best_speedup" data-fmt="f3">1.007</span>×</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.softmax.reward_mean" data-fmt="f3">-0.004</span></td></tr>
+    <tr><td>reduce</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.reduce.pass_rate" data-fmt="pct0">100%</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.reduce.best_speedup" data-fmt="f3">0.987</span>×</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.reduce.reward_mean" data-fmt="f3">-0.020</span></td></tr>
+    <tr><td>rmsnorm</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.rmsnorm.pass_rate" data-fmt="pct1">12.5%</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.rmsnorm.best_speedup" data-fmt="f3">2.900</span>× <span class="tag">reward hack</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.rmsnorm.reward_mean" data-fmt="f3">0.192</span></td></tr>
+    <tr><td>flash_attention, fused_mlp, layernorm, matmul, rotary_embedding</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.matmul.pass_rate" data-fmt="pct0">0%</span></td><td>n/a</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.per_kernel.matmul.reward_mean" data-fmt="f3">0.000</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="muted">The rmsnorm "speedup" comes from switching the accumulation from fp32 to fp16. A later re-measurement showed this is a reward hack, not a real optimisation; see <a href="verifier.html">Verifier</a>. Also note that a correct kernel slower than PyTorch scores below zero, which ranks it under a crash. That is why softmax and reduce, which pass every time, have negative mean reward.</p>
+<figure class="fig">
+  <img src="assets/figures/05_per_kernel_base.png" alt="Bar chart of base-model pass rate and best speedup for each of the 9 AutoKernel kernels" loading="lazy">
+  <figcaption>Per-kernel base-model results. Only the kernels whose starter already passes are ever solved.</figcaption>
+</figure>
+</section>
+
+<section id="feedback">
+<h2>2. Better feedback was a free win, with no training</h2>
+<p>The original design sent the model the <em>tail</em> of <code>bench.py</code>'s log. That tail is only the summary block, so the model never saw which check had failed. Sending the actual failure lines instead (feedback v2) changed the base model's results with no training at all:</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th></th><th>v1: log tail</th><th>v2: failure lines</th></tr></thead>
+  <tbody>
+    <tr><td>episode pass rate</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.pass_rate" data-fmt="pct1">30.6%</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_rate" data-fmt="pct1">34.7%</span></td></tr>
+    <tr><td>mean reward</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.reward_mean" data-fmt="raw">0.0966</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.reward_mean" data-fmt="raw">0.1327</span></td></tr>
+    <tr><td>pass@turn, turn 1 → turn 8</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.pass_at_turn.0" data-fmt="pct1">30.6%</span> → <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.pass_at_turn.7" data-fmt="pct1">30.6%</span> (flat)</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_at_turn.0" data-fmt="pct1">31.9%</span> → <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.pass_at_turn.7" data-fmt="pct1">34.7%</span></td></tr>
+    <tr><td>reward with a 1-turn vs 8-turn budget</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.ablations.reward_by_turn_budget.1" data-fmt="raw">0.0965</span> vs <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.ablations.reward_by_turn_budget.8" data-fmt="raw">0.0966</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.ablations.reward_by_turn_budget.1" data-fmt="raw">0.0967</span> vs <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.ablations.reward_by_turn_budget.8" data-fmt="raw">0.1327</span></td></tr>
+    <tr><td>CRASH turns</td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.turn_outcomes.CRASH" data-fmt="int">128</span></td><td><span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.turn_outcomes.CRASH" data-fmt="int">56</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Under the log-tail feedback, later turns were worth nothing: the 8-turn reward equals the 1-turn reward. With the failure lines, the model has something it can act on. This is the cheapest improvement in the whole project, and it came from reading the harness, not from RL.</p>
+<figure class="fig">
+  <img src="assets/figures/04_pass_at_turn_feedback.png" alt="Line chart of pass rate by turn for log-tail feedback (flat) and failure-line feedback (rising slightly)" loading="lazy">
+  <figcaption>Pass@turn under the two feedback formats. With the log tail the curve is flat; with failure lines it rises a little.</figcaption>
+</figure>
+</section>
+
+<section id="failures">
+<h2>3. Correctness is the bottleneck, not speed</h2>
+<p>With the log tail, <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.failure_taxonomy.other FAIL/CRASH" data-fmt="int">256</span> failed turns had no reason we could classify ("other FAIL/CRASH"). With the failure lines, the reasons become visible. The largest category is <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.failure_taxonomy.numerical mismatch" data-fmt="int">258</span> numerical mismatches, followed by <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.failure_taxonomy.Triton API / compile error" data-fmt="int">128</span> Triton API / compile errors, <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.failure_taxonomy.out of shared memory" data-fmt="int">27</span> out-of-shared-memory errors and <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.failure_taxonomy.API/name error" data-fmt="int">21</span> API/name errors. The model mostly fails by producing wrong answers or calling Triton APIs that don't exist. It almost never fails by being slow.</p>
+<figure class="fig">
+  <img src="assets/figures/06_failure_taxonomy.png" alt="Bar chart of failure categories for non-PASS turns under the two feedback formats" loading="lazy">
+  <figcaption>Failure taxonomy. Better feedback turns "other" into named, fixable categories.</figcaption>
+</figure>
+</section>
+
+<section id="transitions">
+<h2>4. The model breaks working kernels</h2>
+<p>A turn-to-turn transition matrix over all <span data-k="extra_numbers.json:turn_transitions.base_fbv2.transitions" data-fmt="int">504</span> transitions shows the multi-turn loop working against the model. After a PASS, the next turn is broken (FAIL or CRASH) with probability <span data-k="extra_numbers.json:turn_transitions.base_fbv2.P_pass_broken_next_turn" data-fmt="pct0">24%</span>, or <span data-k="extra_numbers.json:turn_transitions.base_fbv1.P_pass_broken_next_turn" data-fmt="pct0">35%</span> under log-tail feedback. After a FAIL, the next turn passes with probability only <span data-k="extra_numbers.json:turn_transitions.base_fbv2.P_next_given_current.FAIL.PASS" data-fmt="pct1">1.7%</span>. Even the PASS→PASS transitions are partly the model resubmitting the same code: <span data-k="extra_numbers.json:turn_transitions.base_fbv2.pass_to_pass_same_code_sha_frac" data-fmt="pct1">40.6%</span> of them are byte-identical.</p>
+<p>So the model is far more likely to break a working kernel than to fix a broken one. Pass@turn is flat because repairs are rare, not because the model stops trying.</p>
+<figure class="fig">
+  <img src="assets/figures/x5_turn_transitions.png" alt="Heatmap of next-turn outcome probabilities given current outcome (PASS, FAIL, CRASH)" loading="lazy">
+  <figcaption>P(next turn outcome | current outcome), base model. The off-diagonal PASS→FAIL mass is the model breaking its own working kernels.</figcaption>
+</figure>
+</section>
+
+<section id="groups">
+<h2>5. Most groups carry no gradient, at any group size</h2>
+<p>GRPO learns only from groups whose rewards differ. Replaying base-model rollouts at different group sizes shows that the share of all-equal (zero-advantage) groups is <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.ablations.zero_adv_group_frac_by_group_size.2" data-fmt="pct1">69.3%</span> at group size 2, <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.ablations.zero_adv_group_frac_by_group_size.4" data-fmt="pct1">60.4%</span> at 4 and <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.ablations.zero_adv_group_frac_by_group_size.8" data-fmt="pct1">55.6%</span> at 8. Training therefore used group size 8. Even so, more than half of every batch teaches nothing, because a kernel that never passes yields eight zeros.</p>
+<figure class="fig">
+  <img src="assets/figures/07_zero_advantage_groups.png" alt="Bar chart of zero-advantage group fraction at group sizes 2, 4 and 8" loading="lazy">
+  <figcaption>Zero-advantage groups by group size (base-model rollouts). Bigger groups help, but slowly.</figcaption>
+</figure>
+<p>A dense reward can split these ties. In one GRPO v1 group (step <span data-k="extra_numbers.json:group_explorer.step" data-fmt="int">10</span>, <span data-k="extra_numbers.json:group_explorer.kernel_type" data-fmt="raw">layernorm</span>), all eight samples scored 0 under the original reward. Under reward v2, which gives partial credit for passing the smoke test, the shape sweep and the stability checks, the same eight samples have a reward std of <span data-k="extra_numbers.json:group_explorer.reward_v2_std" data-fmt="f3">0.087</span>. Across v1 training, an average of <span data-k="extra_numbers.json:group_explorer.tied_under_v1_separable_under_v2.grpo_v1.mean" data-fmt="f2">3.44</span> of the <span data-k="extra_numbers.json:group_explorer.tied_under_v1_separable_under_v2.grpo_v1.of_groups_per_step" data-fmt="int">9</span> groups per step were tied under the original reward but separable under v2.</p>
+<figure class="fig">
+  <img src="assets/figures/x3_group_explorer.png" alt="Per-sample rewards and advantages for one GRPO group under the original reward (all zero) and reward v2 (spread)" loading="lazy">
+  <figcaption>One group, two rewards. The original reward ties all eight samples. Reward v2 ranks them by how far through the correctness checks they got.</figcaption>
+</figure>
+</section>
+
+<section id="grpo">
+<h2>6. GRPO v1 stalled; v2 added gradient but solved nothing new</h2>
+<p>Both runs used group size <span data-k="numbers.json:grpo.grpo_v1.config.group" data-fmt="int">8</span>, <span data-k="numbers.json:grpo.grpo_v1.config.max_turns" data-fmt="int">4</span> turns, LoRA r=<span data-k="numbers.json:grpo.grpo_v1.config.lora_r" data-fmt="int">64</span> and learning rate <span data-k="numbers.json:grpo.grpo_v1.config.lr" data-fmt="raw">0.00001</span>, with <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.dapo_eff_batch_trajs.nominal" data-fmt="int">72</span> episodes per step. Rewards were measured on <span data-k="numbers.json:grpo.grpo_v1.config.bench_gpu" data-fmt="raw">L4</span>.</p>
+<div class="table-wrap">
+<table class="data">
+  <caption class="muted">Mean of the first 3 vs last 3 steps.</caption>
+  <thead><tr><th></th><th>v1: original reward</th><th>v2: dense correctness credit</th></tr></thead>
+  <tbody>
+    <tr><td>steps</td><td><span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span></td><td><span data-k="numbers.json:grpo.grpo_v2.steps" data-fmt="int">10</span></td></tr>
+    <tr><td>original reward</td><td><span data-k="numbers.json:grpo.grpo_v1.reward_first3" data-fmt="raw">0.0981</span> → <span data-k="numbers.json:grpo.grpo_v1.reward_last3" data-fmt="raw">0.1147</span></td><td><span data-k="numbers.json:grpo.grpo_v2.reward_first3" data-fmt="raw">0.1066</span> → <span data-k="numbers.json:grpo.grpo_v2.reward_last3" data-fmt="raw">0.1154</span></td></tr>
+    <tr><td>reward v2</td><td><span data-k="numbers.json:grpo.grpo_v1.reward_v2_first3" data-fmt="raw">0.3567</span> → <span data-k="numbers.json:grpo.grpo_v1.reward_v2_last3" data-fmt="raw">0.3534</span></td><td><span data-k="numbers.json:grpo.grpo_v2.reward_v2_first3" data-fmt="raw">0.3713</span> → <span data-k="numbers.json:grpo.grpo_v2.reward_v2_last3" data-fmt="raw">0.3985</span></td></tr>
+    <tr><td>pass rate</td><td><span data-k="numbers.json:grpo.grpo_v1.pass_first3" data-fmt="pct1">29.2%</span> → <span data-k="numbers.json:grpo.grpo_v1.pass_last3" data-fmt="pct1">25.0%</span></td><td><span data-k="numbers.json:grpo.grpo_v2.pass_first3" data-fmt="pct1">31.5%</span> → <span data-k="numbers.json:grpo.grpo_v2.pass_last3" data-fmt="pct1">31.9%</span></td></tr>
+    <tr><td>zero-gradient groups (mean)</td><td><span data-k="numbers.json:grpo.grpo_v1.zero_adv_mean" data-fmt="pct1">65.4%</span></td><td><span data-k="numbers.json:grpo.grpo_v2.zero_adv_mean" data-fmt="pct1">37.8%</span></td></tr>
+    <tr><td>kernels ever passed</td><td><span data-k="numbers.json:grpo.grpo_v1.kernels_ever_passed.0" data-fmt="raw">cross_entropy</span>, <span data-k="numbers.json:grpo.grpo_v1.kernels_ever_passed.1" data-fmt="raw">reduce</span>, <span data-k="numbers.json:grpo.grpo_v1.kernels_ever_passed.2" data-fmt="raw">rmsnorm</span>, <span data-k="numbers.json:grpo.grpo_v1.kernels_ever_passed.3" data-fmt="raw">softmax</span></td><td><span data-k="numbers.json:grpo.grpo_v2.kernels_ever_passed.0" data-fmt="raw">cross_entropy</span>, <span data-k="numbers.json:grpo.grpo_v2.kernels_ever_passed.1" data-fmt="raw">reduce</span>, <span data-k="numbers.json:grpo.grpo_v2.kernels_ever_passed.2" data-fmt="raw">rmsnorm</span>, <span data-k="numbers.json:grpo.grpo_v2.kernels_ever_passed.3" data-fmt="raw">softmax</span></td></tr>
+    <tr><td>trainer wall clock / est. H100 cost</td><td><span data-k="numbers.json:grpo.grpo_v1.wall_h" data-fmt="f2">2.38</span> h / $<span data-k="numbers.json:grpo.grpo_v1.est_cost_usd" data-fmt="f2">18.84</span></td><td><span data-k="numbers.json:grpo.grpo_v2.wall_h" data-fmt="f2">1.41</span> h / $<span data-k="numbers.json:grpo.grpo_v2.est_cost_usd" data-fmt="f2">11.15</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p><strong>v1</strong> nudged the original reward up, but the gain came mostly from reduce producing fewer badly slow passing kernels (per-kernel reward <span data-k="numbers.json:grpo.grpo_v1.per_kernel_reward_first_last.reduce.0" data-fmt="raw">-0.12</span> → <span data-k="numbers.json:grpo.grpo_v1.per_kernel_reward_first_last.reduce.1" data-fmt="raw">-0.005</span>) and from cross_entropy (<span data-k="numbers.json:grpo.grpo_v1.per_kernel_reward_first_last.cross_entropy.0" data-fmt="raw">0.9</span> → <span data-k="numbers.json:grpo.grpo_v1.per_kernel_reward_first_last.cross_entropy.1" data-fmt="raw">1.028</span>), while the pass rate fell. flash_attention, fused_mlp, layernorm, matmul and rotary_embedding never passed in any episode of any step.</p>
+<p><strong>v2</strong> gives partial credit for correctness progress, gives every PASS a floor above any failure (so a correct but slow kernel no longer ranks below a crash), and ignores groups with std below <span data-k="numbers.json:grpo.grpo_v2.config.adv_min_std" data-fmt="raw">0.02</span>. The robust effect is structural: zero-gradient groups dropped from about two thirds to about two fifths, and the pass rate stopped declining. The reward changes are small and come from a single seed, and no new kernel was solved.</p>
+<figure class="fig">
+  <img src="assets/figures/09_grpo_curves.png" alt="Training curves for GRPO v1 and v2: reward, pass rate and zero-advantage fraction per step" loading="lazy">
+  <figcaption>GRPO v1 (18 steps) and v2 (10 steps). The curves move within step-to-step noise.</figcaption>
+</figure>
+</section>
+
+<section id="noise">
+<h2>7. Std-normalisation turned timing noise into most of v1's gradient</h2>
+<p>Among the v1 groups that did vary, many varied only because of benchmark timing noise. A typical case is a group of correct softmax kernels that all run at essentially PyTorch speed, with rewards that differ only in the third decimal. Standard GRPO divides by the group std, which scales this jitter up to full-size advantages. Replaying v1's logged rewards (matching the logged advantages exactly) gives:</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>advantage estimator (GRPO v1 rollouts)</th><th>share of total |advantage| from timing-noise groups</th></tr></thead>
+  <tbody>
+    <tr><td>GRPO, (r − mean) / std, as trained</td><td><span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.grpo_std_as_trained" data-fmt="raw">78.9</span>%</td></tr>
+    <tr><td>Dr. GRPO, r − mean (no std division)</td><td><span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.dr_grpo_no_std" data-fmt="raw">6.2</span>%</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Of v1's <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.groups_total" data-fmt="int">162</span> groups, <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.zero_variance_groups" data-fmt="int">106</span> had zero variance. The noise-level groups came from softmax (<span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.noise_level_group_kernels.softmax" data-fmt="int">18</span>), reduce (<span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.noise_level_group_kernels.reduce" data-fmt="int">17</span>) and cross_entropy (<span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.noise_level_group_kernels.cross_entropy" data-fmt="int">7</span>), which are exactly the kernels the model already solves. So most of the update that v1 did make pushed the policy around on bench jitter for kernels it could already write. v2's std floor removes these groups by construction. Without the floor they would have carried <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v2.abs_adv_mass_share_from_noise_groups_pct.grpo_std_no_floor" data-fmt="raw">17.4</span>% of v2's |advantage|.</p>
+<figure class="fig">
+  <img src="assets/figures/x2_dr_grpo_noise_mass.png" alt="Bar chart comparing the share of advantage mass from noise-level groups under GRPO std normalisation and Dr. GRPO" loading="lazy">
+  <figcaption>Share of |advantage| from timing-noise groups. Std normalisation amplifies noise; Dr. GRPO's mean-only centring does not.</figcaption>
+</figure>
+</section>
+
+<section id="time">
+<h2>8. Where the time goes: benchmarking, not learning</h2>
+<p>v1 logged per-turn timings, so a training step can be broken down: benchmarking took <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.benchmarking" data-fmt="raw">60.5</span>%, generation <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.generation" data-fmt="raw">32.8</span>% and the policy update <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.policy_update" data-fmt="raw">6.7</span>%. A mean step was about <span data-k="extra_numbers.json:time_breakdown.grpo_v1.mean_rollout_s" data-fmt="int">445</span> s of rollout against <span data-k="extra_numbers.json:time_breakdown.grpo_v1.mean_train_s" data-fmt="int">32</span> s of training, so the trainer H100 sat idle <span data-k="extra_numbers.json:time_breakdown.grpo_v1.trainer_gpu_idle_pct" data-fmt="raw">93.3</span>% of the time. Bench time per turn ranged from <span data-k="extra_numbers.json:time_breakdown.grpo_v1.bench_turn_s_range.0" data-fmt="int">9</span> to <span data-k="extra_numbers.json:time_breakdown.grpo_v1.bench_turn_s_range.1" data-fmt="int">242</span> s, and the slowest bench gates each synchronous turn.</p>
+<p>The loop is bench-bound. Asynchronous rollouts and a cheaper first-pass verifier would buy more steps than any change to the optimiser.</p>
+<figure class="fig">
+  <img src="assets/figures/x1_time_breakdown.png" alt="Stacked bar of a GRPO v1 step: benchmarking, generation and policy update shares" loading="lazy">
+  <figcaption>Mean GRPO v1 step time by phase.</figcaption>
+</figure>
+</section>
+
+<section id="kb">
+<h2>9. KernelBench before and after: 0 to 0, on a harness we later replaced</h2>
+<p>As a held-out check, we ran a <span data-k="numbers.json:agent_eval.kb_Qwen7B_kb_base.n_traj" data-fmt="int">28</span>-problem KernelBench Level 1 subset (<span data-k="numbers.json:agent_eval.kb_Qwen7B_kb_base.meta.max_turns" data-fmt="int">3</span> turns, H100). The base model's pass rate was <span data-k="numbers.json:agent_eval.kb_Qwen7B_kb_base.pass_rate" data-fmt="pct0">0%</span>. After GRPO v2 it was <span data-k="numbers.json:agent_eval.kb_Qwen7B_grpo_v2_kb_lora.pass_rate" data-fmt="pct0">0%</span>, on <span data-k="numbers.json:agent_eval.kb_Qwen7B_grpo_v2_kb_lora.n_traj" data-fmt="int">28</span> problems. Training on 9 AutoKernel kernels did not transfer.</p>
+<p class="callout">This result is superseded. The old KernelBench harness was itself broken: it never seeded weight initialisation (every conv problem failed even for an identical model), it timed CPU input generation, and only about half of Level 1 was valid. The fixed harness runs all <span data-k="phase3.json:kernelbench.kb2_base.tasks" data-fmt="int">100</span> Level 1 problems. On it, the base model's Triton pass rate is still <span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span>, and the SFT model reaches <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span>. The GRPO checkpoint was not re-run on the fixed harness. See <a href="verifier.html">Verifier</a> for the harness fixes and <a href="sft.html">SFT</a> for the new numbers. Read "0 → 0" as "no transfer measured on a harness that could not have shown much", not as the final word.</p>
+</section>
+
+<section id="verdict">
+<h2>Verdict</h2>
+<ul class="verdict">
+  <li><strong>GRPO did not make the model a better kernel writer.</strong> Over <span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span> + <span data-k="numbers.json:grpo.grpo_v2.steps" data-fmt="int">10</span> steps the set of solved kernels did not change, and the reward moves are within single-seed noise.</li>
+  <li><strong>The signal, not the optimiser, was the problem.</strong> Most groups were all-zero, and most of the remaining gradient was timing noise amplified by std normalisation. Dense correctness credit and a noise floor fixed the plumbing (zero-gradient groups <span data-k="numbers.json:grpo.grpo_v1.zero_adv_mean" data-fmt="pct0">65%</span> → <span data-k="numbers.json:grpo.grpo_v2.zero_adv_mean" data-fmt="pct0">38%</span>), but they can't create successes the policy never samples.</li>
+  <li><strong>The cheapest win was outside RL.</strong> Sending the model the real failure lines raised mean reward from <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv1.reward_mean" data-fmt="raw">0.0966</span> to <span data-k="numbers.json:agent_eval.autokernel_Qwen2.5-Coder-7B-Instruct_n8_t8_L4_fbv2.reward_mean" data-fmt="raw">0.1327</span> with no gradient step.</li>
+  <li><strong>What comes next.</strong> The base policy has to produce correct kernels before RL has anything to sharpen. That is why the project moved to a fixed verifier and supervised fine-tuning first, with GRPO to be resumed once mixed-outcome groups are common (<a href="sft.html">SFT</a>).</li>
+</ul>
+</section>
+</article>
+</main>
+
+<footer class="site-footer">
+  <p><a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">GitHub repository</a> · Apache-2.0</p>
+</footer>
+<script src="assets/bind.js" defer></script>
+</body>
+</html>
