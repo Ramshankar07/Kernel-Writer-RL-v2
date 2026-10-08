@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method · Kernel-Writer-RL-v2</title>
+<meta name="description" content="How Kernel-Writer-RL-v2 works: the multi-turn Triton kernel task, the AutoKernel verifier and bench v2, rewards v1 and v2, the GRPO loop as run on Modal, and the SFT recipe.">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* page-local: topology diagram and formula blocks */
+  .topo { max-width: 560px; margin-left: auto; margin-right: auto; }
+  .topo svg { width: 100%; height: auto; display: block; color: inherit; }
+  .topo .box { fill: currentColor; fill-opacity: 0.04; stroke: currentColor; stroke-width: 1.5; }
+  .topo .box-accent { fill: #FCA311; fill-opacity: 0.10; stroke: #FCA311; stroke-width: 2; }
+  .topo .frame { fill: none; stroke: currentColor; stroke-opacity: 0.45; stroke-dasharray: 6 5; stroke-width: 1.2; }
+  .topo .edge { fill: none; stroke: currentColor; stroke-opacity: 0.7; stroke-width: 1.5; }
+  .topo .edge-dash { stroke-dasharray: 4 4; }
+  .topo text { fill: currentColor; font-family: inherit; }
+  .topo .t1 { font-size: 15px; font-weight: 700; }
+  .topo .t2 { font-size: 12.5px; opacity: 0.85; }
+  .topo .lbl { font-size: 11.5px; opacity: 0.75; }
+  .topo .cap { font-size: 12px; opacity: 0.7; letter-spacing: 0.02em; }
+  .formula { white-space: pre; overflow-x: auto; max-width: 100%; }
+  main p code, main li code, main h3 code { overflow-wrap: anywhere; }
+  .reward-pair > div { min-width: 0; }
+  .table-wrap { overflow-x: auto; }
+  .steps { padding-left: 1.3em; }
+  .steps li { margin: 0.35em 0; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Main">
+    <a href="index.html">Home</a>
+    <a href="method.html" aria-current="page">Method</a>
+    <a href="rl.html">RL results</a>
+    <a href="verifier.html">Verifier</a>
+    <a href="sft.html">SFT</a>
+    <a href="reproduce.html">Reproduce</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Method</h1>
+  <p class="muted">The task, the verifier, the two rewards, the GRPO loop as it actually ran on Modal, and the SFT recipe that came after. Constants on this page are quoted from the named source files; measured numbers are loaded from the repo's <code>results/</code> JSON.</p>
+
+  <!-- ===================================================== 1. TASK -->
+  <section id="task">
+    <h2>1. The task</h2>
+    <p>An agent (Qwen2.5-Coder-7B-Instruct) is given one of AutoKernel's nine kernel types (matmul, softmax, layernorm, rmsnorm, flash_attention, fused_mlp, cross_entropy, rotary_embedding, reduce), with the PyTorch reference and a working Triton starter. It must answer with a complete <code>kernel.py</code> that defines <code>KERNEL_TYPE</code> and <code>kernel_fn</code>.</p>
+    <p>Each answer goes to a GPU benchmark. The benchmark's per-stage verdicts, error messages and speedup are sent back as the next user turn, and the agent revises. One <em>episode</em> is this multi-turn conversation. GRPO used 4 turns per episode and the no-training base evaluation used 8 (<code>modal_app/train_grpo.py</code>, <code>agent_eval.py</code>).</p>
+    <ol class="steps">
+      <li><strong>Prompt:</strong> reference implementation, starter <code>kernel.py</code>, target GPU.</li>
+      <li><strong>Turn <var>t</var>:</strong> the model writes a full <code>kernel.py</code>.</li>
+      <li><strong>Verify:</strong> <code>bench.py</code> checks correctness, then times the kernel against eager PyTorch.</li>
+      <li><strong>Feedback:</strong> the stage results and speedup go back to the model. Repeat until the turn budget (or the context window) runs out.</li>
+      <li><strong>Score:</strong> one scalar reward for the whole episode: from its best PASS turn, or (reward v2 only) partial credit for its best non-PASS progress (section 3).</li>
+    </ol>
+  </section>
+
+  <!-- ===================================================== 2. VERIFIER -->
+  <section id="verifier">
+    <h2>2. The verifier</h2>
+    <h3>AutoKernel <code>bench.py</code> (v1, used for all RL)</h3>
+    <p>The upstream harness (<code>results/autokernel_src/bench.py</code>, unmodified) runs five correctness stages. Every stage must pass before a speed number counts.</p>
+    <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>#</th><th>Stage</th><th>What it checks</th><th>Quick mode</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><code>smoke_test</code></td><td>Smallest size, first dtype, against the reference. If this fails, the other stages are skipped.</td><td>runs</td></tr>
+        <tr><td>2</td><td><code>shape_sweep</code></td><td>Every size × every dtype, with per-dtype atol/rtol. Reports “(k/n failed)”.</td><td>runs</td></tr>
+        <tr><td>3</td><td><code>numerical_stability</code></td><td>Adversarial inputs at the “small” size, first dtype: near-max (×60000 for fp16), near-zero (×1e-6), mixed scale, all zeros, all equal. Tolerance relaxed ×10.</td><td>skipped</td></tr>
+        <tr><td>4</td><td><code>determinism</code></td><td>Same input run 3 times; outputs must be bitwise identical.</td><td>skipped</td></tr>
+        <tr><td>5</td><td><code>edge_cases</code></td><td>Awkward, non-power-of-two sizes.</td><td>skipped</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Timing uses Triton <code>do_bench</code> against eager PyTorch on the reference, and speedup = t<sub>eager</sub> / t<sub>kernel</sub>. Upstream prints its metrics to stdout and writes no <code>results.tsv</code>, so <code>modal_app/bench_modal.py:parse_stdout</code> reads stdout instead.</p>
+    <div class="callout">
+      <strong>Quick vs full.</strong> <code>--quick</code> skips stages 3 to 5. Under quick mode the rmsnorm and flash_attention starters PASS, but they FAIL the full bench. All rewards in this project use the <strong>full</strong> bench.
+    </div>
+
+    <h3>bench v2 (written after the RL runs)</h3>
+    <p>When the RL kernels were re-checked, v1 turned out to be too lenient in some places and too strict in others. <code>modal_app/bench_v2_core.py</code> loads the same upstream sizes, dtypes and tolerances and changes only these things:</p>
+    <ul>
+      <li><strong>Golden reference.</strong> The upstream reference is run on inputs upcast to fp64 (norms, softmax, cross-entropy, RoPE, reduce) or to fp32 with TF32 off (matmul, fused_mlp, attention). The kernel is compared to that, with no ×10 relaxation. rtol is floored at 2 units of roundoff for each dtype; this matters for bf16, where the upstream rtol of 2e-3 is below unit roundoff.</li>
+      <li><strong>Adversarial magnitudes.</strong> Each kernel type gets cases where the true output fits in the dtype but fp16 intermediates overflow, underflow or stall. Examples: rmsnorm rows at RMS 8 and 300 with N=4096, softmax/CE logits ×100, attention Q,K ×40. A non-finite output where the golden is finite is a FAIL. v1 passed a case when the kernel and the reference were both NaN.</li>
+      <li><strong>Fresh inputs.</strong> A new <code>os.urandom</code> seed for every evaluation, non-trivial layernorm weight and bias, and real cos/sin for RoPE. There is no result cache.</li>
+      <li><strong>Timing.</strong> CUDA events with a 256 MB L2 flush before each rep, implementations interleaved rep by rep, and a paired ratio against the <em>starter</em> with a bootstrap 95% CI. Eager PyTorch is timed alongside every kernel; separate baseline jobs add <code>torch.compile</code> of the reference.</li>
+      <li><strong>Launch check</strong> (val bench and SFT verifier: <code>val_bench_core.py</code>, <code>sft_verify_core.py</code>). A PASS needs at least one <code>@triton.jit</code> launch during the correctness run. A pure-PyTorch <code>kernel_fn</code> fails (val bench: “no Triton kernel launched”; SFT verifier: verdict <code>NO_LAUNCH</code>).</li>
+    </ul>
+    <p>The <a href="verifier.html">Verifier page</a> covers the rescore of every old PASS kernel and the bug audit of the upstream references.</p>
+  </section>
+
+  <!-- ===================================================== 3. REWARDS -->
+  <section id="rewards">
+    <h2>3. Rewards</h2>
+    <div class="reward-pair">
+      <div>
+        <h3>Reward v1 <span class="tag">original</span></h3>
+        <p class="muted"><code>src/autokernel-rlvr/agent_loop/reward.py</code></p>
+<pre class="formula"><code>if no turn PASSes:  r = 0
+else:               r = clip(log2(best_speedup), -1, 3)</code></pre>
+        <p>The +3 clip is log2(8×). Optional step shaping (±0.02 per PASS/CRASH) is off (<code>USE_STEP_SHAPING = False</code>).</p>
+      </div>
+      <div>
+        <h3>Reward v2 <span class="tag">GRPO v2</span></h3>
+        <p class="muted"><code>modal_app/reward_v2.py</code></p>
+<pre class="formula"><code>PASS in any turn:  r = 0.5 + clip(log2(best_speedup), 0, 3)
+otherwise:         r = 0.3 · max over turns of progress
+
+progress = 0.25·[smoke_test PASS]
+         + 0.50·(shape-sweep configs passed / total)
+         + 0.25·[numerical_stability PASS]</code></pre>
+      </div>
+    </div>
+    <p>v2 fixes two problems that GRPO v1 exposed:</p>
+    <ul>
+      <li><strong>Sparse signal.</strong> Under v1, any group where all eight samples failed scored 0 for every sample, so it gave no gradient. v2 gives partial credit for progress through the stages, which <code>bench.py</code> already reports.</li>
+      <li><strong>Reward floor.</strong> Under v1 a correct kernel slower than PyTorch scores log2(s) &lt; 0, which is <em>below</em> a crash. Under v2 any PASS scores at least 0.5, and every non-PASS scores at most 0.3.</li>
+    </ul>
+    <p>The v1 reward is still logged for every v2 episode, so both runs can be compared on the same metric.</p>
+  </section>
+
+  <!-- ===================================================== 4. GRPO -->
+  <section id="grpo">
+    <h2>4. The GRPO loop, as run</h2>
+    <p>The original plan used verl. On Modal, <code>modal_app/train_grpo.py</code> runs a small hand-written loop that keeps verl's GRPO semantics. The trainer container runs the whole loop, so the laptop can disconnect.</p>
+<pre class="formula"><code># one scalar per trajectory, broadcast to its assistant tokens
+A_i  = (r_i − mean(r_group)) / (std(r_group) + 1e-6)
+A_i  = 0   if std(r_group) ≤ adv_min_std   # v2: 0.02
+
+# one on-policy step: ratio = 1 (PPO clip inactive), no KL; grad-norm clip 1.0
+loss = − token_mean_over_batch( A · log π(token) )</code></pre>
+    <ul>
+      <li><strong>Group-normalised advantage.</strong> The 8 trajectories for one task form a group. Tool and observation tokens are masked out, so only the model's own tokens get gradient.</li>
+      <li><strong>One on-policy update per batch.</strong> The PPO ratio is 1, so clipping never activates. Loss is token-mean (<code>loss_agg_mode=token-mean</code>), and there is no KL term (verl's GRPO default <code>use_kl_loss=False</code>).</li>
+      <li><strong>Noise floor (v2).</strong> In v2, a group whose reward std is ≤ 0.02 counts as a tie. That threshold is about the bench's timing noise (stage 1 baselines: at most <span data-k="numbers.json:stage1.max_cv_pct" data-fmt="raw">1.89</span>% CV on speedup, about 0.027 in log2 units, per the <code>train_grpo.py</code> docstring). In GRPO v1, which had no floor, <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.grpo_std_as_trained" data-fmt="raw">78.9</span>% of the total |advantage| came from such noise-level groups.</li>
+    </ul>
+    <div class="table-wrap">
+    <table class="data">
+      <caption class="muted" style="caption-side:bottom;text-align:left">Hyperparameters from <code>results/grpo/grpo_v{1,2}/config.json</code> and <code>train_grpo.py</code>. Steps actually completed are from <code>results/numbers.json</code>.</caption>
+      <thead><tr><th>Setting</th><th>GRPO v1</th><th>GRPO v2</th></tr></thead>
+      <tbody>
+        <tr><td>Policy</td><td colspan="2">Qwen/Qwen2.5-Coder-7B-Instruct, bf16</td></tr>
+        <tr><td>Adapter</td><td colspan="2">LoRA r=64, α=128, dropout 0; q,k,v,o,gate,up,down projections</td></tr>
+        <tr><td>Optimiser</td><td colspan="2">AdamW, lr 1e-5, β=(0.9, 0.999), no weight decay; gradient-norm clip 1.0</td></tr>
+        <tr><td>Group size / turns</td><td colspan="2">8 samples per task / 4 turns per episode</td></tr>
+        <tr><td>Sampling</td><td colspan="2">vLLM, temperature 1.0, top-p 0.95 (<code>policy.py</code>), ≤3072 new tokens per turn</td></tr>
+        <tr><td>Bench GPU</td><td colspan="2">L4, full mode</td></tr>
+        <tr><td>Reward</td><td>v1 (<code>reward.py</code>)</td><td>v2 (<code>reward_v2.py</code>)</td></tr>
+        <tr><td><code>adv_min_std</code></td><td>0 (off)</td><td>0.02</td></tr>
+        <tr><td>Steps completed</td><td><span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span></td><td><span data-k="numbers.json:grpo.grpo_v2.steps" data-fmt="int">10</span></td></tr>
+        <tr><td>Zero-advantage groups (mean)</td><td><span data-k="numbers.json:grpo.grpo_v1.zero_adv_mean" data-fmt="pct0">65%</span></td><td><span data-k="numbers.json:grpo.grpo_v2.zero_adv_mean" data-fmt="pct0">38%</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><strong>Why group 8 and 4 turns.</strong> The <code>train_grpo.py</code> docstring cites the no-training base eval: 4-sample groups tied (zero advantage) more often than 8-sample groups, and extra turns added more context than solves. Those figures come from the feedback-v1 eval. GRPO itself ran with the v2 feedback format, where the base eval had fewer ties and gained a little from turns 2 and 3 (see <a href="rl.html">RL results</a>).</p>
+    <p><strong>Where the time goes.</strong> In GRPO v1, benchmarking took <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.benchmarking" data-fmt="raw">60.5</span>% of each step, generation <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.generation" data-fmt="raw">32.8</span>% and the policy update <span data-k="extra_numbers.json:time_breakdown.grpo_v1.share_pct.policy_update" data-fmt="raw">6.7</span>%. The trainer H100 sat idle <span data-k="extra_numbers.json:time_breakdown.grpo_v1.trainer_gpu_idle_pct" data-fmt="raw">93.3</span>% of the time. Results are on <a href="rl.html">RL results</a>.</p>
+  </section>
+
+  <!-- ===================================================== 5. TOPOLOGY -->
+  <section id="topology">
+    <h2>5. Modal topology</h2>
+    <p>The Modal account allows at most 10 concurrent GPUs. One GRPO step uses all of them: the trainer and the vLLM policy each take one H100, and up to 8 L4 bench containers take the rest (<code>BENCH_MAX_CONTAINERS = 8</code> in <code>modal_app/common.py</code>).</p>
+
+    <figure class="fig topo">
+      <svg viewBox="0 0 420 470" role="img" aria-labelledby="topo-title topo-desc">
+        <title id="topo-title">Modal topology for one GRPO step</title>
+        <desc id="topo-desc">A trainer on one H100 runs the GRPO loop. It sends conversations to a vLLM policy server on one H100, which hot-swaps the latest LoRA adapter, and sends each kernel.py to a pool of up to eight L4 bench containers, which return stage verdicts and speedup. Adapters, checkpoints and metrics live on a shared Modal volume. Total: 1 plus 1 plus 8 equals 10 GPUs.</desc>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor" fill-opacity="0.7"/>
+          </marker>
+        </defs>
+
+        <rect class="frame" x="6" y="6" width="408" height="420" rx="10"/>
+        <text class="cap" x="20" y="28">MODAL ACCOUNT · CAP 10 GPUs</text>
+
+        <!-- Trainer -->
+        <rect class="box-accent" x="105" y="44" width="210" height="84" rx="8"/>
+        <text class="t1" x="210" y="70" text-anchor="middle">Trainer · 1× H100</text>
+        <text class="t2" x="210" y="90" text-anchor="middle">GRPO loop, LoRA r=64</text>
+        <text class="t2" x="210" y="108" text-anchor="middle">drives rollouts + update</text>
+
+        <!-- Policy -->
+        <rect class="box" x="18" y="206" width="180" height="84" rx="8"/>
+        <text class="t1" x="108" y="232" text-anchor="middle">Policy · 1× H100</text>
+        <text class="t2" x="108" y="252" text-anchor="middle">vLLM, Qwen2.5-Coder-7B</text>
+        <text class="t2" x="108" y="270" text-anchor="middle">LoRA hot-swap per step</text>
+
+        <!-- Bench pool (stacked) -->
+        <rect class="box" x="234" y="218" width="180" height="84" rx="8" opacity="0.45"/>
+        <rect class="box" x="228" y="212" width="180" height="84" rx="8" opacity="0.7"/>
+        <rect class="box" x="222" y="206" width="180" height="84" rx="8"/>
+        <text class="t1" x="312" y="232" text-anchor="middle">Bencher · ≤8× L4</text>
+        <text class="t2" x="312" y="252" text-anchor="middle">AutoKernel bench.py</text>
+        <text class="t2" x="312" y="270" text-anchor="middle">full mode, Dict cache</text>
+
+        <!-- Trainer <-> Policy -->
+        <path class="edge" d="M150,128 L95,206" marker-end="url(#arr)"/>
+        <path class="edge" d="M125,206 L172,128" marker-end="url(#arr)"/>
+        <text class="lbl" x="30" y="160">conversations</text>
+        <text class="lbl" x="154" y="174">replies</text>
+
+        <!-- Trainer <-> Bench -->
+        <path class="edge" d="M248,128 L300,206" marker-end="url(#arr)"/>
+        <path class="edge" d="M325,206 L272,128" marker-end="url(#arr)"/>
+        <text class="lbl" x="318" y="152">kernel.py</text>
+        <text class="lbl" x="318" y="167">(starmap)</text>
+        <text class="lbl" x="278" y="176" text-anchor="end">stages,</text>
+        <text class="lbl" x="278" y="191" text-anchor="end">speedup</text>
+
+        <!-- Volume -->
+        <rect class="box" x="18" y="340" width="384" height="66" rx="8"/>
+        <text class="t1" x="210" y="364" text-anchor="middle">Volume autokernel-rlvr</text>
+        <text class="t2" x="210" y="384" text-anchor="middle">HF cache · adapters step_N · metrics.jsonl</text>
+        <path class="edge edge-dash" d="M108,290 L108,340" marker-end="url(#arr)" marker-start="url(#arr)"/>
+        <path class="edge edge-dash" d="M210,128 L210,340" marker-end="url(#arr)"/>
+        <text class="lbl" x="116" y="320">read adapter</text>
+        <text class="lbl" x="216" y="320">save</text>
+
+        <!-- Budget -->
+        <text class="cap" x="210" y="454" text-anchor="middle">1 H100 + 1 H100 + 8 L4 = 10 GPUs</text>
+      </svg>
+      <figcaption>One GRPO step on Modal. Solid arrows carry each step's traffic; dashed arrows are volume I/O. After every update the trainer saves the LoRA adapter, and the policy loads it under a new LoRA id before the next rollout. (<code>train_grpo.py</code>, <code>policy.py</code>, <code>bench_modal.py</code>.)</figcaption>
+    </figure>
+
+    <p>At list prices (<code>results/numbers.json</code>) an H100 costs $<span data-k="numbers.json:prices_usd_per_gpu_hr.H100" data-fmt="f2">3.95</span>/h and an L4 $<span data-k="numbers.json:prices_usd_per_gpu_hr.L4" data-fmt="f2">0.80</span>/h. The estimated cost was $<span data-k="numbers.json:grpo.grpo_v1.est_cost_usd" data-fmt="f2">18.84</span> for GRPO v1 and $<span data-k="numbers.json:grpo.grpo_v2.est_cost_usd" data-fmt="f2">11.15</span> for v2.</p>
+
+    <h3>For comparison: the original SkyPilot design</h3>
+    <p>The April 2026 design in <code>src/autokernel-rlvr/</code> used three SkyPilot clusters coupled over HTTP. An 8-GPU on-demand trainer ran verl GRPO with vLLM rollouts. A FastAPI + Redis queue on a CPU node kept a content-hash reward cache, and spot single-GPU workers (A10/L4/4090) pulled jobs and ran <code>bench.py</code>. An AMD MI300X variant was also designed, but Modal has no MI300X, so that path is design-only. The original results were lost with an old disk. Every number on this site comes from the Modal re-run.</p>
+    <figure class="fig">
+      <img src="assets/figures/01_architecture.png" alt="Two architecture diagrams side by side. Left, original design: an 8-GPU trainer sending POST requests to a FastAPI and Redis bench queue, which spot A10 or L4 bench workers pull from. Right, Modal re-run: a 1 H100 trainer calling a 1 H100 vLLM policy and up to 8 L4 benchers, plus a KernelBench v1 harness on H100." loading="lazy" width="2209" height="887">
+      <figcaption>Original SkyPilot + verl design (left) and the Modal re-run (right). The figure labels the original trainer 8×H100, following the README; <code>skypilot/trainer.yaml</code> actually requests A100:8, with A40, L4 and RTX PRO 6000 as fallbacks.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ===================================================== 6. SFT -->
+  <section id="sft">
+    <h2>6. SFT recipe (after RL)</h2>
+    <p>GRPO from the base model gave too little learning signal. Most groups had zero advantage, and <span data-k="phase3.json:val.base.solving_turns_near_starter_share" data-fmt="pct0">92%</span> of the base model's solving turns on the validation set were near-copies of the starter. So the next phase taught correctness with supervised fine-tuning first. Summary:</p>
+    <ul>
+      <li><strong>Data.</strong> <span data-k="mix_report.json:splits.train.examples" data-fmt="int">3022</span> train and <span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span> dev examples. Sources: Dr. Kernel cold-start (<span data-k="mix_report.json:splits.train.by_source.drkernel" data-fmt="int">2707</span>), in-repo AutoKernel trajectories (<span data-k="mix_report.json:splits.train.by_source.inrepo" data-fmt="int">244</span>) and KernelBook (<span data-k="mix_report.json:splits.train.by_source.kernelbook" data-fmt="int">71</span>). <span data-k="mix_report.json:splits.train.repair_share" data-fmt="pct0">15%</span> are <em>repair</em> examples: a failed attempt plus real bench feedback, followed by the fix.</li>
+      <li><strong>Verification.</strong> Every target was re-run on a GPU and kept only if it PASSed with at least one Triton launch. The set was decontaminated against KernelBench L1 and the 62-problem validation set.</li>
+      <li><strong>Training.</strong> LoRA r=64, α=128 on all linear layers. lr 1e-4, cosine schedule, 3% warmup, 2 epochs (378 steps), max length 4096. Loss only on the final assistant message (<code>results/v3/sft_runs/sft_v1/config.json</code>, <code>modal_app/sft_train_modal.py</code>).</li>
+      <li><strong>Result.</strong> On the validation set, pass@1 went from <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span> to <span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span>, and the compile-error rate fell from <span data-k="phase3.json:val.base.compile_error_rate" data-fmt="pct1">8.1%</span> to <span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="pct1">1.9%</span>. On KernelBench L1 (Triton), solves went from <span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span> to <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span>. GRPO was not resumed after SFT, for budget reasons.</li>
+    </ul>
+    <p>The <a href="sft.html">SFT page</a> has the full pipeline, the gates and the per-family results.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p><a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">github.com/Ramshankar07/Kernel-Writer-RL-v2</a> · Apache-2.0</p>
+</footer>
+<script src="assets/bind.js" defer></script>
+</body>
+</html>
