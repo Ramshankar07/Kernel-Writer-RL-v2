@@ -1,0 +1,79 @@
+{
+ "inputs": {
+  "rescore": "results/v3/rescore_bench_v2.jsonl",
+  "trajectory_files": 30,
+  "starters": "results/autokernel_src/kernels/<kt>.py"
+ },
+ "positives": {
+  "steps": {
+   "rescored_old_pass": 362,
+   "v2_verdicts": {
+    "PASS": 346,
+    "FAIL": 14,
+    "TIMEOUT": 2
+   },
+   "v2_pass": 346,
+   "v2_pass_code_recovered": 346,
+   "v2_pass_rows_equal_starter_ast": 57,
+   "starter_programs": 3,
+   "v2_pass_distinct_ast_incl_starter": 214,
+   "distinct_non_starter_ast": 211
+  },
+  "missing_code_for_rescored_sha": [],
+  "n_candidates": 211,
+  "by_kernel_type": {
+   "cross_entropy": 39,
+   "reduce": 106,
+   "softmax": 66
+  },
+  "static_ok": 208,
+  "static_fail_reasons": {
+   "torch.nn.functional.pad": 2,
+   "try": 1
+  },
+  "starter_similarity_lt_0_9": 58,
+  "real_speedup_vs_starter": 0,
+  "target_tokens_chars_div_3_5": {
+   "p50": 938.5714285714286,
+   "p90": 1391.142857142857
+  }
+ },
+ "repair": {
+  "steps": {
+   "failing_turns": 8092,
+   "failing_turns_with_later_v2_pass": 119,
+   "drop_target_is_starter": 41,
+   "drop_failed_no_code": 3,
+   "drop_duplicate_pair": 6,
+   "pairs": 69
+  },
+  "by_kernel_type": {
+   "softmax": 32,
+   "cross_entropy": 9,
+   "reduce": 28
+  },
+  "by_traj_source": {
+   "grpo_v1": 37,
+   "grpo_v2": 27,
+   "agent_eval_fbv1": 2,
+   "agent_eval_fbv2": 3
+  },
+  "by_failed_old_verdict": {
+   "CRASH": 37,
+   "FAIL": 32
+  },
+  "gap_histogram": {
+   "1": 47,
+   "2": 20,
+   "3": 2
+  },
+  "failed_is_starter": 0,
+  "distinct_targets_ast": 51,
+  "targets_static_ok": 68,
+  "feedback_has_fail_lines": 67,
+  "tokens_chars_div_3_5": {
+   "failed_code_plus_feedback_plus_target_p50": 1694.5714285714287,
+   "p90": 2751.4285714285716
+  }
+ }
+}

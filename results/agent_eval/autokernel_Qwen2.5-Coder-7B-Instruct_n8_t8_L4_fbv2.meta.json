@@ -1,0 +1,13 @@
+{
+  "feedback": "v2",
+  "suite": "autokernel",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "lora": "",
+  "n": 8,
+  "max_turns": 8,
+  "temperature": 0.8,
+  "bench_gpu": "L4",
+  "stride": 1,
+  "tasks": 9,
+  "wall_s": 1695.5966041088104
+}

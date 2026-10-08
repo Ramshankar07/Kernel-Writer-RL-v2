@@ -1,0 +1,96 @@
+{
+ "id": "softmax/4d_scores",
+ "family": "softmax",
+ "variant": "4d_scores",
+ "desc": "softmax over the last dim of a 4-D attention-score tensor (197x197, ViT)",
+ "gen": "softmax",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2_h12_197",
+   {
+    "shape": [
+     2,
+     12,
+     197,
+     197
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "b1_h4_1x77",
+   {
+    "shape": [
+     1,
+     4,
+     1,
+     77
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "shape": [
+     1,
+     12,
+     197,
+     197
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b8_h16_577",
+   {
+    "shape": [
+     8,
+     16,
+     577,
+     577
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.001,
+   "rtol": 0.001
+  },
+  "bfloat16": {
+   "atol": 0.002,
+   "rtol": 0.002
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "softmax",
+  "4d",
+  "nonpow2"
+ ],
+ "val_set_version": "v1"
+}

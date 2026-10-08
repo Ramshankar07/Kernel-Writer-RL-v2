@@ -1,0 +1,75 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-TV4srTtcOgIB5WgiaTkKQE
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/val_bench_modal.p
+│   y
+├── 🔨 Created mount PythonPackage:common, PythonPackage:bench_v2_core, 
+│   PythonPackage:val_bench_core
+└── 🔨 Created function ValBench.*.
+softmax/nonpow2_cols#0 FAIL 10.62 sweep/r333_c777/float16: 27385/258741 elems out of tol (atol=0.001, rtol=0.001), max_abs_err=3.577e-02, nonfinite=0  launch 10 starter/eager 1.066 compile/starter 0.968
+softmax/bf16_wide#0 PASS 7.13   launch 3 starter/eager 0.998 compile/starter 0.990
+softmax/online_large_N#0 PASS 8.84   launch 5 starter/eager 0.938 compile/starter 1.579
+softmax/dim0#0 PASS 8.82   launch 7 starter/eager 9.105 compile/starter 0.764
+softmax/scaled#0 PASS 7.52   launch 8 starter/eager 1.923 compile/starter 1.004
+softmax/log_softmax#0 PASS 8.77   launch 8 starter/eager 0.989 compile/starter 0.989
+softmax/4d_scores#0 PASS 7.01   launch 5 starter/eager 1.059 compile/starter 1.010
+layernorm/no_bias#0 PASS 6.39   launch 10 starter/eager 1.063 compile/starter 0.991
+layernorm/no_affine#0 PASS 4.32   launch 10 starter/eager 1.043 compile/starter 1.011
+layernorm/bf16#0 PASS 5.49   launch 3 starter/eager 1.010 compile/starter 0.999
+layernorm/3d_eps1e-6#0 PASS 5.35   launch 10 starter/eager 1.021 compile/starter 0.993
+layernorm/large_D#0 PASS 7.01   launch 5 starter/eager 1.455 compile/starter 1.160
+layernorm/residual_add#0 PASS 5.94   launch 7 starter/eager 1.639 compile/starter 1.001
+layernorm/fp32#0 FAIL 5.75 adversarial/mean_1000/float32: 674396/2097152 elems out of tol (atol=1e-05, rtol=1e-05), max_abs_err=2.572e-04, nonfinite=0  launch 3 starter/eager 1.002 compile/starter 0.993
+rmsnorm/N16384#0 PASS 5.74   launch 7 starter/eager 3.417 compile/starter 1.038
+rmsnorm/nonpow2#0 PASS 6.27   launch 9 starter/eager 3.116 compile/starter 1.008
+rmsnorm/bf16#0 PASS 5.61   launch 4 starter/eager 3.422 compile/starter 1.000
+rmsnorm/3d#0 PASS 5.78   launch 7 starter/eager 3.445 compile/starter 0.990
+rmsnorm/gemma_offset#0 PASS 6.05   launch 8 starter/eager 2.060 compile/starter 0.988
+rmsnorm/residual_add#0 PASS 6.04   launch 8 starter/eager 3.227 compile/starter 0.998
+rmsnorm/fp32#0 PASS 5.13   launch 3 starter/eager 3.373 compile/starter 0.996
+reduce/sum_nonpow2#0 PASS 5.89   launch 6 starter/eager 1.090 compile/starter 0.813
+reduce/max#0 PASS 5.7   launch 6 starter/eager 0.992 compile/starter 0.867
+reduce/mean#0 PASS 5.9   launch 8 starter/eager 0.992 compile/starter 0.866
+reduce/sum_dim0#0 PASS 4.63   launch 6 starter/eager 0.744 compile/starter 0.648
+reduce/sum_dim1_3d#0 PASS 7.12   launch 6 starter/eager 1.005 compile/starter 0.921
+reduce/sum_bf16_long#0 PASS 5.36   launch 3 starter/eager 0.407 compile/starter 0.360
+reduce/sum_of_squares#0 PASS 5.55   launch 4 starter/eager 2.739 compile/starter 0.866
+cross_entropy/nonpow2_vocab#0 PASS 7.82   launch 7 starter/eager 1.934 compile/starter 0.995
+cross_entropy/vocab_151936#0 PASS 6.56   launch 4 starter/eager 2.174 compile/starter 1.110
+cross_entropy/reduction_none#0 PASS 6.88   launch 7 starter/eager 1.941 compile/starter 0.991
+cross_entropy/ignore_index#0 PASS 7.06   launch 7 starter/eager 2.005 compile/starter 0.997
+cross_entropy/label_smoothing#0 PASS 8.03   launch 7 starter/eager 3.013 compile/starter 1.003
+cross_entropy/3d_logits#0 PASS 7.5   launch 7 starter/eager 2.020 compile/starter 1.006
+cross_entropy/bf16_vocab_100277#0 PASS 16.01   launch 3 starter/eager 0.214 compile/starter 0.119
+rotary_embedding/head_dim_96#0 PASS 6.59   launch 8 starter/eager 4.272 compile/starter 0.861
+rotary_embedding/head_dim_80#0 PASS 7.11   launch 8 starter/eager 4.321 compile/starter 0.844
+rotary_embedding/head_dim_256#0 PASS 5.96   launch 7 starter/eager 5.640 compile/starter 0.993
+rotary_embedding/head_dim_32#0 PASS 6.36   launch 7 starter/eager 2.557 compile/starter 0.434
+rotary_embedding/neox_rotate_half#0 PASS 6.67   launch 8 starter/eager 3.755 compile/starter 0.987
+rotary_embedding/bshd_layout#0 PASS 6.45   launch 8 starter/eager 5.326 compile/starter 0.913
+rotary_embedding/bf16#0 PASS 6.05   launch 3 starter/eager 5.646 compile/starter 0.976
+matmul/nonpow2#0 PASS 9.43   launch 10 starter/eager 0.239 compile/starter 0.239
+matmul/bf16#0 PASS 5.99   launch 4 starter/eager 0.235 compile/starter 0.235
+matmul/fp32_exact#0 FAIL 6.53 adversarial/big_scale_K2048/float32: 108/262144 elems out of tol (atol=0.0001, rtol=0.0001), max_abs_err=1.551e-03, nonfinite=0  launch 4 starter/eager 0.312 compile/starter 0.312
+matmul/linear_xwT#0 PASS 7.87   launch 6 starter/eager 0.284 compile/starter 0.284
+matmul/bias_relu#0 PASS 8.86   launch 6 starter/eager 0.378 compile/starter 0.344
+matmul/batched_bmm#0 PASS 6.12   launch 7 starter/eager 0.813 compile/starter 0.813
+matmul/skinny_M#0 PASS 7.53   launch 5 starter/eager 0.944 compile/starter 0.942
+flash_attention/non_causal#0 PASS 7.22   launch 6 starter/eager 12.498 compile/starter 0.813
+flash_attention/head_dim_128#0 PASS 8.41   launch 4 starter/eager 11.467 compile/starter 4.181
+flash_attention/head_dim_32#0 PASS 8.58   launch 4 starter/eager 60.315 compile/starter 20.549
+flash_attention/nonpow2_seq#0 PASS 9.89   launch 5 starter/eager 32.499 compile/starter 10.643
+flash_attention/bf16#0 PASS 7.56   launch 3 starter/eager 34.011 compile/starter 12.018
+flash_attention/gqa#0 PASS 9.77   launch 4 starter/eager 35.160 compile/starter 12.219
+flash_attention/cross_attention#0 PASS 4.99   launch 4 starter/eager 10.379 compile/starter 0.881
+fused_mlp/gelu_tanh#0 PASS 9.46   launch 7 starter/eager 0.413 compile/starter 0.395
+fused_mlp/nonpow2#0 PASS 10.54   launch 7 starter/eager 0.806 compile/starter 0.577
+fused_mlp/bf16#0 PASS 9.99   launch 3 starter/eager 0.378 compile/starter 0.366
+fused_mlp/relu2#0 PASS 8.95   launch 5 starter/eager 0.415 compile/starter 0.391
+fused_mlp/gate_up_only#0 PASS 9.48   launch 5 starter/eager 0.942 compile/starter 0.904
+fused_mlp/3d_input#0 PASS 9.86   launch 7 starter/eager 0.428 compile/starter 0.402
+wrote /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/v3/val_set_starters.jsonl 62
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-TV4srTtcOgIB5WgiaTkKQE

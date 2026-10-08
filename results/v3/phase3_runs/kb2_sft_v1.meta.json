@@ -1,0 +1,15 @@
+{
+ "tag": "kb2_sft_v1",
+ "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+ "lora": "/vol/sft/sft_v1/step_378",
+ "n": 1,
+ "max_turns": 3,
+ "temperature": 0.8,
+ "tasks": 100,
+ "harness": "kb v2 (kb_v2_eval.py)",
+ "prompt": "prompts_sft.SYSTEM_PROMPT_MODELNEW",
+ "wall_s": 1357,
+ "fast_0_raw": 0.21,
+ "fast_0_triton": 0.2,
+ "fast_1_triton": 0.1
+}

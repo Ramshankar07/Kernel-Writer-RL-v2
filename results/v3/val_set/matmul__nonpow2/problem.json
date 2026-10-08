@@ -1,0 +1,99 @@
+{
+ "id": "matmul/nonpow2",
+ "family": "matmul",
+ "variant": "nonpow2",
+ "desc": "A @ B with non-power-of-2 M, N, K",
+ "gen": "matmul",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m777_n1537_k1025",
+   {
+    "M": 777,
+    "N": 1537,
+    "K": 1025
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "m4000_n3000_k1000",
+   {
+    "M": 4000,
+    "N": 3000,
+    "K": 1000
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_K4096",
+   {
+    "M": 1024,
+    "N": 1024,
+    "K": 4096
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "pos_uniform",
+   "pos_uniform_K8192",
+   {
+    "M": 256,
+    "N": 256,
+    "K": 8192
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m4000_n3000_k1000",
+   {
+    "M": 4000,
+    "N": 3000,
+    "K": 1000
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "matmul",
+  "nonpow2"
+ ],
+ "val_set_version": "v1"
+}

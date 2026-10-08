@@ -1,0 +1,128 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-9E35mQcUs6yRswC5jsWOR6
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo
+│   dal.py
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kb_v2_eval.py
+├── 🔨 Created mount PythonPackage:common
+└── 🔨 Created function KBV2.*.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.map currently leaks an internal exception wrapping type             │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.map(..., return_exceptions=True, wrap_returned_exceptions=False)       │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo │
+│ dal.py:154                                                                   │
+│   for r in B.sanity_one.map(ids, return_exceptions=True):                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+kbv2 1 PASS PASS PASS CRASH 1.0
+kbv2 2 PASS PASS PASS CRASH 0.9939
+kbv2 3 PASS PASS PASS CRASH 1.0
+kbv2 4 PASS PASS PASS CRASH 1.0
+kbv2 5 PASS PASS PASS CRASH 1.0001
+kbv2 6 PASS PASS PASS CRASH 0.9993
+kbv2 7 PASS PASS PASS CRASH 0.999
+kbv2 8 PASS PASS PASS CRASH 0.988
+kbv2 9 PASS PASS PASS CRASH 1.0
+kbv2 10 PASS PASS PASS CRASH 0.9998
+kbv2 11 PASS PASS PASS CRASH 0.9823
+kbv2 12 PASS PASS PASS CRASH 1.0
+kbv2 13 PASS PASS PASS CRASH 1.0
+kbv2 14 PASS PASS PASS CRASH 1.0001
+kbv2 15 PASS PASS PASS CRASH 1.0003
+kbv2 16 PASS PASS PASS CRASH 1.0
+kbv2 17 PASS PASS PASS CRASH 0.9998
+kbv2 18 PASS PASS PASS CRASH 1.0003
+kbv2 19 PASS PASS PASS CRASH 1.0
+kbv2 20 PASS PASS PASS CRASH 1.0
+kbv2 21 PASS PASS PASS CRASH 1.0
+kbv2 22 PASS PASS PASS CRASH 1.0
+kbv2 23 PASS PASS PASS CRASH 1.0005
+kbv2 24 PASS PASS PASS CRASH 1.0002
+kbv2 25 PASS PASS PASS CRASH 1.0
+kbv2 26 PASS PASS PASS CRASH 1.0001
+kbv2 27 PASS PASS PASS CRASH 0.9999
+kbv2 28 PASS PASS PASS CRASH 1.0001
+kbv2 29 PASS PASS PASS CRASH 1.0
+kbv2 30 PASS PASS PASS CRASH 1.0
+kbv2 31 PASS PASS PASS CRASH 1.0
+kbv2 32 PASS PASS PASS CRASH 1.0001
+kbv2 33 PASS PASS PASS CRASH 1.0016
+kbv2 34 PASS PASS PASS CRASH 1.0
+kbv2 35 PASS PASS PASS CRASH 1.0
+kbv2 36 PASS PASS PASS CRASH 0.9959
+kbv2 37 PASS PASS PASS CRASH 0.9999
+kbv2 38 PASS PASS PASS CRASH 1.0
+kbv2 39 PASS PASS PASS CRASH 1.0001
+kbv2 40 PASS PASS PASS CRASH 0.9865
+kbv2 41 PASS PASS PASS CRASH 1.0004
+kbv2 42 PASS PASS PASS CRASH 1.0
+kbv2 43 PASS PASS PASS CRASH 1.0
+kbv2 44 PASS PASS PASS CRASH 0.9961
+kbv2 45 PASS PASS PASS CRASH 1.0002
+kbv2 46 PASS PASS PASS CRASH 1.0
+kbv2 47 PASS PASS PASS CRASH 1.0008
+kbv2 48 PASS PASS PASS CRASH 0.9996
+kbv2 49 PASS PASS PASS CRASH 0.9994
+kbv2 50 PASS PASS PASS CRASH 1.0
+kbv2 51 PASS PASS PASS CRASH 1.0
+kbv2 52 PASS PASS PASS CRASH 1.0001
+kbv2 53 PASS PASS PASS CRASH 1.0
+kbv2 54 PASS PASS PASS CRASH 1.0001
+kbv2 55 PASS PASS PASS CRASH 1.0
+kbv2 56 PASS PASS PASS CRASH 1.0
+kbv2 57 PASS PASS PASS CRASH 0.9995
+kbv2 58 PASS PASS PASS CRASH 0.9979
+kbv2 59 PASS PASS PASS CRASH 1.0011
+kbv2 60 PASS PASS PASS CRASH 1.0
+kbv2 61 PASS PASS PASS CRASH 1.0
+kbv2 62 PASS PASS PASS CRASH 1.005
+kbv2 63 PASS PASS PASS CRASH 1.0002
+kbv2 64 PASS PASS PASS CRASH 1.0002
+kbv2 65 PASS PASS PASS CRASH 1.0013
+kbv2 66 PASS PASS PASS CRASH 1.0003
+kbv2 67 PASS PASS PASS CRASH 1.0001
+kbv2 68 PASS PASS PASS CRASH 1.0
+kbv2 69 PASS PASS PASS CRASH 1.0044
+kbv2 70 PASS PASS PASS CRASH 1.0
+kbv2 71 PASS PASS PASS CRASH 1.0
+kbv2 72 PASS PASS PASS CRASH 1.003
+kbv2 73 PASS PASS PASS CRASH 0.9997
+kbv2 74 PASS PASS PASS CRASH 0.9998
+kbv2 75 PASS PASS PASS CRASH 1.0001
+kbv2 76 PASS PASS PASS CRASH 0.9929
+kbv2 77 PASS PASS PASS CRASH 0.9995
+kbv2 78 PASS PASS PASS CRASH 1.0
+kbv2 79 PASS PASS PASS CRASH 0.9999
+kbv2 80 PASS PASS PASS CRASH 1.0
+kbv2 81 PASS PASS PASS CRASH 0.9998
+kbv2 82 PASS PASS PASS CRASH 1.0014
+kbv2 83 PASS PASS PASS CRASH 1.0001
+kbv2 84 PASS PASS PASS CRASH 1.0
+kbv2 85 PASS PASS PASS CRASH 1.0001
+kbv2 86 PASS PASS PASS CRASH 0.9999
+kbv2 87 PASS PASS PASS CRASH 0.9952
+kbv2 88 PASS PASS PASS CRASH 1.0002
+kbv2 89 PASS PASS PASS CRASH 0.9999
+kbv2 90 PASS PASS PASS CRASH 1.0001
+kbv2 91 PASS PASS PASS CRASH 0.9999
+kbv2 92 PASS PASS PASS CRASH 0.9998
+kbv2 93 PASS PASS PASS CRASH 0.9999
+kbv2 94 PASS PASS PASS CRASH 0.9992
+kbv2 95 PASS PASS PASS CRASH 0.9997
+kbv2 96 PASS PASS PASS CRASH 0.9999
+kbv2 97 PASS PASS PASS CRASH 0.9957
+kbv2 98 PASS PASS PASS CRASH 1.0
+kbv2 99 PASS PASS PASS CRASH 1.0001
+kbv2 100 PASS PASS PASS CRASH 0.9997
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-9E35mQcUs6yRswC5jsWOR6

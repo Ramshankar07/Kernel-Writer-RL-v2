@@ -1,0 +1,12 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-QhmEgdoOm289mCQ8COaS20
+✓ Created objects.
+62 tasks; baselines missing for []
+turn 0: 124 active, gen 102s, bench 255s (sum job wall 357s), {'pass': 72, 'format': 14, 'python': 35, 'timeout': 1, 'compile': 2}
+turn 1: 124 active, gen 70s, bench 134s (sum job wall 297s), {'numerics': 11, 'pass': 56, 'format': 11, 'python': 36, 'compile': 10}
+turn 2: 124 active, gen 62s, bench 117s (sum job wall 246s), {'numerics': 13, 'pass': 50, 'python': 35, 'format': 12, 'compile': 13, 'runtime_resources': 1}
+turn 3: 124 active, gen 120s, bench 178s (sum job wall 254s), {'format': 15, 'pass': 47, 'numerics': 15, 'python': 35, 'compile': 12}
+wrote /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/v3/phase0_runs/half2.jsonl {"tag": "half2", "model": "Qwen/Qwen2.5-Coder-7B-Instruct", "lora": null, "policy_gpu": "L40S", "bench_gpu": "L4", "n": 2, "max_turns": 4, "temperature": 0.8, "top_p": 0.95, "max_new_tokens": 4096, "tasks": 62, "wall_s": 1037.863070011139, "prompt": "v2 (modal_app/prompts_v2.py)", "bench": "val_bench_v1 (bench v2 conventions)", "bench_job_wall_s": 1154.1199999999988, "completion_tokens": 282620}
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-QhmEgdoOm289mCQ8COaS20

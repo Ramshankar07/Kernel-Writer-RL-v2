@@ -1,0 +1,97 @@
+{
+ "id": "flash_attention/nonpow2_seq",
+ "family": "flash_attention",
+ "variant": "nonpow2_seq",
+ "desc": "causal attention, seq 1000 / 777 / 1",
+ "gen": "attention",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2_h8_s1000_d64",
+   {
+    "b": 2,
+    "h": 8,
+    "s": 1000,
+    "d": 64
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b1_h8_s777_d64",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 777,
+    "d": 64
+   },
+   [
+    "float16"
+   ]
+  ],
+  [
+   "b1_h2_s1_d64",
+   {
+    "b": 1,
+    "h": 2,
+    "s": 1,
+    "d": 64
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "qk_40",
+   "qk_x40",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 999,
+    "d": 64
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2_h16_s1500_d64",
+   {
+    "b": 2,
+    "h": 16,
+    "s": 1500,
+    "d": 64
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "flash_attention",
+  "nonpow2"
+ ],
+ "val_set_version": "v1"
+}

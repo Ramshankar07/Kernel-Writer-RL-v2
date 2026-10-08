@@ -1,0 +1,112 @@
+{
+ "id": "rmsnorm/N16384",
+ "family": "rmsnorm",
+ "variant": "N16384",
+ "desc": "rmsnorm with N=16384",
+ "gen": "rmsnorm",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m512_n16384",
+   {
+    "shape": [
+     512,
+     16384
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "m64_n16384",
+   {
+    "shape": [
+     64,
+     16384
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "rms_300",
+   "rms_300",
+   {
+    "shape": [
+     256,
+     16384
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "row_mixed",
+   "row_mixed_scale",
+   {
+    "shape": [
+     256,
+     16384
+    ]
+   },
+   [
+    "float16"
+   ]
+  ],
+  [
+   "tiny",
+   "tiny_1e-3",
+   {
+    "shape": [
+     256,
+     16384
+    ]
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m2048_n16384",
+   {
+    "shape": [
+     2048,
+     16384
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.1,
+   "rtol": 0.05
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "rmsnorm",
+  "large_N"
+ ],
+ "val_set_version": "v1"
+}

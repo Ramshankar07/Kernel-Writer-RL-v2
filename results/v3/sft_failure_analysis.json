@@ -1,0 +1,1722 @@
+{
+ "meta": {
+  "sources": [
+   "eval:autokernel_fbv1",
+   "eval:autokernel_fbv2",
+   "eval:kb_Qwen7B_grpo_v2_kb_lora",
+   "eval:kb_Qwen7B_kb_base",
+   "eval:smoke",
+   "grpo_v1",
+   "grpo_v2"
+  ],
+  "n_turns_total": 9393,
+  "n_pass_turns": 1126,
+  "n_failing_turns": 8267,
+  "n_trajectories": 2225,
+  "fbv1_rows_without_fail_lines_backfilled_from_identical_code": 108,
+  "note": "unit = one benchmarked turn (one proposed kernel.py). Stage = earliest failing stage (format > python > compile > runtime > numerics). Verdicts are from the ORIGINAL bench (bench.py via bench_modal.py), not bench v2."
+ },
+ "overall_by_stage": {
+  "numerics": {
+   "n": 3770,
+   "pct": 45.6
+  },
+  "compile": {
+   "n": 2590,
+   "pct": 31.33
+  },
+  "format": {
+   "n": 745,
+   "pct": 9.01
+  },
+  "python": {
+   "n": 613,
+   "pct": 7.42
+  },
+  "runtime": {
+   "n": 501,
+   "pct": 6.06
+  },
+  "timeout": {
+   "n": 24,
+   "pct": 0.29
+  },
+  "unknown": {
+   "n": 23,
+   "pct": 0.28
+  },
+  "infra": {
+   "n": 1,
+   "pct": 0.01
+  }
+ },
+ "overall_by_bucket": {
+  "numerics/exceeds_tolerance": {
+   "n": 3195,
+   "pct": 38.65
+  },
+  "compile/missing_tl_api_in_3.2": {
+   "n": 780,
+   "pct": 9.44
+  },
+  "format/tool_call_or_result_text_in_code": {
+   "n": 585,
+   "pct": 7.08
+  },
+  "compile/wrong_kwarg_or_signature": {
+   "n": 439,
+   "pct": 5.31
+  },
+  "numerics/nan_or_inf": {
+   "n": 436,
+   "pct": 5.27
+  },
+  "compile/unsupported_python_in_jit": {
+   "n": 410,
+   "pct": 4.96
+  },
+  "runtime/shared_mem_out_of_resources": {
+   "n": 376,
+   "pct": 4.55
+  },
+  "compile/pointer_arithmetic_or_ptr_type": {
+   "n": 251,
+   "pct": 3.04
+  },
+  "compile/constexpr_misuse": {
+   "n": 150,
+   "pct": 1.81
+  },
+  "compile/shape_broadcast": {
+   "n": 150,
+   "pct": 1.81
+  },
+  "compile/undefined_name_in_jit": {
+   "n": 138,
+   "pct": 1.67
+  },
+  "python/triton_launch_or_autotune_misuse": {
+   "n": 136,
+   "pct": 1.65
+  },
+  "numerics/wrong_output(detail_not_logged,fbv1)": {
+   "n": 132,
+   "pct": 1.6
+  },
+  "runtime/illegal_memory_access(OOB)": {
+   "n": 125,
+   "pct": 1.51
+  },
+  "compile/unknown(message_truncated)": {
+   "n": 124,
+   "pct": 1.5
+  },
+  "python/name_error(wrapper)": {
+   "n": 106,
+   "pct": 1.28
+  },
+  "python/other_python_error(wrapper)": {
+   "n": 95,
+   "pct": 1.15
+  },
+  "python/interface_contract(kernel_fn/circular_import)": {
+   "n": 89,
+   "pct": 1.08
+  },
+  "python/syntax_error": {
+   "n": 86,
+   "pct": 1.04
+  },
+  "compile/dtype_mismatch": {
+   "n": 77,
+   "pct": 0.93
+  },
+  "format/no_code_block": {
+   "n": 75,
+   "pct": 0.91
+  },
+  "format/prose_or_fake_bench_output_inside_code_block": {
+   "n": 69,
+   "pct": 0.83
+  },
+  "compile/tl_dot_constraints": {
+   "n": 46,
+   "pct": 0.56
+  },
+  "python/module_level_self_test_assert": {
+   "n": 33,
+   "pct": 0.4
+  },
+  "python/bad_import(hallucinated_module)": {
+   "n": 24,
+   "pct": 0.29
+  },
+  "timeout/bench_timeout": {
+   "n": 24,
+   "pct": 0.29
+  },
+  "unknown/crash_no_message": {
+   "n": 23,
+   "pct": 0.28
+  },
+  "python/torch_runtime_error(wrapper)": {
+   "n": 20,
+   "pct": 0.24
+  },
+  "python/syntax_error(unterminated_string)": {
+   "n": 20,
+   "pct": 0.24
+  },
+  "format/no_code_block(truncated,finish=length)": {
+   "n": 16,
+   "pct": 0.19
+  },
+  "compile/llvm_internal_assertion(dtype_conversion)": {
+   "n": 15,
+   "pct": 0.18
+  },
+  "compile/block_size_not_pow2": {
+   "n": 8,
+   "pct": 0.1
+  },
+  "numerics/wrong_output(other)": {
+   "n": 7,
+   "pct": 0.08
+  },
+  "python/syntax_error(truncated,finish=length)": {
+   "n": 4,
+   "pct": 0.05
+  },
+  "compile/llvm_internal_assertion(other)": {
+   "n": 2,
+   "pct": 0.02
+  },
+  "infra/infra_error": {
+   "n": 1,
+   "pct": 0.01
+  }
+ },
+ "by_source": {
+  "eval:autokernel_fbv1": {
+   "turns": 576,
+   "pass": 59,
+   "fail": 517,
+   "by_stage": {
+    "numerics": {
+     "n": 241,
+     "pct": 46.62
+    },
+    "compile": {
+     "n": 119,
+     "pct": 23.02
+    },
+    "format": {
+     "n": 86,
+     "pct": 16.63
+    },
+    "python": {
+     "n": 57,
+     "pct": 11.03
+    },
+    "runtime": {
+     "n": 14,
+     "pct": 2.71
+    }
+   },
+   "top_buckets": {
+    "numerics/wrong_output(detail_not_logged,fbv1)": {
+     "n": 132,
+     "pct": 25.53
+    },
+    "numerics/exceeds_tolerance": {
+     "n": 89,
+     "pct": 17.21
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 69,
+     "pct": 13.35
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 27,
+     "pct": 5.22
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 27,
+     "pct": 5.22
+    },
+    "compile/unknown(message_truncated)": {
+     "n": 25,
+     "pct": 4.84
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 21,
+     "pct": 4.06
+    },
+    "python/module_level_self_test_assert": {
+     "n": 18,
+     "pct": 3.48
+    }
+   }
+  },
+  "eval:autokernel_fbv2": {
+   "turns": 576,
+   "pass": 101,
+   "fail": 475,
+   "by_stage": {
+    "numerics": {
+     "n": 254,
+     "pct": 53.47
+    },
+    "compile": {
+     "n": 141,
+     "pct": 29.68
+    },
+    "format": {
+     "n": 33,
+     "pct": 6.95
+    },
+    "runtime": {
+     "n": 24,
+     "pct": 5.05
+    },
+    "python": {
+     "n": 18,
+     "pct": 3.79
+    },
+    "timeout": {
+     "n": 5,
+     "pct": 1.05
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 219,
+     "pct": 46.11
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 38,
+     "pct": 8.0
+    },
+    "numerics/nan_or_inf": {
+     "n": 34,
+     "pct": 7.16
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 30,
+     "pct": 6.32
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 26,
+     "pct": 5.47
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 20,
+     "pct": 4.21
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 19,
+     "pct": 4.0
+    },
+    "compile/constexpr_misuse": {
+     "n": 15,
+     "pct": 3.16
+    }
+   }
+  },
+  "eval:kb_Qwen7B_grpo_v2_kb_lora": {
+   "turns": 84,
+   "pass": 0,
+   "fail": 84,
+   "by_stage": {
+    "python": {
+     "n": 64,
+     "pct": 76.19
+    },
+    "compile": {
+     "n": 19,
+     "pct": 22.62
+    },
+    "numerics": {
+     "n": 1,
+     "pct": 1.19
+    }
+   },
+   "top_buckets": {
+    "python/triton_launch_or_autotune_misuse": {
+     "n": 21,
+     "pct": 25.0
+    },
+    "python/syntax_error": {
+     "n": 13,
+     "pct": 15.48
+    },
+    "python/other_python_error(wrapper)": {
+     "n": 12,
+     "pct": 14.29
+    },
+    "compile/unknown(message_truncated)": {
+     "n": 12,
+     "pct": 14.29
+    },
+    "python/name_error(wrapper)": {
+     "n": 9,
+     "pct": 10.71
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 7,
+     "pct": 8.33
+    },
+    "python/interface_contract(kernel_fn/circular_import)": {
+     "n": 4,
+     "pct": 4.76
+    },
+    "python/torch_runtime_error(wrapper)": {
+     "n": 3,
+     "pct": 3.57
+    }
+   }
+  },
+  "eval:kb_Qwen7B_kb_base": {
+   "turns": 84,
+   "pass": 0,
+   "fail": 84,
+   "by_stage": {
+    "python": {
+     "n": 38,
+     "pct": 45.24
+    },
+    "compile": {
+     "n": 38,
+     "pct": 45.24
+    },
+    "runtime": {
+     "n": 3,
+     "pct": 3.57
+    },
+    "format": {
+     "n": 3,
+     "pct": 3.57
+    },
+    "numerics": {
+     "n": 2,
+     "pct": 2.38
+    }
+   },
+   "top_buckets": {
+    "compile/unknown(message_truncated)": {
+     "n": 29,
+     "pct": 34.52
+    },
+    "python/other_python_error(wrapper)": {
+     "n": 15,
+     "pct": 17.86
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 9,
+     "pct": 10.71
+    },
+    "python/name_error(wrapper)": {
+     "n": 8,
+     "pct": 9.52
+    },
+    "python/triton_launch_or_autotune_misuse": {
+     "n": 7,
+     "pct": 8.33
+    },
+    "python/bad_import(hallucinated_module)": {
+     "n": 4,
+     "pct": 4.76
+    },
+    "runtime/illegal_memory_access(OOB)": {
+     "n": 3,
+     "pct": 3.57
+    },
+    "format/no_code_block(truncated,finish=length)": {
+     "n": 3,
+     "pct": 3.57
+    }
+   }
+  },
+  "eval:smoke": {
+   "turns": 9,
+   "pass": 2,
+   "fail": 7,
+   "by_stage": {
+    "numerics": {
+     "n": 4,
+     "pct": 57.14
+    },
+    "format": {
+     "n": 1,
+     "pct": 14.29
+    },
+    "runtime": {
+     "n": 1,
+     "pct": 14.29
+    },
+    "compile": {
+     "n": 1,
+     "pct": 14.29
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 4,
+     "pct": 57.14
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 1,
+     "pct": 14.29
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 1,
+     "pct": 14.29
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 1,
+     "pct": 14.29
+    }
+   }
+  },
+  "grpo_v1": {
+   "turns": 5184,
+   "pass": 600,
+   "fail": 4584,
+   "by_stage": {
+    "numerics": {
+     "n": 2104,
+     "pct": 45.9
+    },
+    "compile": {
+     "n": 1503,
+     "pct": 32.79
+    },
+    "format": {
+     "n": 392,
+     "pct": 8.55
+    },
+    "runtime": {
+     "n": 286,
+     "pct": 6.24
+    },
+    "python": {
+     "n": 272,
+     "pct": 5.93
+    },
+    "timeout": {
+     "n": 13,
+     "pct": 0.28
+    },
+    "unknown": {
+     "n": 13,
+     "pct": 0.28
+    },
+    "infra": {
+     "n": 1,
+     "pct": 0.02
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 1864,
+     "pct": 40.66
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 446,
+     "pct": 9.73
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 309,
+     "pct": 6.74
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 259,
+     "pct": 5.65
+    },
+    "numerics/nan_or_inf": {
+     "n": 240,
+     "pct": 5.24
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 226,
+     "pct": 4.93
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 211,
+     "pct": 4.6
+    },
+    "compile/pointer_arithmetic_or_ptr_type": {
+     "n": 189,
+     "pct": 4.12
+    }
+   }
+  },
+  "grpo_v2": {
+   "turns": 2880,
+   "pass": 364,
+   "fail": 2516,
+   "by_stage": {
+    "numerics": {
+     "n": 1164,
+     "pct": 46.26
+    },
+    "compile": {
+     "n": 769,
+     "pct": 30.56
+    },
+    "format": {
+     "n": 230,
+     "pct": 9.14
+    },
+    "runtime": {
+     "n": 173,
+     "pct": 6.88
+    },
+    "python": {
+     "n": 164,
+     "pct": 6.52
+    },
+    "unknown": {
+     "n": 10,
+     "pct": 0.4
+    },
+    "timeout": {
+     "n": 6,
+     "pct": 0.24
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 1016,
+     "pct": 40.38
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 252,
+     "pct": 10.02
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 186,
+     "pct": 7.39
+    },
+    "numerics/nan_or_inf": {
+     "n": 148,
+     "pct": 5.88
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 133,
+     "pct": 5.29
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 131,
+     "pct": 5.21
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 129,
+     "pct": 5.13
+    },
+    "compile/pointer_arithmetic_or_ptr_type": {
+     "n": 62,
+     "pct": 2.46
+    }
+   }
+  }
+ },
+ "by_kernel_type": {
+  "cross_entropy": {
+   "turns": 1025,
+   "pass_turns": 360,
+   "fail_turns": 665,
+   "pass_rate_pct": 35.12,
+   "starter_resubmit_among_fails_pct": 0.0,
+   "by_stage": {
+    "numerics": {
+     "n": 270,
+     "pct": 40.6
+    },
+    "compile": {
+     "n": 255,
+     "pct": 38.35
+    },
+    "format": {
+     "n": 69,
+     "pct": 10.38
+    },
+    "python": {
+     "n": 53,
+     "pct": 7.97
+    },
+    "runtime": {
+     "n": 16,
+     "pct": 2.41
+    },
+    "timeout": {
+     "n": 2,
+     "pct": 0.3
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 265,
+     "pct": 39.85
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 112,
+     "pct": 16.84
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 62,
+     "pct": 9.32
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 43,
+     "pct": 6.47
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 37,
+     "pct": 5.56
+    },
+    "compile/constexpr_misuse": {
+     "n": 26,
+     "pct": 3.91
+    }
+   }
+  },
+  "flash_attention": {
+   "turns": 1025,
+   "pass_turns": 0,
+   "fail_turns": 1025,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 19.9,
+   "by_stage": {
+    "numerics": {
+     "n": 386,
+     "pct": 37.66
+    },
+    "runtime": {
+     "n": 249,
+     "pct": 24.29
+    },
+    "compile": {
+     "n": 232,
+     "pct": 22.63
+    },
+    "format": {
+     "n": 109,
+     "pct": 10.63
+    },
+    "python": {
+     "n": 45,
+     "pct": 4.39
+    },
+    "unknown": {
+     "n": 4,
+     "pct": 0.39
+    }
+   },
+   "top_buckets": {
+    "numerics/nan_or_inf": {
+     "n": 354,
+     "pct": 34.54
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 247,
+     "pct": 24.1
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 77,
+     "pct": 7.51
+    },
+    "compile/undefined_name_in_jit": {
+     "n": 45,
+     "pct": 4.39
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 41,
+     "pct": 4.0
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 39,
+     "pct": 3.8
+    }
+   }
+  },
+  "fused_mlp": {
+   "turns": 1025,
+   "pass_turns": 0,
+   "fail_turns": 1025,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 19.22,
+   "by_stage": {
+    "compile": {
+     "n": 456,
+     "pct": 44.49
+    },
+    "numerics": {
+     "n": 354,
+     "pct": 34.54
+    },
+    "format": {
+     "n": 94,
+     "pct": 9.17
+    },
+    "python": {
+     "n": 80,
+     "pct": 7.8
+    },
+    "runtime": {
+     "n": 39,
+     "pct": 3.8
+    },
+    "infra": {
+     "n": 1,
+     "pct": 0.1
+    },
+    "unknown": {
+     "n": 1,
+     "pct": 0.1
+    }
+   },
+   "top_buckets": {
+    "compile/missing_tl_api_in_3.2": {
+     "n": 384,
+     "pct": 37.46
+    },
+    "numerics/exceeds_tolerance": {
+     "n": 337,
+     "pct": 32.88
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 68,
+     "pct": 6.63
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 31,
+     "pct": 3.02
+    },
+    "python/syntax_error": {
+     "n": 21,
+     "pct": 2.05
+    },
+    "python/interface_contract(kernel_fn/circular_import)": {
+     "n": 19,
+     "pct": 1.85
+    }
+   }
+  },
+  "kb": {
+   "turns": 168,
+   "pass_turns": 0,
+   "fail_turns": 168,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 0.0,
+   "by_stage": {
+    "python": {
+     "n": 102,
+     "pct": 60.71
+    },
+    "compile": {
+     "n": 57,
+     "pct": 33.93
+    },
+    "numerics": {
+     "n": 3,
+     "pct": 1.79
+    },
+    "runtime": {
+     "n": 3,
+     "pct": 1.79
+    },
+    "format": {
+     "n": 3,
+     "pct": 1.79
+    }
+   },
+   "top_buckets": {
+    "compile/unknown(message_truncated)": {
+     "n": 41,
+     "pct": 24.4
+    },
+    "python/triton_launch_or_autotune_misuse": {
+     "n": 28,
+     "pct": 16.67
+    },
+    "python/other_python_error(wrapper)": {
+     "n": 27,
+     "pct": 16.07
+    },
+    "python/name_error(wrapper)": {
+     "n": 17,
+     "pct": 10.12
+    },
+    "python/syntax_error": {
+     "n": 16,
+     "pct": 9.52
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 16,
+     "pct": 9.52
+    }
+   }
+  },
+  "layernorm": {
+   "turns": 1025,
+   "pass_turns": 0,
+   "fail_turns": 1025,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 34.73,
+   "by_stage": {
+    "numerics": {
+     "n": 734,
+     "pct": 71.61
+    },
+    "compile": {
+     "n": 173,
+     "pct": 16.88
+    },
+    "format": {
+     "n": 77,
+     "pct": 7.51
+    },
+    "python": {
+     "n": 36,
+     "pct": 3.51
+    },
+    "unknown": {
+     "n": 4,
+     "pct": 0.39
+    },
+    "runtime": {
+     "n": 1,
+     "pct": 0.1
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 693,
+     "pct": 67.61
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 80,
+     "pct": 7.8
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 66,
+     "pct": 6.44
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 28,
+     "pct": 2.73
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 27,
+     "pct": 2.63
+    },
+    "numerics/wrong_output(detail_not_logged,fbv1)": {
+     "n": 25,
+     "pct": 2.44
+    }
+   }
+  },
+  "matmul": {
+   "turns": 1025,
+   "pass_turns": 0,
+   "fail_turns": 1025,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 27.22,
+   "by_stage": {
+    "numerics": {
+     "n": 496,
+     "pct": 48.39
+    },
+    "compile": {
+     "n": 292,
+     "pct": 28.49
+    },
+    "runtime": {
+     "n": 111,
+     "pct": 10.83
+    },
+    "format": {
+     "n": 75,
+     "pct": 7.32
+    },
+    "python": {
+     "n": 45,
+     "pct": 4.39
+    },
+    "timeout": {
+     "n": 6,
+     "pct": 0.59
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 476,
+     "pct": 46.44
+    },
+    "runtime/shared_mem_out_of_resources": {
+     "n": 98,
+     "pct": 9.56
+    },
+    "compile/shape_broadcast": {
+     "n": 89,
+     "pct": 8.68
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 53,
+     "pct": 5.17
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 51,
+     "pct": 4.98
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 26,
+     "pct": 2.54
+    }
+   }
+  },
+  "reduce": {
+   "turns": 1025,
+   "pass_turns": 434,
+   "fail_turns": 591,
+   "pass_rate_pct": 42.34,
+   "starter_resubmit_among_fails_pct": 0.0,
+   "by_stage": {
+    "compile": {
+     "n": 362,
+     "pct": 61.25
+    },
+    "numerics": {
+     "n": 80,
+     "pct": 13.54
+    },
+    "format": {
+     "n": 64,
+     "pct": 10.83
+    },
+    "python": {
+     "n": 55,
+     "pct": 9.31
+    },
+    "runtime": {
+     "n": 30,
+     "pct": 5.08
+    }
+   },
+   "top_buckets": {
+    "compile/pointer_arithmetic_or_ptr_type": {
+     "n": 145,
+     "pct": 24.53
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 69,
+     "pct": 11.68
+    },
+    "numerics/exceeds_tolerance": {
+     "n": 60,
+     "pct": 10.15
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 58,
+     "pct": 9.81
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 46,
+     "pct": 7.78
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 31,
+     "pct": 5.25
+    }
+   }
+  },
+  "rmsnorm": {
+   "turns": 1025,
+   "pass_turns": 13,
+   "fail_turns": 1012,
+   "pass_rate_pct": 1.27,
+   "starter_resubmit_among_fails_pct": 29.05,
+   "by_stage": {
+    "numerics": {
+     "n": 569,
+     "pct": 56.23
+    },
+    "compile": {
+     "n": 303,
+     "pct": 29.94
+    },
+    "format": {
+     "n": 87,
+     "pct": 8.6
+    },
+    "python": {
+     "n": 53,
+     "pct": 5.24
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 547,
+     "pct": 54.05
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 140,
+     "pct": 13.83
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 70,
+     "pct": 6.92
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 65,
+     "pct": 6.42
+    },
+    "compile/unsupported_python_in_jit": {
+     "n": 37,
+     "pct": 3.66
+    },
+    "compile/unknown(message_truncated)": {
+     "n": 20,
+     "pct": 1.98
+    }
+   }
+  },
+  "rotary_embedding": {
+   "turns": 1025,
+   "pass_turns": 0,
+   "fail_turns": 1025,
+   "pass_rate_pct": 0.0,
+   "starter_resubmit_among_fails_pct": 39.32,
+   "by_stage": {
+    "numerics": {
+     "n": 731,
+     "pct": 71.32
+    },
+    "compile": {
+     "n": 88,
+     "pct": 8.59
+    },
+    "python": {
+     "n": 87,
+     "pct": 8.49
+    },
+    "format": {
+     "n": 81,
+     "pct": 7.9
+    },
+    "runtime": {
+     "n": 33,
+     "pct": 3.22
+    },
+    "unknown": {
+     "n": 5,
+     "pct": 0.49
+    }
+   },
+   "top_buckets": {
+    "numerics/exceeds_tolerance": {
+     "n": 719,
+     "pct": 70.15
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 76,
+     "pct": 7.41
+    },
+    "runtime/illegal_memory_access(OOB)": {
+     "n": 33,
+     "pct": 3.22
+    },
+    "compile/pointer_arithmetic_or_ptr_type": {
+     "n": 20,
+     "pct": 1.95
+    },
+    "compile/constexpr_misuse": {
+     "n": 20,
+     "pct": 1.95
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 16,
+     "pct": 1.56
+    }
+   }
+  },
+  "softmax": {
+   "turns": 1025,
+   "pass_turns": 319,
+   "fail_turns": 706,
+   "pass_rate_pct": 31.12,
+   "starter_resubmit_among_fails_pct": 0.0,
+   "by_stage": {
+    "compile": {
+     "n": 372,
+     "pct": 52.69
+    },
+    "numerics": {
+     "n": 147,
+     "pct": 20.82
+    },
+    "format": {
+     "n": 86,
+     "pct": 12.18
+    },
+    "python": {
+     "n": 57,
+     "pct": 8.07
+    },
+    "runtime": {
+     "n": 19,
+     "pct": 2.69
+    },
+    "timeout": {
+     "n": 16,
+     "pct": 2.27
+    },
+    "unknown": {
+     "n": 9,
+     "pct": 1.27
+    }
+   },
+   "top_buckets": {
+    "compile/unsupported_python_in_jit": {
+     "n": 95,
+     "pct": 13.46
+    },
+    "compile/missing_tl_api_in_3.2": {
+     "n": 94,
+     "pct": 13.31
+    },
+    "compile/wrong_kwarg_or_signature": {
+     "n": 84,
+     "pct": 11.9
+    },
+    "numerics/exceeds_tolerance": {
+     "n": 75,
+     "pct": 10.62
+    },
+    "format/tool_call_or_result_text_in_code": {
+     "n": 55,
+     "pct": 7.79
+    },
+    "numerics/nan_or_inf": {
+     "n": 45,
+     "pct": 6.37
+    }
+   }
+  }
+ },
+ "starter_resubmits": {
+  "n_failing_turns_identical_to_starter": 1733,
+  "pct_of_fails": 20.96,
+  "note": "under the original full bench only cross_entropy/reduce/softmax starters PASS (results/stage1_baselines.jsonl); under bench v2 matmul/flash_attention/fused_mlp starters fail (flash_attention: shared-mem OOR on L4 gqa; fused_mlp: CRASH)."
+ },
+ "top15_error_messages": [
+  {
+   "message": "NameError: name 'autokernel_bench' is not defined",
+   "n": 425,
+   "pct_of_fails": 5.14,
+   "bucket": "format/tool_call_or_result_text_in_code",
+   "kernel_types": {
+    "fused_mlp": 59,
+    "rotary_embedding": 59,
+    "flash_attention": 57,
+    "layernorm": 54,
+    "matmul": 45
+   },
+   "sources": {
+    "grpo_v1": 220,
+    "grpo_v2": 142,
+    "eval:autokernel_fbv1": 45,
+    "eval:autokernel_fbv2": 17
+   },
+   "example_raw": "NameError: name 'autokernel_bench' is not defined",
+   "example_where": "grpo_v1 step_001 softmax s2 t0",
+   "example_snippet": "    return output.view(orig_shape)\n\nautokernel_bench(KERNEL_TYPE, kernel_fn)   # <-- error here"
+  },
+  {
+   "message": "OutOfResources: out of resource: shared memory (Required > Hardware limit)",
+   "n": 376,
+   "pct_of_fails": 4.55,
+   "bucket": "runtime/shared_mem_out_of_resources",
+   "kernel_types": {
+    "flash_attention": 247,
+    "matmul": 98,
+    "fused_mlp": 31
+   },
+   "sources": {
+    "grpo_v1": 211,
+    "grpo_v2": 133,
+    "eval:autokernel_fbv2": 19,
+    "eval:autokernel_fbv1": 12
+   },
+   "example_raw": "OutOfResources: out of resource: shared memory",
+   "example_where": "grpo_v1 step_001 matmul s1 t0",
+   "example_snippet": "    C = torch.empty((M, N), device=A.device, dtype=A.dtype)\n\n    BLOCK_SIZE_M = 128   # <-- error here"
+  },
+  {
+   "message": "AttributeError: module 'triton.language.math' has no attribute 'tanh",
+   "n": 281,
+   "pct_of_fails": 3.4,
+   "bucket": "compile/missing_tl_api_in_3.2",
+   "kernel_types": {
+    "fused_mlp": 279,
+    "kb": 2
+   },
+   "sources": {
+    "grpo_v1": 165,
+    "grpo_v2": 92,
+    "eval:autokernel_fbv2": 13,
+    "eval:autokernel_fbv1": 8
+   },
+   "example_raw": "AttributeError: module 'triton.language.math' has no attribute 'tanh",
+   "example_where": "grpo_v1 step_001 fused_mlp s0 t0",
+   "example_snippet": "    else:\n        # GELU approximation\n        gate_activated = 0.5 * acc_gate * (1.0 + tl.math.tanh(0.7978845608 * (acc_gate + 0.044715 * acc_gate * acc_gate * acc_gate)))   # <-- error here"
+  },
+  {
+   "message": "ValueError: Did you forget to add @triton.jit ? (`_builder` argument must be provided outside of JIT functions.)",
+   "n": 179,
+   "pct_of_fails": 2.17,
+   "bucket": "compile/unsupported_python_in_jit",
+   "kernel_types": {
+    "cross_entropy": 88,
+    "softmax": 27,
+    "rmsnorm": 23,
+    "layernorm": 16,
+    "matmul": 15
+   },
+   "sources": {
+    "grpo_v1": 92,
+    "grpo_v2": 50,
+    "eval:autokernel_fbv1": 21,
+    "eval:autokernel_fbv2": 16
+   },
+   "example_raw": "ValueError: Did you forget to add @triton.jit ? (`_builder` argument must be provided outside of JIT functions.)",
+   "example_where": "grpo_v1 step_001 matmul s4 t0",
+   "example_snippet": "    \"\"\"Basic tiled matmul. The agent improves this.\"\"\"\n    pid = tl.program_id(2)\n    pid_m = pid / (BLOCK_SIZE_N * triton.cdiv(N, BLOCK_SIZE_N))   # <-- error here"
+  },
+  {
+   "message": "CompilationError: at N:N:",
+   "n": 143,
+   "pct_of_fails": 1.73,
+   "bucket": "compile/unknown(message_truncated)",
+   "kernel_types": {
+    "kb": 41,
+    "reduce": 24,
+    "softmax": 24,
+    "rmsnorm": 22,
+    "cross_entropy": 14
+   },
+   "sources": {
+    "eval:autokernel_fbv1": 45,
+    "grpo_v1": 41,
+    "eval:kb_Qwen7B_kb_base": 29,
+    "grpo_v2": 16
+   },
+   "example_raw": "CompilationError: at 27:15:",
+   "example_where": "grpo_v1 step_001 reduce s7 t1",
+   "example_snippet": "    for col in range(BLOCK_SIZE):\n        col_idx = block_row_start + col * stride_x_col\n        mask = col_idx < reduce_size   # <-- error here"
+  },
+  {
+   "message": "ValueError: Unsupported ptr type <[N], int6N> in `tl.load`",
+   "n": 140,
+   "pct_of_fails": 1.69,
+   "bucket": "compile/pointer_arithmetic_or_ptr_type",
+   "kernel_types": {
+    "reduce": 135,
+    "rotary_embedding": 4,
+    "softmax": 1
+   },
+   "sources": {
+    "grpo_v1": 128,
+    "grpo_v2": 12
+   },
+   "example_raw": "ValueError: Unsupported ptr type <[64], int64> in `tl.load`",
+   "example_where": "grpo_v1 step_001 rotary_embedding s3 t3",
+   "example_snippet": "    # even indices: 0, 2, 4, ... => col_offsets * 2\n    # odd indices:  1, 3, 5, ... => col_offsets * 2 + 1\n    x1 = tl.load(X_ptr + row_idx * stride_x_row + col_offsets * 2, mask=mask_half, other=0.0).to(tl.float32)   # <-- error here"
+  },
+  {
+   "message": "RuntimeError: CUDA error: an illegal memory access was encountered",
+   "n": 126,
+   "pct_of_fails": 1.52,
+   "bucket": "runtime/illegal_memory_access(OOB)",
+   "kernel_types": {
+    "rotary_embedding": 33,
+    "reduce": 30,
+    "softmax": 19,
+    "cross_entropy": 16,
+    "matmul": 14
+   },
+   "sources": {
+    "grpo_v1": 76,
+    "grpo_v2": 40,
+    "eval:autokernel_fbv2": 5,
+    "eval:kb_Qwen7B_kb_base": 3
+   },
+   "example_raw": "RuntimeError: CUDA error: an illegal memory access was encountered",
+   "example_where": "grpo_v1 step_001 softmax s7 t1",
+   "example_snippet": null
+  },
+  {
+   "message": "SyntaxError: invalid syntax",
+   "n": 107,
+   "pct_of_fails": 1.29,
+   "bucket": "format/prose_or_fake_bench_output_inside_code_block",
+   "kernel_types": {
+    "softmax": 21,
+    "flash_attention": 20,
+    "layernorm": 13,
+    "rmsnorm": 13,
+    "cross_entropy": 10
+   },
+   "sources": {
+    "grpo_v1": 67,
+    "grpo_v2": 31,
+    "eval:autokernel_fbv1": 5,
+    "eval:autokernel_fbv2": 2
+   },
+   "example_raw": "SyntaxError: invalid syntax",
+   "example_where": "grpo_v1 step_001 softmax s7 t0",
+   "example_snippet": "PASS, 3.8, 97%, 4.6   # <-- error here"
+  },
+  {
+   "message": "AssertionError:",
+   "n": 99,
+   "pct_of_fails": 1.2,
+   "bucket": "compile/unsupported_python_in_jit",
+   "kernel_types": {
+    "softmax": 37,
+    "matmul": 17,
+    "cross_entropy": 16,
+    "reduce": 12,
+    "rotary_embedding": 6
+   },
+   "sources": {
+    "grpo_v1": 53,
+    "grpo_v2": 32,
+    "eval:autokernel_fbv2": 10,
+    "eval:autokernel_fbv1": 4
+   },
+   "example_raw": "AssertionError: ",
+   "example_where": "grpo_v1 step_001 matmul s3 t1",
+   "example_snippet": "    # Write the result\n    if pid_m * BLOCK_SIZE_M + tid_m < M and pid_n * BLOCK_SIZE_N + tid_n < N:\n        C_ptr[pid_m * BLOCK_SIZE_M + tid_m, pid_n * BLOCK_SIZE_N + tid_n] = acc[tid_m, tid_n]   # <-- error here"
+  },
+  {
+   "message": "ValueError: Cannot make_shape_compatible: incompatible dimensions at index N: N and N",
+   "n": 96,
+   "pct_of_fails": 1.16,
+   "bucket": "compile/shape_broadcast",
+   "kernel_types": {
+    "matmul": 50,
+    "reduce": 22,
+    "flash_attention": 15,
+    "fused_mlp": 7,
+    "softmax": 2
+   },
+   "sources": {
+    "grpo_v1": 53,
+    "grpo_v2": 32,
+    "eval:autokernel_fbv2": 6,
+    "eval:autokernel_fbv1": 5
+   },
+   "example_raw": "ValueError: Cannot make_shape_compatible: incompatible dimensions at index 0: 128 and 64",
+   "example_where": "grpo_v1 step_002 matmul s3 t3",
+   "example_snippet": "    # Compute accumulation\n    for k in range(0, K, BLOCK_SIZE_K):\n        a = tl.load(a_ptrs, mask=(row_mask & col_mask & k_mask), other=0.0)   # <-- error here"
+  },
+  {
+   "message": "RuntimeError: Cannot call @triton.jit'd outside of the scope of a kernel",
+   "n": 67,
+   "pct_of_fails": 0.81,
+   "bucket": "python/triton_launch_or_autotune_misuse",
+   "kernel_types": {
+    "kb": 22,
+    "softmax": 14,
+    "cross_entropy": 11,
+    "matmul": 5,
+    "reduce": 4
+   },
+   "sources": {
+    "grpo_v1": 28,
+    "eval:kb_Qwen7B_grpo_v2_kb_lora": 15,
+    "eval:autokernel_fbv1": 9,
+    "grpo_v2": 8
+   },
+   "example_raw": "RuntimeError: Cannot call @triton.jit'd outside of the scope of a kernel",
+   "example_where": "grpo_v1 step_001 rmsnorm s3 t3",
+   "example_snippet": "    BLOCK_SIZE = triton.next_power_of_2(N)\n\n    rmsnorm_kernel[(M, tl.cdiv(N, BLOCK_SIZE))](   # <-- error here"
+  },
+  {
+   "message": "SyntaxError: invalid syntax. Perhaps you forgot a comma?",
+   "n": 63,
+   "pct_of_fails": 0.76,
+   "bucket": "format/tool_call_or_result_text_in_code",
+   "kernel_types": {
+    "rmsnorm": 24,
+    "cross_entropy": 13,
+    "flash_attention": 8,
+    "softmax": 7,
+    "reduce": 6
+   },
+   "sources": {
+    "grpo_v1": 44,
+    "grpo_v2": 15,
+    "eval:autokernel_fbv2": 3,
+    "eval:autokernel_fbv1": 1
+   },
+   "example_raw": "SyntaxError: invalid syntax. Perhaps you forgot a comma?",
+   "example_where": "grpo_v1 step_002 softmax s7 t0",
+   "example_snippet": "\n\nimport autokernel_bench   # <-- error here"
+  },
+  {
+   "message": "ValueError: arange's arguments must be of type tl.constexpr",
+   "n": 58,
+   "pct_of_fails": 0.7,
+   "bucket": "compile/constexpr_misuse",
+   "kernel_types": {
+    "softmax": 20,
+    "cross_entropy": 18,
+    "rmsnorm": 10,
+    "reduce": 4,
+    "matmul": 2
+   },
+   "sources": {
+    "grpo_v1": 38,
+    "grpo_v2": 11,
+    "eval:autokernel_fbv2": 9
+   },
+   "example_raw": "ValueError: arange's arguments must be of type tl.constexpr",
+   "example_where": "grpo_v1 step_001 matmul s5 t3",
+   "example_snippet": "    BLOCK_SIZE_K = min(BLOCK_SIZE_K, 64)\n\n    x = pid_m * BLOCK_SIZE_M + tl.arange(0, BLOCK_SIZE_M)   # <-- error here"
+  },
+  {
+   "message": "TypeError: sum() got an unexpected keyword argument 'dtype",
+   "n": 58,
+   "pct_of_fails": 0.7,
+   "bucket": "compile/wrong_kwarg_or_signature",
+   "kernel_types": {
+    "rmsnorm": 43,
+    "layernorm": 15
+   },
+   "sources": {
+    "grpo_v1": 44,
+    "grpo_v2": 14
+   },
+   "example_raw": "TypeError: sum() got an unexpected keyword argument 'dtype",
+   "example_where": "grpo_v1 step_001 rmsnorm s7 t1",
+   "example_snippet": "\n    # Compute RMS\n    sq_mean = tl.sum(x * x, axis=0, dtype=tl.float32) / N   # <-- error here"
+  },
+  {
+   "message": "AttributeError: module 'kernel' has no attribute 'kernel_fn",
+   "n": 55,
+   "pct_of_fails": 0.67,
+   "bucket": "python/interface_contract(kernel_fn/circular_import)",
+   "kernel_types": {
+    "matmul": 10,
+    "rotary_embedding": 8,
+    "rmsnorm": 8,
+    "softmax": 7,
+    "fused_mlp": 6
+   },
+   "sources": {
+    "grpo_v1": 36,
+    "grpo_v2": 17,
+    "eval:autokernel_fbv1": 2
+   },
+   "example_raw": "AttributeError: module 'kernel' has no attribute 'kernel_fn",
+   "example_where": "grpo_v1 step_001 softmax s7 t3",
+   "example_snippet": null
+  }
+ ],
+ "numerics_note": {
+  "exceeds_tolerance_turns": 3195,
+  "nan_or_inf_turns": 436,
+  "caveat": "the original bench has harness false-negatives (results/v3/bench_v2.md audit): matmul reference uses reduced-precision cuBLAS split-K, layernorm bf16 rtol < bf16 unit roundoff, rotary rounding; so 'numerics' for matmul/layernorm/rotary_embedding partly reflects the harness, not the kernel.",
+  "numerics_turns": 3770,
+  "numerics_identical_to_starter_pct": 35.33,
+  "numerics_in_harness_suspect_types(matmul,layernorm,rotary)_pct": 52.02,
+  "numerics_excluding_starter_resubmits_and_suspect_types": 1515
+ },
+ "stuck_loops": {
+  "consecutive_fail_fail_pairs": 6052,
+  "same_error_as_prev_turn_pct": 54.46,
+  "same_bucket_as_prev_turn_pct": 58.34,
+  "identical_code_resubmitted_pct": 29.15,
+  "by_source": {
+   "eval:autokernel_fbv1": {
+    "pairs": 448,
+    "same_error_pct": 70.76,
+    "identical_code_pct": 60.71
+   },
+   "eval:autokernel_fbv2": {
+    "pairs": 404,
+    "same_error_pct": 65.35,
+    "identical_code_pct": 52.23
+   },
+   "eval:kb_Qwen7B_grpo_v2_kb_lora": {
+    "pairs": 56,
+    "same_error_pct": 62.5,
+    "identical_code_pct": 35.71
+   },
+   "eval:kb_Qwen7B_kb_base": {
+    "pairs": 56,
+    "same_error_pct": 60.71,
+    "identical_code_pct": 32.14
+   },
+   "grpo_v1": {
+    "pairs": 3292,
+    "same_error_pct": 52.07,
+    "identical_code_pct": 24.51
+   },
+   "grpo_v2": {
+    "pairs": 1796,
+    "same_error_pct": 51.89,
+    "identical_code_pct": 24.28
+   }
+  },
+  "trajectories_with_>=3_turn_identical_error_run_pct": 41.83,
+  "n_trajectories_with_>=3_turns": 2216,
+  "recovery_next_turn_PASS_given_fail_stage": {
+   "format": 5.98,
+   "python": 2.41,
+   "compile": 1.19,
+   "runtime": 0.71,
+   "numerics": 0.97,
+   "timeout": 6.25,
+   "infra": 0.0,
+   "unknown": 0.0
+  },
+  "definition": "same error = same (stage, bucket, normalized exception message; numerics compare bucket only) on turn k and k-1, both failing, same trajectory."
+ },
+ "generation_stats": {
+  "turn0_prompt_tokens_median_by_suite": {
+   "autokernel": 2028,
+   "kb": 413.0
+  },
+  "completion_tokens_median": 956,
+  "completion_tokens_p90": 1805,
+  "finish_length_pct": 0.54
+ },
+ "sft_positives": {
+  "source": "results/v3/rescore_bench_v2.jsonl (bench_v2.1, L4); code joined from rollouts by code_sha12 and verified against full sha256",
+  "n_pass": 346,
+  "n_code_not_found": 0,
+  "by_kernel_type": {
+   "cross_entropy": {
+    "pass_rows(distinct_exact_sha)": 70,
+    "distinct_whitespace_normalized": 63,
+    "distinct_ast(comments/docstrings/format stripped)": 40,
+    "distinct_ast_numeric_literals_masked(tuning-only variants merged)": 35,
+    "exact_sha_identical_to_starter_at_ast_level": 17,
+    "distinct_ast_non_starter": 39,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.9": 8,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.7": 3,
+    "starter_similarity_median(distinct_ast)": 0.979,
+    "turn_occurrences_total": 358,
+    "max_median_vs_starter": 1.053,
+    "n_distinct_ast_with_any_shape_vs_starter_ge_1.05": 2
+   },
+   "reduce": {
+    "pass_rows(distinct_exact_sha)": 182,
+    "distinct_whitespace_normalized": 177,
+    "distinct_ast(comments/docstrings/format stripped)": 107,
+    "distinct_ast_numeric_literals_masked(tuning-only variants merged)": 78,
+    "exact_sha_identical_to_starter_at_ast_level": 23,
+    "distinct_ast_non_starter": 106,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.9": 28,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.7": 1,
+    "starter_similarity_median(distinct_ast)": 0.965,
+    "turn_occurrences_total": 431,
+    "max_median_vs_starter": 1.012,
+    "n_distinct_ast_with_any_shape_vs_starter_ge_1.05": 0
+   },
+   "softmax": {
+    "pass_rows(distinct_exact_sha)": 94,
+    "distinct_whitespace_normalized": 91,
+    "distinct_ast(comments/docstrings/format stripped)": 67,
+    "distinct_ast_numeric_literals_masked(tuning-only variants merged)": 62,
+    "exact_sha_identical_to_starter_at_ast_level": 17,
+    "distinct_ast_non_starter": 66,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.9": 18,
+    "distinct_ast_non_starter_sim_to_starter_lt_0.7": 1,
+    "starter_similarity_median(distinct_ast)": 0.971,
+    "turn_occurrences_total": 318,
+    "max_median_vs_starter": 2.469,
+    "n_distinct_ast_with_any_shape_vs_starter_ge_1.05": 2
+   }
+  },
+  "totals": {
+   "pass_rows(distinct_exact_sha)": 346,
+   "distinct_whitespace_normalized": 331,
+   "distinct_ast(comments/docstrings/format stripped)": 214,
+   "distinct_ast_numeric_literals_masked(tuning-only variants merged)": 175,
+   "exact_sha_identical_to_starter_at_ast_level": 57,
+   "distinct_ast_non_starter": 211,
+   "distinct_ast_non_starter_sim_to_starter_lt_0.9": 54,
+   "distinct_ast_non_starter_sim_to_starter_lt_0.7": 5,
+   "turn_occurrences_total": 1107,
+   "n_distinct_ast_with_any_shape_vs_starter_ge_1.05": 4
+  },
+  "kernel_types_with_zero_v2_pass": [
+   "flash_attention",
+   "fused_mlp",
+   "layernorm",
+   "matmul",
+   "rmsnorm",
+   "rotary_embedding"
+  ],
+  "notes": [
+   "old-bench PASS only ever occurred for cross_entropy/reduce/softmax/rmsnorm; rmsnorm's 12 all FAIL v2 (adversarial fp16 overflow) -> 0 rmsnorm positives.",
+   "bench v2 starters: PASS softmax/layernorm/rmsnorm/cross_entropy/rotary_embedding/reduce; FAIL matmul (fp32 tol), flash_attention (smem OOR on L4 gqa); CRASH fused_mlp.",
+   "rescore_summary.json: 0 PASS kernels have a significant (>1.05x, CI) speedup vs the starter; survivors' median vs-starter geomean ~0.998-0.999."
+  ]
+ },
+ "overall_by_stage_excluding_starter_resubmits": {
+  "numerics": {
+   "n": 2438,
+   "pct": 37.31
+  },
+  "compile": {
+   "n": 2393,
+   "pct": 36.62
+  },
+  "format": {
+   "n": 745,
+   "pct": 11.4
+  },
+  "python": {
+   "n": 613,
+   "pct": 9.38
+  },
+  "runtime": {
+   "n": 297,
+   "pct": 4.55
+  },
+  "timeout": {
+   "n": 24,
+   "pct": 0.37
+  },
+  "unknown": {
+   "n": 23,
+   "pct": 0.35
+  },
+  "infra": {
+   "n": 1,
+   "pct": 0.02
+  }
+ },
+ "environment": {
+  "triton": "3.2.0",
+  "torch": "2.6.0 (+cu124)",
+  "evidence": "modal_app/common.py bench_base_image pip_install('torch==2.6.0') -> triton 3.2.0 transitively; measured triton.__version__=3.2.0 in results/v3/rmsnorm_remeasure.json",
+  "gpu": "L4 (GRPO + autokernel eval; smem limit 101376 B), H100 (KB eval)"
+ },
+ "prompt_format": {
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct via vLLM llm.chat (HF Qwen2.5 chat template), top_p=0.95; eval T=0.8 max_new=4096; GRPO T=1.0 max_new=3072, group=8, max_turns=4",
+  "autokernel_system": "build_dataset.SYSTEM_PROMPT (describes an autokernel_bench(kernel_type, code) tool, PASS/FAIL/TIMEOUT/CRASH, rules, memory- vs compute-bound hints) + agent_eval.PROTOCOL ('instead of a function call, end every reply with the FULL kernel.py in one ```python fenced block')",
+  "autokernel_user": "build_dataset.user_prompt(kt, SHAPE_SWEEP[kt][-1], 'float16', reference.py (ALL 10 *_ref fns, 3 KB), starter kernels/<kt>.py, max_turns): 'Kernel type/Target shape/Target dtype/Edit budget' + ```python reference``` + ```python starter``` + 'Start by benchmarking the starter... Call autokernel_bench with the full kernel.py contents.' ~2028 tokens",
+  "kb_system": "agent_eval.KB_SYSTEM; user = 'KernelBench Level 1, problem N.' + ```python Model code``` + 'Write ModelNew.' (~413 tokens)",
+  "code_extraction": "regex ```(?:python|py)?\\s*\\n(.*?)``` ; LAST block wins; none -> CRASH 'no ```python code block in reply'",
+  "file_contract": "kernel.py must define KERNEL_TYPE = '<kt>' and kernel_fn(<same signature as starter>) using @triton.jit kernels; bench.py imports it",
+  "observation_v2": "user msg: 'autokernel_bench result:\\n' + json.dumps({correctness, speedup_vs_pytorch, pct_peak, latency_us, pytorch_latency_us, bottleneck, stages}) ; if not PASS: + '\\n\\nfailures:\\n' + up to 12 fail_lines ; if CRASH: + '\\n\\nlog tail:\\n' + last 800 chars of log. (v1 feedback: log tail 1500 chars only). Used by GRPO v1/v2 and eval fbv2; KB uses the same header.",
+  "loss_mask": "train_grpo.build_masked: all assistant turns (incl <|im_end|>) are trained; system/user/observation masked"
+ }
+}

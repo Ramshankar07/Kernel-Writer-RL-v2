@@ -1,0 +1,91 @@
+{
+ "id": "cross_entropy/ignore_index",
+ "family": "cross_entropy",
+ "variant": "ignore_index",
+ "desc": "mean CE with ~10% targets = -100 (ignored)",
+ "gen": "cross_entropy",
+ "gen_args": {
+  "ignore_frac": 0.1
+ },
+ "sizes": [
+  [
+   "b4096_v32000",
+   {
+    "lead": [
+     4096
+    ],
+    "vocab": 32000
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b333_v1000",
+   {
+    "lead": [
+     333
+    ],
+    "vocab": 1000
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "lead": [
+     1024
+    ],
+    "vocab": 32000
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b4096_v32000",
+   {
+    "lead": [
+     4096
+    ],
+    "vocab": 32000
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "cross_entropy",
+  "ignore_index"
+ ],
+ "val_set_version": "v1"
+}

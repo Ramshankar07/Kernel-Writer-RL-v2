@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reproduce · Kernel-Writer-RL-v2</title>
+<meta name="description" content="How to re-run every stage of Kernel-Writer-RL-v2 on Modal: prerequisites, commands, gotchas, costs, artifact index, data and licenses.">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* page-local: copy buttons, scrollable tables, small layout helpers */
+  .codewrap { position: relative; }
+  .codewrap pre { padding-right: 4.5rem; }
+  .copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    font: 600 12px/1 system-ui, sans-serif; padding: 6px 9px;
+    border: 1px solid #FCA311; border-radius: 4px;
+    background: #14213D; color: #FCA311; cursor: pointer;
+  }
+  .copy-btn:hover, .copy-btn:focus-visible { background: #FCA311; color: #14213D; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; }
+  .table-wrap table.data { min-width: 560px; }
+  .toc { columns: 2 220px; padding-left: 1.2em; }
+  .phase { margin-top: 2rem; }
+  td code, li code, p code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Site">
+    <a href="index.html">Home</a>
+    <a href="method.html">Method</a>
+    <a href="rl.html">RL results</a>
+    <a href="verifier.html">Verifier</a>
+    <a href="sft.html">SFT</a>
+    <a href="reproduce.html" aria-current="page">Reproduce</a>
+  </nav>
+</header>
+
+<main>
+<h1>Reproduce</h1>
+<p>Everything measured in this project was run on <a href="https://modal.com">Modal</a> from <code>modal_app/</code>.
+The results are in <code>results/</code> and the slides are in <code>presentation/</code>.
+This page lists every command in the order it was run, the gotchas we hit, what the runs cost, and which file holds which number.
+The commands come from the docstrings of the <code>modal_app/</code> modules, and every <code>modal run file.py::fn</code> entrypoint named here exists in the code.</p>
+
+<div class="callout">
+  <strong>GPU jobs cost real money.</strong> Before you launch anything, check what you have already spent with
+  <code>modal.billing.workspace_billing_report</code>. Run one GPU stage at a time. Steps marked <span class="tag">CPU</span> run locally and are free.
+</div>
+
+<ol class="toc">
+  <li><a href="#prereqs">Prerequisites</a></li>
+  <li><a href="#deploy">Deploy the Modal apps</a></li>
+  <li><a href="#v1">Stages 1–5 (Modal re-run, GRPO)</a></li>
+  <li><a href="#v3">v3: fixed harnesses and SFT-before-RL</a></li>
+  <li><a href="#gotchas">Gotchas</a></li>
+  <li><a href="#costs">Costs</a></li>
+  <li><a href="#artifacts">Artifact index</a></li>
+  <li><a href="#data">Data and licenses</a></li>
+</ol>
+
+<h2 id="prereqs">Prerequisites</h2>
+<ul>
+  <li><strong>A Modal account</strong> with the CLI logged in (<code>pip install modal</code>, then <code>modal setup</code>).</li>
+  <li><strong>A Modal secret named <code>huggingface-secret</code></strong> that holds your Hugging Face token. The policy (<code>policy.py</code>), GRPO trainer (<code>train_grpo.py</code>) and SFT trainer (<code>sft_train_modal.py</code>) mount it to download Qwen2.5-Coder-7B-Instruct.</li>
+  <li><strong>Python 3.11.</strong> All container images use <code>debian_slim(python_version="3.11")</code>; use the same version locally. The CPU-only scripts import
+    <code>huggingface_hub</code>, <code>pandas</code>, <code>pyarrow</code>, <code>matplotlib</code> and <code>transformers&lt;5</code> + <code>tokenizers</code> (tokenizer files only, for <code>sft_assemble.py</code>).</li>
+  <li><strong>Node.js</strong>, for the decks only: <code>cd presentation &amp;&amp; npm install</code> (installs <code>pptxgenjs</code>).</li>
+  <li><strong>Concurrency cap.</strong> The account we used allows at most 10 concurrent GPUs/containers. Each app sets its own <code>max_containers</code> so that one stage fits under that cap:
+    <ul>
+      <li>v1 bench pools: <code>BENCH_MAX_CONTAINERS = 8</code> in <code>modal_app/common.py</code>. An agent eval uses 1 policy GPU + up to 8 bench GPUs = 9.</li>
+      <li>bench v2: <code>BENCH_V2_MAX_CONTAINERS</code> env var (default 4). Val bench: <code>VAL_BENCH_MAX_CONTAINERS</code> (default 6). kb v2 and SFT verification: 4 (hard-coded).</li>
+      <li>GRPO: 1 trainer H100 + 1 policy H100 + up to 8 bench L4s.</li>
+    </ul>
+    If your account has a lower limit, lower these values before you run anything.
+  </li>
+</ul>
+<div class="codewrap"><pre><code>pip install modal huggingface_hub pandas pyarrow matplotlib "transformers&lt;5" tokenizers
+modal setup
+modal secret create huggingface-secret HF_TOKEN=hf_xxx</code></pre></div>
+<p class="muted">Persistent state: Volume <code>autokernel-rlvr</code> (HF cache, GRPO/SFT checkpoints, metrics) and Dict <code>autokernel-bench-cache</code> (v1 bench result cache). Both are created on first use.</p>
+
+<h2 id="deploy">Deploy the Modal apps</h2>
+<p>Deploy each app once. After that, the eval and training jobs call it by name.</p>
+<div class="codewrap"><pre><code>cd modal_app
+modal deploy bench_modal.py           # autokernel-bench: Bencher.run(kernel_type, code, quick)
+modal deploy kernelbench_modal.py     # autokernel-kernelbench: KBBencher.run(problem_id, code)
+modal deploy policy.py                # autokernel-policy: vLLM Qwen2.5-Coder, LoRA hot-swap
+# v3 apps (deploy when you reach that phase)
+modal deploy bench_v2_modal.py        # autokernel-bench-v2
+modal deploy kernelbench_v2_modal.py  # autokernel-kernelbench-v2: KBV2.run(problem_id, code)
+modal deploy val_bench_modal.py       # autokernel-val-bench (used by val_eval.py)
+modal deploy sft_verify_modal.py      # autokernel-sft-verify
+modal deploy sft_train_modal.py       # autokernel-sft-train
+modal deploy train_grpo.py            # autokernel-grpo
+cd ..</code></pre></div>
+
+<h2 id="v1">Stages 1–5: Modal re-run and GRPO</h2>
+<p>Run these from <code>modal_app/</code> unless the command gives a repo-relative path. Every code block below starts and ends at the repo root, so you can paste them in order in one shell.</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Stage</th><th>Command</th><th>Output</th></tr></thead>
+  <tbody>
+    <tr><td>1 bench baselines</td><td><code>modal run bench_modal.py::stage1</code></td><td><code>results/stage1_baselines.jsonl</code></td></tr>
+    <tr><td>1b KernelBench v1 harness test</td><td><code>modal run kernelbench_modal.py::sanity</code></td><td><code>results/kb_sanity.jsonl</code></td></tr>
+    <tr><td>2 agent eval (no training)</td><td><code>modal run agent_eval.py --suite autokernel --n 8 --max-turns 8</code></td><td><code>results/agent_eval/*.jsonl</code></td></tr>
+    <tr><td>2b KernelBench L1 agent eval</td><td><code>modal run agent_eval.py --suite kb --n 1 --max-turns 4 --bench-gpu H100</code></td><td><code>results/agent_eval/kb_*.jsonl</code></td></tr>
+    <tr><td>3 GRPO</td><td><code>modal deploy train_grpo.py</code>, then <code>spawn</code> (below)</td><td>Volume <code>grpo/&lt;run&gt;/</code> → <code>results/grpo/&lt;run&gt;/</code></td></tr>
+    <tr><td>4 analysis + materials <span class="tag">CPU</span></td><td>see below</td><td><code>results/numbers.json</code>, <code>presentation/*</code></td></tr>
+    <tr><td>5 deck render (QA)</td><td><code>modal run modal_app/render_deck.py</code></td><td><code>presentation/_render/slide-NN.png</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>A smoke test of the bench app is also available: <code>modal run bench_modal.py::smoke</code>.</p>
+
+<h3>Stage 3: GRPO via spawn</h3>
+<p>Launch long jobs with <code>spawn</code>, not <code>modal run</code>. A <code>modal run --detach</code> job was cancelled at step 5.
+The arguments below match <code>results/grpo/grpo_v1/config.json</code> and <code>results/grpo/grpo_v2/config.json</code> (v1's config predates the <code>reward</code> parameter; <code>'v1'</code> is its default). <code>train</code> resumes from any <code>grpo/&lt;run&gt;/step_*</code> checkpoint on the Volume, so use a fresh run name if the original Volume is still around.
+v1 was configured for 20 steps and logged <span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span>.</p>
+<div class="codewrap"><pre><code>python3 -c "import modal; modal.Function.from_name('autokernel-grpo','train').spawn(run='grpo_v1', steps=20, reward='v1')"
+python3 -c "import modal; modal.Function.from_name('autokernel-grpo','train').spawn(run='grpo_v2', steps=10, reward='v2', adv_min_std=0.02)"</code></pre></div>
+<p>When a run finishes, copy <code>grpo/&lt;run&gt;/</code> from the <code>autokernel-rlvr</code> Volume to <code>results/grpo/&lt;run&gt;/</code>, for example with <code>modal volume get</code>.</p>
+
+<h3>Stage 4: analysis, figures and the deck <span class="tag">CPU</span></h3>
+<div class="codewrap"><pre><code>python modal_app/analyze.py &amp;&amp; python presentation/make_figures.py &amp;&amp; python presentation/make_docs.py &amp;&amp; node presentation/build_deck.js
+python3 presentation/v2/make_extra.py         # -> results/extra_numbers.json, presentation/v2/figures/
+python3 presentation/v3/make_v3_numbers.py    # -> results/v3/v3_numbers.json
+node presentation/v3/build_deck_v3.js         # -> presentation/v3/deck_v3.pptx</code></pre></div>
+
+<h2 id="v3">v3: fixed harnesses and SFT-before-RL</h2>
+<p>The plan is in <code>results/v3/sft_plan.md</code>. Every phase writes under <code>results/v3/</code>.</p>
+
+<section class="phase">
+<h3>Harness fixes: bench v2 and kb v2</h3>
+<p><strong>bench v2</strong> (L4). It has no result cache, so every evaluation draws fresh inputs. The write-up is <code>results/v3/bench_v2.md</code>.</p>
+<div class="codewrap"><pre><code>cd modal_app
+modal deploy bench_v2_modal.py
+modal run bench_v2_modal.py::smoke
+modal run bench_v2_modal.py::sanity      # -> results/v3/bench_v2_sanity.jsonl
+modal run bench_v2_modal.py::rescore     # -> results/v3/rescore_bench_v2.jsonl
+python bench_v2_modal.py report          # -> rescore_summary.json, bench_v2.md (no GPU)
+cd ..</code></pre></div>
+<p><strong>kb v2</strong>: KernelBench Level 1 with a fixed harness (H100). The write-up is <code>results/v3/kb_v2.md</code>.</p>
+<div class="codewrap"><pre><code>cd modal_app
+modal run kernelbench_v2_modal.py::sanity    # identity x2 + starters, all 100 -> results/v3/kb_v2_sanity.jsonl
+modal run kernelbench_v2_modal.py::ablate    # per-bug attribution runs
+python kb_v2_summarize.py                    # -> results/v3/kb_v2_valid_problems.json (no GPU)
+modal deploy kernelbench_v2_modal.py         # KBV2.run(problem_id, code) for evals
+cd ..</code></pre></div>
+<p class="muted">The RMSNorm re-measurement (<code>results/v3/rmsnorm_remeasure.md</code>) runs with <code>cd modal_app &amp;&amp; modal run rmsnorm_remeasure.py::main</code> (L4 + H100) or with <code>--gpus L4</code>.</p>
+</section>
+
+<section class="phase">
+<h3>Phase 0: fixed starters, prompt v2, validation set, base baseline</h3>
+<p>Run this block from the repo root. The <code>cd modal_app</code> steps run in subshells, so the working directory does not change.</p>
+<div class="codewrap"><pre><code>(cd modal_app &amp;&amp; modal run phase0_starters.py::verify)   # -> results/v3/phase0_starters.jsonl
+python modal_app/val_set_v1.py                           # -> results/v3/val_set/, results/v3/val_set.json (CPU)
+(cd modal_app &amp;&amp; modal run val_bench_modal.py::verify_starters)  # -> results/v3/val_set_starters.jsonl
+modal deploy modal_app/val_bench_modal.py
+modal run modal_app/val_eval.py --n 2 --max-turns 4 --tag half1
+modal run modal_app/val_eval.py --n 2 --max-turns 4 --tag half2
+# matmul re-runs after the starter fix (the 7 matmul__* val problems)
+modal run modal_app/val_eval.py --n 2 --max-turns 4 --tag mmfix1 --ids matmul__batched_bmm,matmul__bf16,matmul__bias_relu,matmul__fp32_exact,matmul__linear_xwT,matmul__nonpow2,matmul__skinny_M
+modal run modal_app/val_eval.py --n 2 --max-turns 4 --tag mmfix2 --ids matmul__batched_bmm,matmul__bf16,matmul__bias_relu,matmul__fp32_exact,matmul__linear_xwT,matmul__nonpow2,matmul__skinny_M
+# "a+b" = run a with b's episodes replacing the problems b covers; overwrites the committed file
+python modal_app/val_eval.py summarize half1+mmfix1,half2+mmfix2   # -> results/v3/phase0_baseline.json</code></pre></div>
+<p class="muted">The published baseline merges the two matmul re-runs (runs <code>half1+mmfix1</code>, <code>half2+mmfix2</code> in <code>results/v3/phase0_baseline.json</code>; run files in <code>results/v3/phase0_runs/</code>). <code>results/v3/phase0.md</code> explains why.
+Base pass@1 on the 62-problem val set: <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span>.</p>
+</section>
+
+<section class="phase">
+<h3>Phase 1: build the SFT set (ingest → verify → decontam → assemble)</h3>
+<p>Ingest, selection, decontamination and assembly run locally on CPU. Only verification uses GPUs (L40S, at most 4 containers). The schema and rules are in <code>results/v3/sft/README.md</code>.</p>
+<div class="codewrap"><pre><code># 1. ingest (CPU; downloads the pinned HF revisions)
+python3 modal_app/sft_ingest_drkernel.py     # -> candidates_drkernel.jsonl, candidates_drkernel_repair.jsonl
+python modal_app/sft_ingest_kernelbook.py    # -> candidates_kernelbook.jsonl
+python modal_app/sft_ingest_inrepo.py        # -> candidates_inrepo.jsonl, candidates_inrepo_repair.jsonl
+python3 modal_app/sft_select.py              # budgeted subsets: *_kernelbook_sel, *_drkernel_repair_sel
+
+# 2. GPU verification (resumable; appends verified_&lt;source&gt;.jsonl + .summary.json)
+cd modal_app
+modal deploy sft_verify_modal.py
+modal run sft_verify_modal.py::allowlist     # -> results/v3/sft/tl_allowlist_triton32.json
+modal run sft_verify_modal.py::smoke         # 10 GPU controls + 1 static control
+modal run sft_verify_modal.py::run --source drkernel --limit 0       # 0 = all
+modal run sft_verify_modal.py::run --source kernelbook_sel --limit 0
+modal run sft_verify_modal.py::run --source drkernel_repair_sel --limit 0
+modal run sft_verify_modal.py::run --source inrepo --limit 0
+modal run sft_verify_modal.py::run --source inrepo_repair --limit 0
+cd ..
+
+# 3. decontamination against KernelBench L1 + the val set (CPU)
+python modal_app/sft_decontam.py results/v3/sft/candidates_drkernel.jsonl   # -> decontam_drkernel.jsonl
+# repeat for the other candidates files you want a decontam_*.jsonl for; sft_assemble.py
+# checks any id without one inline with the same code (recorded as decontam_src)
+python modal_app/test_sft_decontam.py
+
+# 4. assemble (CPU) -> sft_train.jsonl, sft_dev.jsonl, mix_report.{md,json}
+python modal_app/sft_assemble.py
+python modal_app/test_sft_assemble.py</code></pre></div>
+<p>Result: <span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span> train / <span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span> dev examples (<code>results/v3/sft/mix_report.md</code>).
+<code>sft_assemble.py</code> rebuilds everything from whichever <code>verified_*</code> and <code>decontam_*</code> files exist, so you can re-run it any time. Ids not covered by a decontam file are checked inline.</p>
+</section>
+
+<section class="phase">
+<h3>Phase 2: LoRA SFT (1×H100, via spawn)</h3>
+<p>The trainer bakes <code>results/v3/sft/sft_train.jsonl</code> and <code>sft_dev.jsonl</code> into its image, so build those files first.
+The pilot is the first <code>max_steps</code> of the full 2-epoch schedule. If you re-run with the same run name and no <code>max_steps</code>, training resumes and finishes both epochs.</p>
+<div class="codewrap"><pre><code>(cd modal_app &amp;&amp; modal deploy sft_train_modal.py)
+python3 -c "import modal; modal.Function.from_name('autokernel-sft-train','train').spawn(run='sft_v1', max_steps=100)"
+python3 -c "import modal; modal.Function.from_name('autokernel-sft-train','train').spawn(run='sft_v1')"   # resume to the end</code></pre></div>
+<p class="muted">The adapter is saved on the Volume at <code>sft/sft_v1/step_378</code>. The config and loss curve are in <code>results/v3/sft_runs/sft_v1/</code>.</p>
+</section>
+
+<section class="phase">
+<h3>Phase 3: evaluate base vs SFT</h3>
+<div class="codewrap"><pre><code># validation set (policy on L40S + up to 6 bench L4s)
+modal run modal_app/val_eval.py --n 2 --tag s1 --lora /vol/sft/sft_v1/step_378 --out-dir phase3_runs
+modal run modal_app/val_eval.py --n 2 --tag s2 --lora /vol/sft/sft_v1/step_378 --out-dir phase3_runs
+python modal_app/val_eval.py summarize phase3_runs/s1,phase3_runs/s2 phase3_sft_v1   # -> results/v3/phase3_sft_v1.json
+
+# KernelBench L1 under kb v2 (all 100 problems)
+modal deploy modal_app/kernelbench_v2_modal.py
+modal run modal_app/kb_v2_agent_eval.py --tag kb2_base
+modal run modal_app/kb_v2_agent_eval.py --tag kb2_sft_v1 --lora /vol/sft/sft_v1/step_378
+
+# report (CPU)
+python3 modal_app/phase3_report.py       # -> results/v3/phase3.md, results/v3/phase3.json</code></pre></div>
+<p>Val pass@1: <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span> → <span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span>.
+KernelBench L1 Triton-launch PASS rate: <span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span> → <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span>.</p>
+</section>
+
+<h2 id="gotchas">Gotchas</h2>
+<p>Each of these cost us a run.</p>
+<ul>
+  <li>Upstream <code>bench.py</code> takes <code>--kernel</code>, not <code>--kernel-type</code>. It prints its metrics to stdout and writes no <code>results.tsv</code>. <code>bench_modal.py:parse_stdout</code> parses the stdout.</li>
+  <li><code>--quick</code> skips the numerical-stability checks. The rmsnorm and flash_attention starters PASS quick but FAIL full, so the reward uses the full bench.</li>
+  <li>AutoKernel's KernelBench starter keeps <code>super(Model, self)</code> after the class is renamed to <code>ModelNew</code>, so every starter crashes. The identity test uses <code>class ModelNew(Model): pass</code> instead.</li>
+  <li>AutoKernel's upstream <code>bench_kb.py</code> (not vendored here) times the CPU <code>get_inputs()</code> inside a 30 s trial timeout. KB containers need <code>cpu=8, memory=32768</code>, and even then 9 problems with huge inputs time out intermittently. kb v2 fixes this.</li>
+  <li><code>bench_kb.py</code> never seeds weight init, so all 35 conv problems fail even for an identical model. Under v1 only 55/100 Level 1 problems are valid (<code>results/kb_valid_problems.json</code>). kb v2 makes all 100 valid (<code>results/v3/kb_v2_valid_problems.json</code>).</li>
+  <li>The kb_cache dir holds both <code>N.py</code> and <code>N.json</code>, so list only the <code>.py</code> files. An early run read problems 1–50 twice. Both runs are kept as <code>kb_sanity_1_50_run{1,2}.jsonl</code> for repeatability.</li>
+  <li>Use <code>spawn</code> for long jobs. A <code>modal run --detach</code> GRPO job was cancelled at step 5.</li>
+  <li>KernelBook <code>get_init_inputs()</code> returns <code>[args, kwargs]</code> (paritybench style) and imports <code>_paritybench_helpers</code>.</li>
+  <li>The SFT verifier runs its batches serially inside each container. Use a small <code>--batch</code> for slow autokernel-format rows.</li>
+  <li>zsh doesn't word-split <code>$var</code> in loops. Wrap shell loops in <code>bash -c</code>.</li>
+  <li>Modal has no MI300X, so the AMD path (<code>reward_amd.py</code>, <code>worker_amd.py</code> under <code>src/autokernel-rlvr/</code>) is design-only.</li>
+</ul>
+
+<h2 id="costs">Costs</h2>
+<p>Modal spend for the whole project. <span class="tag">billed</span> means read from Modal's billing report. <span class="tag">estimate</span> means computed from GPU time × list price, or written down as an estimate in the source.</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Item</th><th>Cost</th><th>Kind</th><th>Source</th></tr></thead>
+  <tbody>
+    <tr><td>Whole Sept 2026 re-run (stages 1–5, both GRPO runs)</td><td>≈ $95</td><td><span class="tag">estimate</span></td><td><code>CLAUDE.md</code> status</td></tr>
+    <tr><td>&nbsp;&nbsp;GRPO v1</td><td>$<span data-k="numbers.json:grpo.grpo_v1.est_cost_usd" data-fmt="f2">18.84</span></td><td><span class="tag">estimate</span></td><td><code>results/numbers.json</code> <code>grpo.grpo_v1.est_cost_usd</code></td></tr>
+    <tr><td>&nbsp;&nbsp;GRPO v2</td><td>$<span data-k="numbers.json:grpo.grpo_v2.est_cost_usd" data-fmt="f2">11.15</span></td><td><span class="tag">estimate</span></td><td><code>results/numbers.json</code> <code>grpo.grpo_v2.est_cost_usd</code></td></tr>
+    <tr><td>bench v2 (rescore, baselines, sanity)</td><td>~$3.7</td><td><span class="tag">estimate</span></td><td><code>results/v3/bench_v2.md</code> "Cost (estimate)"</td></tr>
+    <tr><td>kb v2 (sanity + ablations)</td><td>roughly $2–2.5</td><td><span class="tag">estimate</span></td><td><code>results/v3/kb_v2.md</code> "Cost"</td></tr>
+    <tr><td>Phase 0 (policy L40S, val bench, bench v2, debug)</td><td>≈ $5.3</td><td><span class="tag">billed</span></td><td><code>results/v3/phase0.md</code> §5 Cost</td></tr>
+    <tr><td>Phase 1 GPU verification</td><td>≈ $8</td><td><span class="tag">estimate</span></td><td><code>CLAUDE.md</code>; per-run <code>est_usd</code> below</td></tr>
+    <tr><td>Phase 2 SFT (<code>sft_v1</code>, 378 steps, 1×H100)</td><td>≈ $3.9</td><td><span class="tag">estimate</span></td><td><code>CLAUDE.md</code> Phase 2 note</td></tr>
+    <tr><td>Phase 3 evals</td><td>not recorded</td><td>n/a</td><td>planned at ~$5 in <code>results/v3/sft_plan.md</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="muted">The GRPO estimates use the list prices in <code>results/numbers.json</code> (<code>prices_usd_per_gpu_hr</code>):
+H100 $<span data-k="numbers.json:prices_usd_per_gpu_hr.H100" data-fmt="f2">3.95</span>/h,
+L4 $<span data-k="numbers.json:prices_usd_per_gpu_hr.L4" data-fmt="f2">0.80</span>/h.</p>
+
+<h3>Phase 1 verification, per run</h3>
+<p>Each <code>verified_*.summary.json</code> file in <code>results/v3/sft/</code> has an <code>est_usd</code> field per run, computed from container-seconds. These are <span class="tag">estimate</span>s.</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Summary file</th><th><code>est_usd</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>smoke_verify.summary.json</code></td><td>0.0494</td></tr>
+    <tr><td><code>verified_drkernel.summary.json</code> (2 runs)</td><td>0.1092 + 3.4846</td></tr>
+    <tr><td><code>verified_drkernel_repair_sel.summary.json</code></td><td>1.6028</td></tr>
+    <tr><td><code>verified_kernelbook_sel.summary.json</code></td><td>1.1505</td></tr>
+    <tr><td><code>verified_kernelbook_sel.refbug.summary.json</code></td><td>0.3472</td></tr>
+    <tr><td><code>verified_inrepo.summary.json</code></td><td>0.6435</td></tr>
+    <tr><td><code>verified_inrepo_repair.summary.json</code></td><td>0.4138</td></tr>
+    <tr><th>Sum</th><th>≈ 7.80</th></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="artifacts">Artifact index</h2>
+<p>Result numbers on this site and in the decks are read from these files. The exception is the cost figures on this page, which are copied from the cited reports and notes.</p>
+<h3><code>results/</code></h3>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Path</th><th>Holds</th><th>Written by</th></tr></thead>
+  <tbody>
+    <tr><td><code>results/numbers.json</code></td><td>Stage 1–3 headline numbers: bench baselines, KB sanity, agent eval, GRPO curves and cost estimates, GPU prices</td><td><code>modal_app/analyze.py</code></td></tr>
+    <tr><td><code>results/extra_numbers.json</code></td><td>Extra analyses: time breakdown, Dr. GRPO what-if, group explorer, entropy proxy, turn transitions, best kernel, speedups</td><td><code>presentation/v2/make_extra.py</code></td></tr>
+    <tr><td><code>results/stage1_baselines.jsonl</code></td><td>Starter latency/correctness per kernel type and GPU</td><td><code>bench_modal.py::stage1</code></td></tr>
+    <tr><td><code>results/kb_sanity*.jsonl</code>, <code>results/kb_valid_problems.json</code></td><td>KernelBench v1 identity test; the 55 valid problems</td><td><code>kernelbench_modal.py::sanity</code> (the valid list was derived from those runs and committed; no script writes it, and Stage 2b reads it)</td></tr>
+    <tr><td><code>results/agent_eval/</code></td><td>Multi-turn agent episodes (base, GRPO LoRA); <code>invalid/</code> holds runs that used the buggy KB list</td><td><code>agent_eval.py</code></td></tr>
+    <tr><td><code>results/grpo/grpo_v1/</code>, <code>results/grpo/grpo_v2/</code></td><td><code>config.json</code>, per-step <code>metrics.jsonl</code>, <code>rollouts/</code></td><td><code>train_grpo.py</code> (copied from the Volume)</td></tr>
+    <tr><td><code>results/autokernel_src/</code></td><td>Vendored AutoKernel <code>bench.py</code>, <code>reference.py</code>, starter kernels (MIT, see <code>LICENSE</code>)</td><td>vendored</td></tr>
+    <tr><td><code>results/kernelbench_l1_problems.jsonl</code></td><td>KernelBench Level 1 problem sources (read by decontamination and the KB agent evals)</td><td><code>kernelbench_modal.py::sanity</code> (side effect of Stage 1b)</td></tr>
+    <tr><td><code>results/v3/bench_v2.md</code>, <code>rescore_summary.json</code>, <code>rescore_bench_v2.jsonl</code></td><td>bench v2 write-up; every old PASS re-scored under bench v2</td><td><code>bench_v2_modal.py</code>, <code>bench_v2_report.py</code></td></tr>
+    <tr><td><code>results/v3/kb_v2.md</code>, <code>kb_v2_sanity.jsonl</code>, <code>kb_v2_valid_problems.json</code></td><td>kb v2 harness write-up, identity runs, valid list</td><td><code>kernelbench_v2_modal.py</code>, <code>kb_v2_summarize.py</code></td></tr>
+    <tr><td><code>results/v3/rmsnorm_remeasure.md</code>, <code>.json</code></td><td>Independent RMSNorm re-measurement (the fp16 reward hack)</td><td><code>rmsnorm_remeasure.py</code></td></tr>
+    <tr><td><code>results/v3/phase0.md</code>, <code>phase0_baseline.json</code>, <code>phase0_starters.jsonl</code></td><td>Phase 0 write-up, base-model val baseline, starter verification</td><td><code>phase0_starters.py</code>, <code>val_eval.py summarize</code></td></tr>
+    <tr><td><code>results/v3/val_set/</code>, <code>results/v3/val_set.json</code></td><td>The 62 held-out validation problems (reference, starter, problem.json)</td><td><code>val_set_v1.py</code></td></tr>
+    <tr><td><code>results/v3/sft/mix_report.json</code>, <code>.md</code></td><td>SFT mix: subsets, splits, token stats, per-source license notes</td><td><code>sft_assemble.py</code></td></tr>
+    <tr><td><code>results/v3/sft/ingest_*_summary.json</code>, <code>select_summary.json</code></td><td>Ingest and selection counts</td><td><code>sft_ingest_*.py</code>, <code>sft_select.py</code></td></tr>
+    <tr><td><code>results/v3/sft/*.summary.json</code></td><td>GPU verification verdicts, seconds, <code>est_usd</code></td><td><code>sft_verify_modal.py</code></td></tr>
+    <tr><td><code>results/v3/sft_runs/sft_v1/</code></td><td>SFT config and training/dev loss</td><td><code>sft_train_modal.py</code></td></tr>
+    <tr><td><code>results/v3/phase3.json</code>, <code>phase3.md</code></td><td>Base vs SFT: val pass@1, compile errors, gates, KernelBench L1 under kb v2</td><td><code>phase3_report.py</code></td></tr>
+    <tr><td><code>results/v3/v3_numbers.json</code></td><td>Extra numbers for the v3 deck (low-variance audit, rmsnorm config, versions)</td><td><code>presentation/v3/make_v3_numbers.py</code></td></tr>
+  </tbody>
+</table>
+</div>
+<h3><code>presentation/</code></h3>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>Path</th><th>Holds</th></tr></thead>
+  <tbody>
+    <tr><td><code>presentation/figures/</code></td><td>Figures 01–10 from <code>make_figures.py</code></td></tr>
+    <tr><td><code>presentation/deck.pptx</code>, <code>build_deck.js</code></td><td>Original deck and its builder</td></tr>
+    <tr><td><code>presentation/writeup.md</code>, <code>qa_30.md</code></td><td>Write-up and Q&amp;A from <code>make_docs.py</code></td></tr>
+    <tr><td><code>presentation/v2/</code></td><td>Extra analyses (<code>make_extra.py</code>), figures x1–x6, <code>best_kernel.py</code>, blog notes</td></tr>
+    <tr><td><code>presentation/v3/</code></td><td><code>deck_v3.pptx</code>, <code>build_deck_v3.js</code>, <code>make_v3_numbers.py</code>, storyline</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="data">Data and licenses</h2>
+<ul>
+  <li><strong>The SFT datasets are not published.</strong> <code>results/v3/sft/*.jsonl</code> (candidates, verified rows, <code>sft_train.jsonl</code>, <code>sft_dev.jsonl</code>) is gitignored. To regenerate it, run the <a href="#v3">Phase 1</a> pipeline: <code>modal_app/sft_ingest_*.py</code> → <code>sft_select.py</code> → <code>sft_verify_modal.py</code> → <code>sft_decontam.py</code> → <code>sft_assemble.py</code>. The summaries and <code>mix_report</code> are committed so you can check your rebuild against ours.</li>
+  <li><strong>KernelBook</strong> (<code>GPUMODE/KernelBook</code>): MIT at the pinned revision <code>1576375bc92745b490e1cdf2fce01eba76d9f847</code> (<code>dataset_permissive.parquet</code>). Targets are TorchInductor output. Per-row upstream repo licenses are kept in <code>meta</code>.</li>
+  <li><strong>Dr. Kernel</strong> (<code>hkust-nlp/drkernel-coldstart-8k</code> @ <code>cba0ef06a5b1e3c307b7acfa8b6acb7a46578105</code>): tagged MIT on Hugging Face, but its paper says the trajectories were distilled from GPT-5, so OpenAI's output terms (no use to develop competing models) may apply. We treat it as research use only until cleared.</li>
+  <li><strong>In-repo data</strong>: kernels written by our own Qwen2.5-Coder-7B-Instruct policy during the GRPO and agent-eval rollouts, re-verified with bench v2. No third-party data.</li>
+  <li><strong>Vendored AutoKernel code</strong> in <code>results/autokernel_src/</code>: MIT (<code>results/autokernel_src/LICENSE</code>).</li>
+  <li><strong>This project</strong>: Apache-2.0 (<code>LICENSE</code>).</li>
+  <li>Excluded by choice: <code>ppbhatt500/kernelbook-triton-reasoning-traces</code> (KernelBench-derived) and <code>siro1/*</code>. KernelBench L1 and the val set are never used for training.</li>
+</ul>
+</main>
+
+<footer class="site-footer">
+  <a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">GitHub: Ramshankar07/Kernel-Writer-RL-v2</a> · Apache-2.0
+</footer>
+
+<script>
+  // Add a copy button to every code block on this page.
+  document.querySelectorAll(".codewrap").forEach(function (wrap) {
+    var code = wrap.querySelector("pre code");
+    if (!code) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Copy";
+    btn.setAttribute("aria-label", "Copy command to clipboard");
+    btn.addEventListener("click", function () {
+      var text = code.innerText;
+      var done = function (ok) {
+        btn.textContent = ok ? "Copied" : "Press Ctrl+C";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        sel.removeAllRanges();
+        done(ok);
+      }
+    });
+    wrap.appendChild(btn);
+  });
+</script>
+<script src="assets/bind.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+{
+ "id": "flash_attention/gqa",
+ "family": "flash_attention",
+ "variant": "gqa",
+ "desc": "causal grouped-query attention (32 query heads, 8 KV heads)",
+ "gen": "attention",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2_h32_kv8_s1024_d64",
+   {
+    "b": 2,
+    "h": 32,
+    "s": 1024,
+    "d": 64,
+    "hkv": 8
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b1_h8_kv2_s300_d64",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 300,
+    "d": 64,
+    "hkv": 2
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "qk_40",
+   "qk_x40",
+   {
+    "b": 1,
+    "h": 16,
+    "s": 512,
+    "d": 64,
+    "hkv": 4
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2_h32_kv8_s2048_d64",
+   {
+    "b": 2,
+    "h": 32,
+    "s": 2048,
+    "d": 64,
+    "hkv": 8
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "flash_attention",
+  "gqa"
+ ],
+ "val_set_version": "v1"
+}

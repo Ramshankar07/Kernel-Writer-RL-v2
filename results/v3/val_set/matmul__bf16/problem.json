@@ -1,0 +1,91 @@
+{
+ "id": "matmul/bf16",
+ "family": "matmul",
+ "variant": "bf16",
+ "desc": "A @ B, bf16 only",
+ "gen": "matmul",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m2048_n3072_k1024",
+   {
+    "M": 2048,
+    "N": 3072,
+    "K": 1024
+   },
+   [
+    "bfloat16"
+   ]
+  ],
+  [
+   "m100_n200_k300",
+   {
+    "M": 100,
+    "N": 200,
+    "K": 300
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_K4096",
+   {
+    "M": 1024,
+    "N": 1024,
+    "K": 4096
+   },
+   [
+    "bfloat16"
+   ]
+  ],
+  [
+   "pos_uniform",
+   "pos_uniform_K8192",
+   {
+    "M": 256,
+    "N": 256,
+    "K": 8192
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m4096_n4096_k2048",
+   {
+    "M": 4096,
+    "N": 4096,
+    "K": 2048
+   },
+   "bfloat16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "matmul",
+  "bf16"
+ ],
+ "val_set_version": "v1"
+}

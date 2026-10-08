@@ -1,0 +1,31 @@
+--- system_v1 (build_dataset.SYSTEM_PROMPT + agent_eval.PROTOCOL)
++++ system_v2 (prompts_v2.SYSTEM_PROMPT_V2)
+@@ -2,5 +2,10 @@
+ 
+-You have access to one tool:
+-  autokernel_bench(kernel_type, code) — evaluates your proposed kernel.py on a real GPU.
+-    Returns: correctness (PASS/FAIL/TIMEOUT/CRASH), speedup_vs_pytorch, pct_peak, latency_us.
++How your kernel is evaluated (there is no function to call):
++  End every reply with the FULL contents of kernel.py in one ```python fenced block.
++  The last ```python block of your reply is saved as kernel.py and run on a real GPU
++  automatically; the bench imports it and calls kernel_fn(...) with the same arguments as
++  the starter's kernel_fn. The block must contain only Python source (no bench calls, no
++  results). The bench result comes back as the next message:
++    correctness (PASS/FAIL/TIMEOUT/CRASH), failure details, speedup_vs_starter,
++    speedup_vs_pytorch (eager), speedup_vs_torch_compile, latency_us.
+ 
+@@ -18,5 +23 @@
+ number of edits per kernel.
+-
+-Tool protocol for this session: instead of a function call, end every reply with the
+-FULL kernel.py in one ```python fenced block. It is benchmarked automatically and the
+-autokernel_bench result comes back as the next message.
+
+--- user_v1
++++ user_v2
+@@ -16,2 +16,2 @@
+ Start by benchmarking the starter so you see the baseline. Then iterate.
+-Call autokernel_bench with the full kernel.py contents.
++Reply with the full kernel.py contents in one ```python block.
+
+--- observation label: "autokernel_bench result:" -> "bench result:"

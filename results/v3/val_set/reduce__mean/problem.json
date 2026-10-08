@@ -1,0 +1,90 @@
+{
+ "id": "reduce/mean",
+ "family": "reduce",
+ "variant": "mean",
+ "desc": "row mean",
+ "gen": "reduce",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m4096_n8192",
+   {
+    "shape": [
+     4096,
+     8192
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "m999_n1000",
+   {
+    "shape": [
+     999,
+     1000
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "pos_uniform",
+   "pos_uniform",
+   {
+    "shape": [
+     256,
+     32768
+    ]
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m8192_n8192",
+   {
+    "shape": [
+     8192,
+     8192
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.1,
+   "rtol": 0.05
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "reduce",
+  "mean"
+ ],
+ "val_set_version": "v1"
+}

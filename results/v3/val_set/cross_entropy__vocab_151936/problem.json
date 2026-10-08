@@ -1,0 +1,87 @@
+{
+ "id": "cross_entropy/vocab_151936",
+ "family": "cross_entropy",
+ "variant": "vocab_151936",
+ "desc": "mean CE with Qwen vocab 151936 (looped/online LSE)",
+ "gen": "cross_entropy",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b512_v151936",
+   {
+    "lead": [
+     512
+    ],
+    "vocab": 151936
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b64_v151936",
+   {
+    "lead": [
+     64
+    ],
+    "vocab": 151936
+   },
+   [
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "lead": [
+     256
+    ],
+    "vocab": 151936
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b1024_v151936",
+   {
+    "lead": [
+     1024
+    ],
+    "vocab": 151936
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "cross_entropy",
+  "large_vocab",
+  "online"
+ ],
+ "val_set_version": "v1"
+}

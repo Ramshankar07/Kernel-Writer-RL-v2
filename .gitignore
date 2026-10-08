@@ -205,3 +205,14 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+presentation/node_modules/
+presentation/_render/
+presentation/v2/_render/
+# SFT Phase 1: large regenerable files (python3 modal_app/sft_ingest_drkernel.py rebuilds them)
+results/v3/sft/candidates_drkernel_repair.jsonl
+results/v3/sft/decontam_drkernel_repair.jsonl
+
+# SFT datasets (not published; regenerate with modal_app/sft_ingest_*.py + sft_verify_modal.py + sft_assemble.py)
+results/v3/sft/*.jsonl
+results/v3/sft/*call_id.txt
+.claude/

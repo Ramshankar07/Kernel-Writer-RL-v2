@@ -1,0 +1,97 @@
+{
+ "id": "fused_mlp/3d_input",
+ "family": "fused_mlp",
+ "variant": "3d_input",
+ "desc": "SwiGLU MLP on [B, S, D] input",
+ "gen": "mlp",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b4_s256_d1024_h2816",
+   {
+    "lead": [
+     4,
+     256
+    ],
+    "dim": 1024,
+    "hidden": 2816
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b2_s7_d512_h1024",
+   {
+    "lead": [
+     2,
+     7
+    ],
+    "dim": 512,
+    "hidden": 1024
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_act",
+   "big_act",
+   {
+    "lead": [
+     2,
+     256
+    ],
+    "dim": 1024,
+    "hidden": 2048
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b8_s512_d2048_h5632",
+   {
+    "lead": [
+     8,
+     512
+    ],
+    "dim": 2048,
+    "hidden": 5632
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "fused_mlp",
+  "3d"
+ ],
+ "val_set_version": "v1"
+}

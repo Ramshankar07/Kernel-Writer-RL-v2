@@ -1,0 +1,28 @@
+[
+ {
+  "n": 1500,
+  "verdicts": {
+   "REJECT_SYMBOL": 6,
+   "PASS": 1238,
+   "FAIL": 103,
+   "FAIL_EXTREME": 6,
+   "FALLBACK": 123,
+   "CRASH": 11,
+   "FAIL_SHAPE2": 11,
+   "NO_LAUNCH": 1,
+   "TIMEOUT": 1
+  },
+  "per_candidate_s_mean": 1.67,
+  "per_candidate_s_median": 1.15,
+  "container_s": {
+   "NVIDIA L40S": 2545.439999999999
+  },
+  "batches": 30,
+  "est_usd": 1.6028,
+  "container_s_per_candidate": 1.7,
+  "source": "drkernel_repair_sel",
+  "local_wall_s": 688.8,
+  "skipped_static": 0,
+  "skipped_done": 0
+ }
+]

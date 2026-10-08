@@ -1,0 +1,18 @@
+{
+ "tag": "half2",
+ "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+ "lora": null,
+ "policy_gpu": "L40S",
+ "bench_gpu": "L4",
+ "n": 2,
+ "max_turns": 4,
+ "temperature": 0.8,
+ "top_p": 0.95,
+ "max_new_tokens": 4096,
+ "tasks": 62,
+ "wall_s": 1037.863070011139,
+ "prompt": "v2 (modal_app/prompts_v2.py)",
+ "bench": "val_bench_v1 (bench v2 conventions)",
+ "bench_job_wall_s": 1154.1199999999988,
+ "completion_tokens": 282620
+}

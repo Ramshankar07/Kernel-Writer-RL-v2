@@ -1,0 +1,29 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-ee9l1f4xPJKESVB4BRzKKZ
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/val_bench_modal.p
+│   y
+├── 🔨 Created mount PythonPackage:common, PythonPackage:bench_v2_core, 
+│   PythonPackage:val_bench_core
+└── 🔨 Created function ValBench.*.
+softmax/nonpow2_cols#0 PASS 9.36   launch 10 starter/eager 1.068 compile/starter 0.968
+softmax/bf16_wide#0 PASS 6.52   launch 3 starter/eager 0.996 compile/starter 0.993
+softmax/online_large_N#0 PASS 7.02   launch 5 starter/eager 0.953 compile/starter 1.539
+softmax/dim0#0 PASS 6.32   launch 7 starter/eager 9.307 compile/starter 0.766
+softmax/scaled#0 PASS 5.76   launch 8 starter/eager 1.933 compile/starter 1.011
+softmax/log_softmax#0 PASS 7.87   launch 8 starter/eager 1.002 compile/starter 0.991
+softmax/4d_scores#0 PASS 6.67   launch 5 starter/eager 1.058 compile/starter 1.008
+layernorm/fp32#0 PASS 5.85   launch 3 starter/eager 1.000 compile/starter 0.995
+cross_entropy/nonpow2_vocab#0 PASS 10.24   launch 7 starter/eager 1.922 compile/starter 0.993
+cross_entropy/vocab_151936#0 PASS 8.14   launch 4 starter/eager 2.217 compile/starter 1.115
+cross_entropy/reduction_none#0 PASS 9.36   launch 7 starter/eager 1.955 compile/starter 0.993
+cross_entropy/ignore_index#0 PASS 8.17   launch 7 starter/eager 2.006 compile/starter 0.996
+cross_entropy/label_smoothing#0 PASS 9.73   launch 7 starter/eager 3.014 compile/starter 1.003
+cross_entropy/3d_logits#0 PASS 7.46   launch 7 starter/eager 2.025 compile/starter 1.005
+cross_entropy/bf16_vocab_100277#0 PASS 17.51   launch 3 starter/eager 0.214 compile/starter 0.119
+matmul/fp32_exact#0 PASS 6.22   launch 4 starter/eager 0.314 compile/starter 0.313
+wrote /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/v3/val_set_starters_rerun.jsonl 16
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-ee9l1f4xPJKESVB4BRzKKZ

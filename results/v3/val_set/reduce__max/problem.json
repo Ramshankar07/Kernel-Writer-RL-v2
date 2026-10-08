@@ -1,0 +1,75 @@
+{
+ "id": "reduce/max",
+ "family": "reduce",
+ "variant": "max",
+ "desc": "row max (values)",
+ "gen": "reduce",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m4096_n4096",
+   {
+    "shape": [
+     4096,
+     4096
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ],
+  [
+   "m1000_n777",
+   {
+    "shape": [
+     1000,
+     777
+    ]
+   },
+   [
+    "float16",
+    "bfloat16",
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [],
+ "timing": [
+  [
+   "m8192_n8192",
+   {
+    "shape": [
+     8192,
+     8192
+    ]
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.1,
+   "rtol": 0.05
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "reduce",
+  "max"
+ ],
+ "val_set_version": "v1"
+}

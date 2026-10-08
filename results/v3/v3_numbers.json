@@ -1,0 +1,265 @@
+{
+  "generated_by": "presentation/v3/make_v3_numbers.py",
+  "lowvar_audit_grpo_v1": {
+    "run": "grpo_v1",
+    "definition": "0.0 < pstdev(group reward) < 0.02",
+    "groups": 42,
+    "mixed_pass_fail": 27,
+    "all_pass": 15,
+    "all_fail": 0,
+    "multiple_best_pass_code_sha": 40,
+    "best_pass_records": 271,
+    "best_pass_records_cached": 201
+  },
+  "stage1_rmsnorm": {
+    "H100_quick": [
+      {
+        "rep": 0,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 5.112,
+        "latency_us": 29.14,
+        "pytorch_latency_us": 148.97,
+        "pct_peak_bandwidth": 113.0,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3"
+      },
+      {
+        "rep": 1,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 5.091,
+        "latency_us": 29.3,
+        "pytorch_latency_us": 149.14,
+        "pct_peak_bandwidth": 112.4,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3"
+      },
+      {
+        "rep": 2,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 5.086,
+        "latency_us": 29.68,
+        "pytorch_latency_us": 150.97,
+        "pct_peak_bandwidth": 110.9,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3"
+      }
+    ],
+    "H100_full": [
+      {
+        "rep": 0,
+        "correctness": "FAIL",
+        "speedup_vs_pytorch": 0.0,
+        "latency_us": 29.53,
+        "pytorch_latency_us": 150.22,
+        "pct_peak_bandwidth": 111.5,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "FAIL",
+          "determinism": "PASS",
+          "edge_cases": "PASS"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3"
+      }
+    ],
+    "L4_quick": [
+      {
+        "rep": 0,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 2.909,
+        "latency_us": 291.43,
+        "pytorch_latency_us": 847.87,
+        "pct_peak_bandwidth": 76.8,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA L4"
+      },
+      {
+        "rep": 1,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 2.885,
+        "latency_us": 293.1,
+        "pytorch_latency_us": 845.63,
+        "pct_peak_bandwidth": 76.3,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA L4"
+      },
+      {
+        "rep": 2,
+        "correctness": "PASS",
+        "speedup_vs_pytorch": 2.917,
+        "latency_us": 290.4,
+        "pytorch_latency_us": 847.06,
+        "pct_peak_bandwidth": 77.0,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "SKIP (quick mode)",
+          "determinism": "SKIP (quick mode)",
+          "edge_cases": "SKIP (quick mode)"
+        },
+        "gpu": "NVIDIA L4"
+      }
+    ],
+    "L4_full": [
+      {
+        "rep": 0,
+        "correctness": "FAIL",
+        "speedup_vs_pytorch": 0.0,
+        "latency_us": 295.35,
+        "pytorch_latency_us": 847.27,
+        "pct_peak_bandwidth": 75.7,
+        "cached": false,
+        "stages": {
+          "smoke_test": "PASS",
+          "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+          "numerical_stability": "FAIL",
+          "determinism": "PASS",
+          "edge_cases": "PASS"
+        },
+        "gpu": "NVIDIA L4"
+      }
+    ]
+  },
+  "bench_config": {
+    "source": "results/autokernel_src/bench.py (AutoKernel pinned commit)",
+    "rmsnorm_test_sizes": [
+      {
+        "label": "small",
+        "M": 1024,
+        "N": 768
+      },
+      {
+        "label": "medium",
+        "M": 4096,
+        "N": 1024
+      },
+      {
+        "label": "large",
+        "M": 4096,
+        "N": 4096
+      },
+      {
+        "label": "llama",
+        "M": 2048,
+        "N": 4096
+      }
+    ],
+    "rmsnorm_edge_sizes": [
+      {
+        "label": "edge_1023",
+        "M": 1023,
+        "N": 768
+      },
+      {
+        "label": "edge_4097",
+        "M": 4097,
+        "N": 1024
+      }
+    ],
+    "rmsnorm_test_dtypes": [
+      "float16",
+      "bfloat16"
+    ],
+    "rmsnorm_tolerances": {
+      "float16": {
+        "atol": 0.01,
+        "rtol": 0.01
+      },
+      "bfloat16": {
+        "atol": 0.1,
+        "rtol": 0.05
+      }
+    },
+    "rmsnorm_bytes_fn": "(2*M*N + N) * element_size",
+    "timed_size_label": "large",
+    "timed_dtype": "float16",
+    "L4_spec": {
+      "peak_fp16_tflops": 121.0,
+      "peak_bandwidth_gb_s": 300.0,
+      "l2_cache_mb": 48.0
+    },
+    "H100_SXM_spec_bw_gb_s": 3352.0,
+    "H100_fallback_spec_bw_gb_s": 2039.0,
+    "do_bench_warmup_arg": 25,
+    "do_bench_rep_arg": 100,
+    "stability_tolerance_relax_factor": 10,
+    "stability_size_label": "small",
+    "stability_near_max_fp16_scale": 60000.0,
+    "stability_mixed_scale": [
+      1000.0,
+      0.001
+    ],
+    "both_nan_inf_accepted_line": 838,
+    "rmsnorm_reference": [
+      "rms = torch.sqrt(torch.mean(x ** 2, dim=-1, keepdim=True) + eps)",
+      "return (x / rms) * weight"
+    ]
+  },
+  "versions": {
+    "torch": "2.6.0",
+    "triton": "3.2.0",
+    "autokernel_commit": "78435821cc3d"
+  },
+  "winner_turn": {
+    "file": "results/grpo/grpo_v2/rollouts/step_009.jsonl",
+    "turn": 3,
+    "correctness": "PASS",
+    "speedup": 2.926,
+    "cached": false,
+    "bench_wall_s": 6.49,
+    "code_sha": "c45bd6a226e2",
+    "stages": {
+      "smoke_test": "PASS",
+      "shape_sweep": "PASS (8 configs, worst_err=1.25e-01 at medium/torch.bfloat16)",
+      "numerical_stability": "PASS",
+      "determinism": "PASS",
+      "edge_cases": "PASS"
+    }
+  },
+  "library_facts": {
+    "note": "read from Triton 3.2 source (triton/testing.py, language/standard.py); not re-run here",
+    "do_bench_args_are_ms_budgets": true,
+    "do_bench_default_return_mode": "mean",
+    "do_bench_l2_flush_buffer_mb": 256,
+    "tl_sum_widens_fp16": false,
+    "fp16_max": 65504.0,
+    "triton_default_num_warps": 4
+  }
+}

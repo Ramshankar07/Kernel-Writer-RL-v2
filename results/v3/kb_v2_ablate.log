@@ -1,0 +1,167 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-fcTmPYH6G8ER5ByWMcUCmC
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo
+│   dal.py
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kb_v2_eval.py
+├── 🔨 Created mount PythonPackage:common
+└── 🔨 Created function KBV2.*.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.starmap currently leaks an internal exception wrapping type         │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.starmap(..., return_exceptions=True, wrap_returned_exceptions=False)   │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo │
+│ dal.py:172                                                                   │
+│   for r in B.ablate_one.starmap([(p, weight_sync, input_mode) for p in       │
+│ pids], return_exceptions=True):                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ablate 50 FAIL 72947738/74342400 elements exceed atol=rtol=0.01 (max_abs=2.572e+00)
+ablate 54 FAIL 239063613/244047872 elements exceed atol=rtol=0.01 (max_abs=2.310e+00)
+ablate 55 FAIL 522004452/533729280 elements exceed atol=rtol=0.01 (max_abs=2.348e+00)
+ablate 56 FAIL 127507614/130048000 elements exceed atol=rtol=0.01 (max_abs=2.404e+00)
+ablate 57 FAIL 527905399/538970112 elements exceed atol=rtol=0.01 (max_abs=2.384e+00)
+ablate 58 FAIL 11338851/11612160 elements exceed atol=rtol=0.01 (max_abs=2.607e+00)
+ablate 59 FAIL 647743648/660643840 elements exceed atol=rtol=0.01 (max_abs=2.006e+00)
+ablate 60 FAIL 216433756/220938240 elements exceed atol=rtol=0.01 (max_abs=2.387e+00)
+ablate 61 FAIL 107731809/110398464 elements exceed atol=rtol=0.01 (max_abs=2.331e+00)
+ablate 62 FAIL 128194636/131088384 elements exceed atol=rtol=0.01 (max_abs=2.229e+00)
+ablate 63 FAIL 2101602608/2139103232 elements exceed atol=rtol=0.01 (max_abs=2.605e+00)
+ablate 64 FAIL 526498872/536887296 elements exceed atol=rtol=0.01 (max_abs=2.401e+00)
+ablate 65 FAIL 133430471/136321024 elements exceed atol=rtol=0.01 (max_abs=2.750e+00)
+ablate 66 FAIL 106173303/108437504 elements exceed atol=rtol=0.01 (max_abs=2.052e+00)
+ablate 67 FAIL 525046097/536862720 elements exceed atol=rtol=0.01 (max_abs=2.414e+00)
+ablate 68 FAIL 303078021/312508416 elements exceed atol=rtol=0.01 (max_abs=1.616e+00)
+ablate 69 FAIL 269184815/276889600 elements exceed atol=rtol=0.01 (max_abs=1.683e+00)
+ablate 70 FAIL 177345246/180708864 elements exceed atol=rtol=0.01 (max_abs=2.864e+00)
+ablate 71 FAIL 132269255/135005184 elements exceed atol=rtol=0.01 (max_abs=2.492e+00)
+ablate 72 FAIL 26750985/28311552 elements exceed atol=rtol=0.01 (max_abs=9.602e-01)
+ablate 73 FAIL 244490246/261152640 elements exceed atol=rtol=0.01 (max_abs=1.125e+00)
+ablate 74 FAIL 260161498/268460032 elements exceed atol=rtol=0.01 (max_abs=1.586e+00)
+ablate 75 FAIL 96163041/201586688 elements exceed atol=rtol=0.01 (max_abs=9.458e-01)
+ablate 76 FAIL 1402625985/1431617536 elements exceed atol=rtol=0.01 (max_abs=2.519e+00)
+ablate 77 FAIL 16315710/142771200 elements exceed atol=rtol=0.01 (max_abs=1.401e+00)
+ablate 78 FAIL 131321728/134217728 elements exceed atol=rtol=0.01 (max_abs=2.129e+00)
+ablate 79 FAIL 130210316/268436480 elements exceed atol=rtol=0.01 (max_abs=1.628e+00)
+ablate 80 FAIL 125963604/129007616 elements exceed atol=rtol=0.01 (max_abs=2.166e+00)
+ablate 81 FAIL 68571127/207753216 elements exceed atol=rtol=0.01 (max_abs=5.544e-01)
+ablate 82 FAIL 260762877/266342400 elements exceed atol=rtol=0.01 (max_abs=2.020e+00)
+ablate 83 FAIL 130912128/133693440 elements exceed atol=rtol=0.01 (max_abs=1.211e+00)
+ablate 84 FAIL 1039576958/1061191680 elements exceed atol=rtol=0.01 (max_abs=2.122e+00)
+ablate 85 FAIL 126345929/129024000 elements exceed atol=rtol=0.01 (max_abs=2.083e+00)
+ablate 86 FAIL 517698832/536870912 elements exceed atol=rtol=0.01 (max_abs=1.239e+00)
+ablate 87 FAIL 2107034574/2147483648 elements exceed atol=rtol=0.01 (max_abs=2.374e+00)
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-fcTmPYH6G8ER5ByWMcUCmC
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-1AEoWrKKUKi2r7MHGOY4yh
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo
+│   dal.py
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kb_v2_eval.py
+├── 🔨 Created mount PythonPackage:common
+└── 🔨 Created function KBV2.*.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.starmap currently leaks an internal exception wrapping type         │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.starmap(..., return_exceptions=True, wrap_returned_exceptions=False)   │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo │
+│ dal.py:172                                                                   │
+│   for r in B.ablate_one.starmap([(p, weight_sync, input_mode) for p in       │
+│ pids], return_exceptions=True):                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ablate 50 PASS 
+ablate 54 PASS 
+ablate 55 PASS 
+ablate 56 PASS 
+ablate 57 PASS 
+ablate 58 PASS 
+ablate 59 PASS 
+ablate 60 PASS 
+ablate 61 PASS 
+ablate 62 PASS 
+ablate 63 PASS 
+ablate 64 PASS 
+ablate 65 PASS 
+ablate 66 PASS 
+ablate 67 PASS 
+ablate 68 PASS 
+ablate 69 PASS 
+ablate 70 PASS 
+ablate 71 PASS 
+ablate 72 PASS 
+ablate 73 PASS 
+ablate 74 PASS 
+ablate 75 PASS 
+ablate 76 PASS 
+ablate 77 PASS 
+ablate 78 PASS 
+ablate 79 PASS 
+ablate 80 PASS 
+ablate 81 PASS 
+ablate 82 PASS 
+ablate 83 PASS 
+ablate 84 PASS 
+ablate 85 PASS 
+ablate 86 PASS 
+ablate 87 PASS 
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-1AEoWrKKUKi2r7MHGOY4yh
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-eR44sG4IGlBuZMW8timIkk
+✓ Created objects.
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo
+│   dal.py
+├── 🔨 Created mount 
+│   /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kb_v2_eval.py
+├── 🔨 Created mount PythonPackage:common
+└── 🔨 Created function KBV2.*.
+╭─ Modal Deprecation Warning (2025-06-27) ─────────────────────────────────────╮
+│ Function.starmap currently leaks an internal exception wrapping type         │
+│ (modal.exceptions.UserCodeException) when `return_exceptions=True` is set.   │
+│ In the future, this will change, and the underlying exception will be        │
+│ returned directly.                                                           │
+│ To opt into the future behavior and silence this warning, add                │
+│ `wrap_returned_exceptions=False`:                                            │
+│                                                                              │
+│     f.starmap(..., return_exceptions=True, wrap_returned_exceptions=False)   │
+│                                                                              │
+│ Source:                                                                      │
+│ /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/modal_app/kernelbench_v2_mo │
+│ dal.py:172                                                                   │
+│   for r in B.ablate_one.starmap([(p, weight_sync, input_mode) for p in       │
+│ pids], return_exceptions=True):                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ablate 21 PASS 
+ablate 23 PASS 
+ablate 24 PASS 
+ablate 27 PASS 
+ablate 29 PASS 
+ablate 31 PASS 
+ablate 32 PASS 
+ablate 35 PASS 
+ablate 37 PASS 
+ablate 38 PASS 
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-eR44sG4IGlBuZMW8timIkk

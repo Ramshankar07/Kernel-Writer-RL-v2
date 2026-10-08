@@ -1,0 +1,13 @@
+{
+  "feedback": "v2",
+  "suite": "kb",
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "lora": "/vol/grpo/grpo_v2/step_10",
+  "n": 1,
+  "max_turns": 3,
+  "temperature": 0.8,
+  "bench_gpu": "H100",
+  "stride": 3,
+  "tasks": 29,
+  "wall_s": 419.920578956604
+}

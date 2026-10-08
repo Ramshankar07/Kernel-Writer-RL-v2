@@ -1,0 +1,84 @@
+{
+ "id": "cross_entropy/bf16_vocab_100277",
+ "family": "cross_entropy",
+ "variant": "bf16_vocab_100277",
+ "desc": "mean CE, bf16, vocab 100277",
+ "gen": "cross_entropy",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2048_v100277",
+   {
+    "lead": [
+     2048
+    ],
+    "vocab": 100277
+   },
+   [
+    "bfloat16"
+   ]
+  ],
+  [
+   "b100_v4096",
+   {
+    "lead": [
+     100
+    ],
+    "vocab": 4096
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_logits",
+   "big_logits_x100",
+   {
+    "lead": [
+     256
+    ],
+    "vocab": 100277
+   },
+   [
+    "bfloat16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b2048_v100277",
+   {
+    "lead": [
+     2048
+    ],
+    "vocab": 100277
+   },
+   "bfloat16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 1e-05,
+   "rtol": 1e-05
+  }
+ },
+ "tags": [
+  "cross_entropy",
+  "bf16",
+  "large_vocab"
+ ],
+ "val_set_version": "v1"
+}

@@ -1,0 +1,12 @@
+✓ Initialized. View run at 
+https://modal.com/apps/picographer0214/main/ap-Ezo10bqWj5yStttghqdu00
+✓ Created objects.
+7 tasks; baselines missing for []
+turn 0: 14 active, gen 26s, bench 24s (sum job wall 55s), {'pass': 14}
+turn 1: 14 active, gen 28s, bench 40s (sum job wall 120s), {'runtime_resources': 9, 'pass': 5}
+turn 2: 14 active, gen 29s, bench 18s (sum job wall 38s), {'pass': 11, 'compile': 1, 'numerics': 2}
+turn 3: 14 active, gen 31s, bench 24s (sum job wall 57s), {'runtime_resources': 5, 'pass': 5, 'numerics': 3, 'compile': 1}
+wrote /Users/ram/kernel-finetuning/Kernel-Writer-RL-v2/results/v3/phase0_runs/mmfix2.jsonl {"tag": "mmfix2", "model": "Qwen/Qwen2.5-Coder-7B-Instruct", "lora": null, "policy_gpu": "L40S", "bench_gpu": "L4", "n": 2, "max_turns": 4, "temperature": 0.8, "top_p": 0.95, "max_new_tokens": 4096, "tasks": 7, "wall_s": 219.58007216453552, "prompt": "v2 (modal_app/prompts_v2.py)", "bench": "val_bench_v1 (bench v2 conventions)", "bench_job_wall_s": 269.89999999999986, "completion_tokens": 57518}
+Stopping app - local entrypoint completed.
+✓ App completed. View run at 
+https://modal.com/apps/picographer0214/main/ap-Ezo10bqWj5yStttghqdu00

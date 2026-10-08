@@ -1,0 +1,50 @@
+[
+ {
+  "n": 100,
+  "verdicts": {
+   "PASS": 84,
+   "FAIL": 10,
+   "FALLBACK": 4,
+   "CRASH": 1,
+   "FAIL_SHAPE2": 1
+  },
+  "per_candidate_s_mean": 1.68,
+  "per_candidate_s_median": 1.25,
+  "container_s": {
+   "NVIDIA L40S": 173.36
+  },
+  "batches": 2,
+  "est_usd": 0.1092,
+  "container_s_per_candidate": 1.73,
+  "source": "drkernel",
+  "local_wall_s": 97.2,
+  "skipped_static": 1796,
+  "skipped_done": 0
+ },
+ {
+  "n": 3509,
+  "verdicts": {
+   "REJECT_SYMBOL": 25,
+   "PASS": 3211,
+   "FALLBACK": 112,
+   "FAIL": 113,
+   "CRASH": 12,
+   "FAIL_SHAPE2": 28,
+   "NO_LAUNCH": 4,
+   "TIMEOUT": 1,
+   "FAIL_EXTREME": 3
+  },
+  "per_candidate_s_mean": 1.55,
+  "per_candidate_s_median": 1.05,
+  "container_s": {
+   "NVIDIA L40S": 5534.030000000001
+  },
+  "batches": 70,
+  "est_usd": 3.4846,
+  "container_s_per_candidate": 1.59,
+  "source": "drkernel",
+  "local_wall_s": 1403.8,
+  "skipped_static": 1796,
+  "skipped_done": 100
+ }
+]

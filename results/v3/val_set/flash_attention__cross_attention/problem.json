@@ -1,0 +1,90 @@
+{
+ "id": "flash_attention/cross_attention",
+ "family": "flash_attention",
+ "variant": "cross_attention",
+ "desc": "non-causal cross-attention, 256 queries x 2048 keys",
+ "gen": "attention",
+ "gen_args": {},
+ "sizes": [
+  [
+   "b2_h16_q256_k2048_d64",
+   {
+    "b": 2,
+    "h": 16,
+    "s": 256,
+    "d": 64,
+    "sk": 2048
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "b1_h4_q77_k1000_d64",
+   {
+    "b": 1,
+    "h": 4,
+    "s": 77,
+    "d": 64,
+    "sk": 1000
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "qk_40",
+   "qk_x40",
+   {
+    "b": 1,
+    "h": 8,
+    "s": 128,
+    "d": 64,
+    "sk": 1024
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "b4_h16_q512_k4096_d64",
+   {
+    "b": 4,
+    "h": 16,
+    "s": 512,
+    "d": 64,
+    "sk": 4096
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "flash_attention",
+  "cross",
+  "non_causal"
+ ],
+ "val_set_version": "v1"
+}

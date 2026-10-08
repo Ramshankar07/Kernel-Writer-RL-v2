@@ -1,0 +1,94 @@
+{
+ "id": "matmul/skinny_M",
+ "family": "matmul",
+ "variant": "skinny_M",
+ "desc": "decode-style skinny matmul, M = 1-16",
+ "gen": "matmul",
+ "gen_args": {},
+ "sizes": [
+  [
+   "m8_n4096_k4096",
+   {
+    "M": 8,
+    "N": 4096,
+    "K": 4096
+   },
+   [
+    "float16",
+    "bfloat16"
+   ]
+  ],
+  [
+   "m1_n11008_k4096",
+   {
+    "M": 1,
+    "N": 11008,
+    "K": 4096
+   },
+   [
+    "float16"
+   ]
+  ],
+  [
+   "m16_n1000_k777",
+   {
+    "M": 16,
+    "N": 1000,
+    "K": 777
+   },
+   [
+    "float32"
+   ]
+  ]
+ ],
+ "adversarial": [
+  [
+   "big_scale",
+   "big_scale_K4096",
+   {
+    "M": 16,
+    "N": 1024,
+    "K": 4096
+   },
+   [
+    "float16"
+   ]
+  ]
+ ],
+ "timing": [
+  [
+   "m8_n11008_k4096",
+   {
+    "M": 8,
+    "N": 11008,
+    "K": 4096
+   },
+   "float16"
+  ]
+ ],
+ "dtypes": [
+  "bfloat16",
+  "float16",
+  "float32"
+ ],
+ "tol": {
+  "float16": {
+   "atol": 0.01,
+   "rtol": 0.01
+  },
+  "bfloat16": {
+   "atol": 0.02,
+   "rtol": 0.02
+  },
+  "float32": {
+   "atol": 0.0001,
+   "rtol": 0.0001
+  }
+ },
+ "tags": [
+  "matmul",
+  "skinny",
+  "gemv"
+ ],
+ "val_set_version": "v1"
+}
