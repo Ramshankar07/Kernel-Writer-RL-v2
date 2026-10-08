@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kernel-Writer-RL-v2</title>
+<meta name="description" content="Teaching a 7B code model to write Triton GPU kernels with a GPU-verified reward: GRPO, verifier fixes, and SFT-before-RL. An honest write-up of mixed results.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/bind.js" defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html">Kernel-Writer-RL<span>v2</span></a>
+    <nav class="nav" aria-label="Site">
+      <a href="index.html">Home</a>
+      <a href="method.html">Method</a>
+      <a href="rl.html">RL results</a>
+      <a href="verifier.html">Verifier</a>
+      <a href="sft.html">SFT</a>
+      <a href="reproduce.html">Reproduce</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Research write-up · Qwen2.5-Coder-7B-Instruct · Triton · Modal</p>
+    <h1>Can reinforcement learning teach a small model to write faster GPU kernels?</h1>
+    <p class="lede">
+      An LLM agent writes a Triton kernel, a real GPU checks and times it, and the result is the reward.
+      This project re-ran that loop end to end, trained it with GRPO, then audited the verifier and
+      tried supervised fine-tuning first. The results are mixed, and this site reports them as they are.
+    </p>
+    <p class="thesis">
+      GRPO stalled: most of its learning signal came from all-fail groups and benchmark timing noise.
+      After fixing the verifier, SFT on verified kernels made the model noticeably more <em>correct</em>,
+      but not <em>faster</em>.
+    </p>
+    <div class="meta">
+      <span class="tag navy">GRPO v1 / v2</span>
+      <span class="tag navy">verifier audit</span>
+      <span class="tag navy">SFT-before-RL</span>
+      <span class="tag amber">results: mixed</span>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-numbers">
+    <h2 id="h-numbers">Headline numbers</h2>
+    <p class="muted small">Every number below is read from the result JSON in <code>results/</code> when the page loads.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">
+          <span class="from"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span></span><span class="arrow" aria-label="to">→</span><span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span>
+        </div>
+        <div class="stat-label">Validation pass@1, base → SFT</div>
+        <div class="stat-note"><span data-k="phase3.json:val.sft.problems" data-fmt="int">62</span> held-out problems; a solve must PASS the full verifier and differ from the starter.</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-num">
+          <span class="from"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span></span><span class="arrow" aria-label="to">→</span><span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span>
+        </div>
+        <div class="stat-label">KernelBench L1 solved with a real Triton kernel</div>
+        <div class="stat-note">Of <span data-k="phase3.json:kernelbench.kb2_sft_v1.tasks" data-fmt="int">100</span> problems. On problems whose ops the SFT data never covered: <span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.solved_unseen" data-fmt="int">7</span>/<span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.unseen_problems" data-fmt="int">59</span>.</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-num">
+          <span class="from"><span data-k="phase3.json:val.base.compile_error_rate" data-fmt="pct1">8.1%</span></span><span class="arrow" aria-label="to">→</span><span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="pct1">1.9%</span>
+        </div>
+        <div class="stat-label">Triton compile errors per turn, base → SFT</div>
+        <div class="stat-note">Compile errors as a share of failures: <span data-k="phase3.json:val.base.compile_share_of_failures" data-fmt="pct1">16.1%</span> → <span data-k="phase3.json:val.sft.compile_share_of_failures" data-fmt="pct1">3.8%</span>.</div>
+      </div>
+
+      <div class="stat is-neg">
+        <div class="stat-num"><span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.grpo_std_as_trained" data-fmt="f1">78.9</span>%</div>
+        <div class="stat-label">of GRPO v1's advantage came from timing noise</div>
+        <div class="stat-note">Groups whose rewards differ only by bench noise (std &lt; 0.02) get amplified by std-normalisation. Without the std division (Dr. GRPO): <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.abs_adv_mass_share_from_noise_groups_pct.dr_grpo_no_std" data-fmt="f1">6.2</span>%.</div>
+      </div>
+
+      <div class="stat is-neg">
+        <div class="stat-num">
+          <span class="from"><span data-k="numbers.json:grpo.grpo_v1.pass_first3" data-fmt="pct1">29.2%</span></span><span class="arrow" aria-label="to">→</span><span data-k="numbers.json:grpo.grpo_v1.pass_last3" data-fmt="pct1">25.0%</span>
+        </div>
+        <div class="stat-label">GRPO v1 pass rate, first → last 3 steps</div>
+        <div class="stat-note"><span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span> steps. <span data-k="extra_numbers.json:dr_grpo_whatif.grpo_v1.dapo_filter_removed_groups_pct" data-fmt="f1">65.4</span>% of groups had identical rewards and gave no gradient.</div>
+      </div>
+
+      <div class="stat is-neg">
+        <div class="stat-num"><span data-k="phase3.json:val.sft.speedup_vs_starter_geomean" data-fmt="x2">1.00×</span></div>
+        <div class="stat-label">SFT speedup over the starter kernel (geomean)</div>
+        <div class="stat-note">Correct, not faster: SFT beats the starter on <span data-k="phase3.json:val.sft.beat_starter@1" data-fmt="pct1">0.8%</span> of attempts (base <span data-k="phase3.json:val.base.beat_starter@1" data-fmt="pct1">2.8%</span>).</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>What this does and does not show.</strong> SFT improved correctness on a held-out set and on KernelBench,
+      which the GRPO runs never did. It did not produce speedups, and GRPO was not resumed on top of SFT (budget),
+      so whether RL can add speed from this starting point is still open.</p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="h-timeline">
+    <h2 id="h-timeline">How the project unfolded</h2>
+    <ol class="timeline">
+      <li>
+        <span class="when">Apr 2026</span>
+        <div class="what">
+          <h3>Original design</h3>
+          <p>GRPO on SkyPilot + verl: the agent writes a full Triton <code>kernel.py</code>, AutoKernel's bench checks correctness and times it against PyTorch, and the reward is the log speedup. KernelBench was the first test set. All original results were lost with an old disk.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Sept 2026</span>
+        <div class="what">
+          <h3>Re-run on Modal</h3>
+          <p>Rebuilt every stage on Modal. Harness checks found real bugs: only <span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span> of 100 KernelBench L1 problems were harness-valid, and only <span data-k="numbers.json:stage1.starters_pass_full.L4" data-fmt="int">3</span> of 9 AutoKernel starter kernels passed the full bench.</p>
+        </div>
+      </li>
+      <li class="key">
+        <span class="when">Sept 2026</span>
+        <div class="what">
+          <h3>GRPO v1 and v2</h3>
+          <p>v1 (original reward, <span data-k="numbers.json:grpo.grpo_v1.steps" data-fmt="int">18</span> steps) and v2 (dense correctness credit plus a noise floor, <span data-k="numbers.json:grpo.grpo_v2.steps" data-fmt="int">10</span> steps). Reward barely moved, the pass rate stayed flat, and no kernel type that failed at the start was ever solved.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Late Sept 2026</span>
+        <div class="what">
+          <h3>Verifier fixes</h3>
+          <p>Fixed bench and KernelBench harnesses (now <span data-k="phase3.json:kernelbench.kb2_base.tasks" data-fmt="int">100</span> of 100 valid). Re-measuring GRPO's best RMSNorm kernel showed its speedup was already in the starter, and its fp16 edit was a reward hack the old verifier could not see.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Oct 2026</span>
+        <div class="what">
+          <h3>SFT Phase 0: clean baseline</h3>
+          <p>Following an SFT-before-RL plan (drafted Sept 30), fixed the broken starters and the prompt protocol, built a <span data-k="phase3.json:val.base.problems" data-fmt="int">62</span>-problem validation set, and measured the base model: pass@1 <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span>.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Oct 2026</span>
+        <div class="what">
+          <h3>SFT Phase 1: verified data</h3>
+          <p>Ingested Dr.Kernel, KernelBook and in-repo kernels, ran every candidate through the GPU verifier and decontaminated against KernelBench: <span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span> train / <span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span> dev examples, <span data-k="mix_report.json:splits.train.by_repair.true" data-fmt="int">453</span> of them multi-turn repairs.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Oct 2026</span>
+        <div class="what">
+          <h3>SFT Phase 2: LoRA fine-tune</h3>
+          <p>LoRA SFT of Qwen2.5-Coder-7B-Instruct on the verified mix, with a pilot-resumable trainer on Modal.</p>
+        </div>
+      </li>
+      <li class="key">
+        <span class="when">Oct 7, 2026</span>
+        <div class="what">
+          <h3>SFT Phase 3: evaluation</h3>
+          <p>Validation pass@1 <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span> → <span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span>; KernelBench Triton PASS <span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span> → <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span>; no speedup. All three gates for resuming GRPO passed, but GRPO was not resumed (budget).</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="block" aria-labelledby="h-explore">
+    <h2 id="h-explore">Explore</h2>
+    <div class="cards">
+      <a class="card" href="method.html">
+        <h3>Method</h3>
+        <p>The agent loop, the GPU-verified reward, the model and the Modal infrastructure.</p>
+        <span class="go">Read the method →</span>
+      </a>
+      <a class="card" href="rl.html">
+        <h3>RL results</h3>
+        <p>GRPO v1 and v2 training curves, zero-advantage groups, and why timing noise dominated the signal.</p>
+        <span class="go">See the GRPO runs →</span>
+      </a>
+      <a class="card" href="verifier.html">
+        <h3>Verifier</h3>
+        <p>Harness bugs found on re-run, quick vs full bench, and the RMSNorm reward hack.</p>
+        <span class="go">Audit the verifier →</span>
+      </a>
+      <a class="card" href="sft.html">
+        <h3>SFT</h3>
+        <p>Phases 0–3: verified data mix, LoRA training, validation and KernelBench results.</p>
+        <span class="go">See the SFT results →</span>
+      </a>
+      <a class="card" href="reproduce.html">
+        <h3>Reproduce</h3>
+        <p>Deploy the Modal apps and run each stage; where every artifact lands in <code>results/</code>.</p>
+        <span class="go">Run it yourself →</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span><a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">github.com/Ramshankar07/Kernel-Writer-RL-v2</a></span>
+    <span>Apache-2.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
