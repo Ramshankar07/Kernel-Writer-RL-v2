@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verifier · Kernel-Writer-RL-v2</title>
+<meta name="description" content="How the reward's verifier was broken, how GRPO exploited it (the RMSNorm fp16 hack), and the fixed harnesses: bench v2, kb v2 and the SFT verifier's controls.">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav">
+    <a href="index.html">Home</a>
+    <a href="method.html">Method</a>
+    <a href="rl.html">RL results</a>
+    <a href="verifier.html" aria-current="page">Verifier</a>
+    <a href="sft.html">SFT</a>
+    <a href="reproduce.html">Reproduce</a>
+  </nav>
+</header>
+
+<main>
+<h1>The verifier is the experiment</h1>
+<p class="lead">In RL for kernels, the reward is a benchmark harness. If the harness is wrong, the
+policy learns whatever the harness gets wrong. Re-running this project on Modal turned up
+harness bugs in nearly every stage. One of them produced the project's headline result: a
+"2.9× RMSNorm kernel" that is actually a numerics bug which the harness rewarded.</p>
+
+<div class="cards">
+  <div class="stat"><span class="stat-value"><span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100 → 100/100</span>
+    <span class="stat-label">KernelBench L1 problems that are harness-valid, i.e. a copy of the reference passes reliably (kb v1 → kb v2)</span></div>
+  <div class="stat"><span class="stat-value">0%</span>
+    <span class="stat-label">speedup added by GRPO's RMSNorm edit over the starter (geomean 0.999× over 32 configs)</span></div>
+  <div class="stat"><span class="stat-value">346/362</span>
+    <span class="stat-label">old PASS kernels that still PASS under bench v2. 0 have a real speedup over the starter (&gt;1.05× at every timing shape)</span></div>
+  <div class="stat"><span class="stat-value">10/10</span>
+    <span class="stat-label">SFT-verifier GPU controls that returned the expected verdict</span></div>
+</div>
+
+<nav class="toc" aria-label="On this page">
+  <ol>
+    <li><a href="#bugs">Harness bugs found while re-running</a></li>
+    <li><a href="#rmsnorm">The RMSNorm reward hack</a></li>
+    <li><a href="#bench-v2">bench v2: golden reference + adversarial magnitudes</a></li>
+    <li><a href="#kb-v2">kb v2: KernelBench identity 55 → 100</a></li>
+    <li><a href="#launch">Why a launch check matters</a></li>
+    <li><a href="#sft-verifier">The SFT verifier and its controls</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<section id="bugs">
+<h2>1. Harness bugs found while re-running</h2>
+<p>None of these were visible from the original runs. Each one showed up as a number that
+didn't make sense in the Modal re-run. They are listed in the order they were found
+(<code>CLAUDE.md</code>, "Findings that changed the code").</p>
+
+<table class="data">
+  <thead><tr><th>Harness</th><th>Bug</th><th>Effect</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr><td>AutoKernel <code>bench.py</code></td>
+      <td>Takes <code>--kernel</code>, not <code>--kernel-type</code>. Prints metrics to stdout and writes no <code>results.tsv</code></td>
+      <td>The original reward wrapper would have read nothing</td>
+      <td><code>bench_modal.py:parse_stdout</code> parses stdout</td></tr>
+    <tr><td>AutoKernel <code>bench.py --quick</code></td>
+      <td>Skips stages 3 to 5 (numerical stability, determinism, edge cases)</td>
+      <td>On L4, <span data-k="numbers.json:stage1.starters_pass_quick.L4" data-fmt="int">4</span> starters PASS quick but only
+        <span data-k="numbers.json:stage1.starters_pass_full.L4" data-fmt="int">3</span> PASS full. RMSNorm (and flash-attention on H100) PASS quick and FAIL full</td>
+      <td>The reward uses the full bench</td></tr>
+    <tr><td>KernelBench bridge starter</td>
+      <td>Renames <code>class Model(</code> → <code>class ModelNew(</code> but keeps <code>super(Model, self)</code></td>
+      <td>Every starter crashes: <code>TypeError: super(type, obj)</code> (100/100)</td>
+      <td>Identity test uses <code>class ModelNew(Model): pass</code>. kb v2 rewrites the <code>super()</code> call</td></tr>
+    <tr><td><code>bench_kb.py</code></td>
+      <td>CPU <code>get_inputs()</code> (up to 2.1B elements) runs inside the 30&nbsp;s trial alarm</td>
+      <td><span data-k="numbers.json:kb_sanity.flaky_timeouts" data-fmt="int">9</span> huge-input problems time out intermittently, even with <code>cpu=8, memory=32768</code>. One more (#38) failed every old run</td>
+      <td>kb v2 generates inputs on the GPU, outside any timeout</td></tr>
+    <tr><td><code>bench_kb.py</code></td>
+      <td>Weight init is never seeded: <code>Model</code> and <code>ModelNew</code> get different random conv weights</td>
+      <td>All <span data-k="numbers.json:kb_sanity.conv_unseeded" data-fmt="int">35</span> conv problems fail even for an identical model</td>
+      <td>kb v2 seeds all RNGs and copies the <code>state_dict</code></td></tr>
+    <tr><td>Our KB cache listing</td>
+      <td>The cache dir holds <code>N.py</code> <em>and</em> <code>N.json</code></td>
+      <td>An early run read problems 1–50 twice</td>
+      <td>List only <code>.py</code>. The two runs are kept as a repeatability check</td></tr>
+  </tbody>
+</table>
+
+<p>Net effect on KernelBench: only <span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100 Level 1
+problems were passable even by a copy of the reference. The figure below shows it: identity
+"speedup" should be exactly 1.0, and failures should be zero.</p>
+
+<figure class="fig">
+  <img src="assets/figures/03_kb_identity_noise.png" alt="KernelBench Level 1 identity test under the original harness: per-problem verdicts and identity speedup spread" loading="lazy">
+  <figcaption>Identity <code>ModelNew(Model)</code> on KernelBench L1 under the original <code>bench_kb.py</code>.
+  Data: <code>results/kb_sanity.jsonl</code>.</figcaption>
+</figure>
+</section>
+
+<!-- ============================================================ -->
+<section id="rmsnorm">
+<h2>2. The RMSNorm reward hack</h2>
+<p>GRPO's best kernel was an RMSNorm at
+<span data-k="extra_numbers.json:pass_speedups.per_kernel.rmsnorm.max" data-fmt="x2">2.93×</span> vs PyTorch on L4.
+An independent re-measurement (<code>results/v3/rmsnorm_remeasure.md</code>; L4 + H100, CUDA events,
+cold L2) found the following:</p>
+
+<div class="callout">
+<p><strong>Verdict.</strong> The 2.9× is real, but the starter already had it: it comes from fusion,
+compared against 6-kernel eager PyTorch. GRPO's edit (fp32 → fp16 casts) adds 0% speed and makes
+RMSNorm return zero rows for RMS&nbsp;&gt;&nbsp;4 at N=4096. It was rewarded because the full bench's reference
+overflows the same way. The verifier passes the broken kernel and fails the correct one.</p>
+</div>
+
+<h3>The entire GRPO edit</h3>
+<p>The best kernel is <span data-k="extra_numbers.json:best_kernel.similarity_to_starter_difflib" data-fmt="pct1">95.4%</span>
+identical to the starter (difflib). Apart from the docstring, this is the whole diff:</p>
+<pre class="diff"><code><span class="d-ctx">--- starter</span>
+<span class="d-ctx">+++ best   (grpo_v2 step=9, sample=7, turn=3; 2.926x vs PyTorch, L4 full bench)</span>
+<span class="d-del">-    # Load row into float32 for numerical stability</span>
+<span class="d-del">-    x = tl.load(X_ptr + row * stride_xm + offs * stride_xn, mask=mask, other=0.0).to(tl.float32)</span>
+<span class="d-add">+    # Load row into float16 for numerical stability</span>
+<span class="d-add">+    x = tl.load(X_ptr + row * stride_xm + offs * stride_xn, mask=mask, other=0.0).to(tl.float16)</span>
+<span class="d-del">-    w = tl.load(W_ptr + offs, mask=mask, other=0.0).to(tl.float32)</span>
+<span class="d-add">+    w = tl.load(W_ptr + offs, mask=mask, other=0.0).to(tl.float16)</span></code></pre>
+
+<h3>Speed: the starter already had the 2.9×</h3>
+<table class="data">
+  <thead><tr><th>L4, 4096×4096 fp16</th><th>cold median (µs)</th><th>GB/s (% peak)</th><th>vs eager</th></tr></thead>
+  <tbody>
+    <tr><td>starter (fp32 accumulate)</td><td>287.7</td><td>233 (78%)</td><td>2.90×</td></tr>
+    <tr><td>GRPO best (fp16 accumulate)</td><td>286.7</td><td>234 (78%)</td><td>2.91×</td></tr>
+    <tr><td>torch.compile(reference)</td><td>285.7</td><td>235 (78%)</td><td>2.92×</td></tr>
+    <tr><td>eager PyTorch</td><td>833.5</td><td>81 (27%)</td><td>1.00×</td></tr>
+  </tbody>
+</table>
+<p>Eager PyTorch launches 6 kernels (pow, mean, add, sqrt, div, mul) and moves about 7·M·N elements
+through HBM. Any fused kernel moves 2·M·N, so the ideal gain is 7/2 = 3.5×. The starter and the best kernel have the same
+launch config, the same 128-bit vectorized loads and no spills. The fp32 casts live only in registers and do not
+change HBM bytes. Best/starter geomean over 32 L4 shape×dtype configs is 0.999×. On H100 it is 0.998×.</p>
+
+<h3>Numerics: zero rows above RMS 4</h3>
+<p>With fp16 accumulation, the row sum of squares overflows fp16's max (65504) once
+RMS&nbsp;&gt;&nbsp;√(65504/N). That is RMS&nbsp;&gt;&nbsp;4 at N=4096 and RMS&nbsp;&gt;&nbsp;2 at N=16384. The sum becomes inf and the output row becomes 0.</p>
+<table class="data">
+  <thead><tr><th>N=4096, x = randn·scale</th><th>scale 1</th><th>scale 4</th><th>scale 100</th></tr></thead>
+  <tbody>
+    <tr><td>GRPO best: zero rows / 256</td><td>0</td><td>133</td><td>256</td></tr>
+    <tr><td>fp32acc: zero rows / 256</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>eager PyTorch reference: zero rows / 256</td><td>0</td><td>0</td><td>256</td></tr>
+  </tbody>
+</table>
+
+<h3>Root cause: the reference overflows too</h3>
+<p>The stability stage's other magnitude cases (×60000, ×1e-6) overflow or underflow the fp16 inputs themselves, and v1 PASSes
+whenever kernel and reference are both NaN/Inf. The case that decides the verdict is <code>mixed_scale</code> (fp16, M=1024, N=768; x and weight scaled by
+1e3 or 1e-3). <code>reference.rmsnorm_ref</code> computes <code>x ** 2</code> in fp16, so any |x|&nbsp;&gt;&nbsp;~256
+squares to inf. The mean becomes inf, rms becomes inf and x/rms becomes 0. The reference returns 1024/1024 zero rows (error vs fp64 truth 1.477e+04).</p>
+<table class="data">
+  <thead><tr><th>kernel</th><th>math</th><th>vs fp64 truth</th><th>full bench verdict</th></tr></thead>
+  <tbody>
+    <tr><td>starter</td><td>fp32 accumulate</td><td>correct (max err 3.96)</td><td><span class="tag">FAIL</span></td></tr>
+    <tr><td>fp32acc</td><td>fp32 accumulate</td><td>correct</td><td><span class="tag">FAIL</span></td></tr>
+    <tr><td>GRPO best</td><td>fp16 accumulate</td><td>1024/1024 zero rows, same as the reference</td><td><span class="tag">PASS</span></td></tr>
+  </tbody>
+</table>
+<p>The harness rewarded reproducing its own reference's overflow. The only change GRPO found flips
+FAIL → PASS with no speedup. Correct fp32 kernels, including <code>torch.compile</code> of the reference, get
+reward 0. Its shape sweep uses unit randn, and its stability stage tests fp16 only, so the scale-4 failure is never
+exercised.</p>
+
+<figure class="fig">
+  <img src="assets/figures/02_starter_baselines.png" alt="AutoKernel starter kernels under the original bench: quick vs full verdicts and speedups per kernel type and GPU" loading="lazy">
+  <figcaption>Starter baselines under the original bench (quick vs full). RMSNorm's 2.9× is already present here,
+  before any training. Data: <code>results/stage1_baselines.jsonl</code>.</figcaption>
+</figure>
+</section>
+
+<!-- ============================================================ -->
+<section id="bench-v2">
+<h2>3. bench v2: golden reference + adversarial magnitudes</h2>
+<p><code>modal_app/bench_v2_core.py</code> leaves v1 untouched and changes the following (<code>results/v3/bench_v2.md</code>):</p>
+<ul>
+  <li><strong>Golden reference.</strong> The same <code>reference.py</code> on inputs upcast to fp64 (norms, softmax, CE,
+    RoPE, reduce) or fp32 with TF32 off (matmul, MLP, attention). The tolerances are upstream's, applied against the golden output and never relaxed.
+    rtol is floored at 2u, because upstream's bf16 rtol 2e-3 is below bf16 unit roundoff.</li>
+  <li><strong>Non-finite = FAIL</strong> wherever the golden output is finite. v1 passed a kernel whenever kernel and reference were <em>both</em> NaN/Inf.</li>
+  <li><strong>Adversarial magnitudes per kernel type.</strong> The true output is representable, but fp16 intermediates
+    overflow. Examples: RMSNorm row RMS 8 and 300 at N=4096 (threshold 4), softmax/CE logits ×100, attention Q,K ×40, reduce N=2<sup>20</sup>.</li>
+  <li><strong>No cache, fresh seed per evaluation.</strong> In v1, 201 of 271 best-PASS timings were cache replays.</li>
+  <li><strong>Timing:</strong> CUDA events with a 256&nbsp;MB L2 flush before each rep, implementations interleaved, and a paired
+    starter/kernel ratio with a bootstrap 95% CI. Baselines are eager, the starter and <code>torch.compile</code>.</li>
+</ul>
+
+<p><strong>Controls first.</strong> Before rescoring anything, each kernel type gets
+<code>golden_cast</code> (must PASS), <code>zeros</code> and <code>perturbed_5pct</code> (must FAIL) and
+<code>upstream_ref_native</code> (the reference itself, in the input dtype: fp16/bf16). Every control with a definite
+expectation behaved as expected. The upstream reference itself fails its own golden on
+matmul, RMSNorm, flash-attention, fused MLP and RoPE.</p>
+
+<h3>Rescore of every old PASS kernel</h3>
+<table class="data">
+  <thead><tr><th>kernel type</th><th>old PASS</th><th>v2 PASS</th><th>real speedup vs starter</th><th>median vs starter</th><th>median vs torch.compile</th></tr></thead>
+  <tbody>
+    <tr><td>cross_entropy</td><td>71</td><td>70</td><td>0</td><td>0.998</td><td>0.548</td></tr>
+    <tr><td>reduce</td><td>184</td><td>182</td><td>0</td><td>0.999</td><td>0.871</td></tr>
+    <tr><td>rmsnorm</td><td>12</td><td><strong>0</strong></td><td>0</td><td>–</td><td>–</td></tr>
+    <tr><td>softmax</td><td>95</td><td>94</td><td>0</td><td>1.000</td><td>0.306</td></tr>
+    <tr><td><strong>all</strong></td><td><strong>362</strong></td><td><strong>346 (95.6%)</strong></td><td><strong>0</strong></td><td>1.000</td><td></td></tr>
+  </tbody>
+</table>
+<p class="muted">"Real speedup" = &gt;1.05× geomean vs starter and CI-significant at every timing shape. All 12 RMSNorm
+PASS kernels fail only on the adversarial cases. Kernels are distinct by code sha256, from GRPO v1/v2 rollouts and
+agent_eval. Source: <code>results/v3/bench_v2.md</code>, <code>results/v3/rescore_summary.json</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="kb-v2">
+<h2>4. kb v2: KernelBench identity 55 → 100</h2>
+<p>A new evaluator (<code>modal_app/kb_v2_eval.py</code>, H100) fixes the three KernelBench bugs, uses a strict fp32
+reference (TF32 off), 5 seeded trials plus 1 hidden fresh-seed trial, and L2-flushed timing.
+The identity <code>ModelNew(Model)</code> was run on all 100 Level 1 problems, twice, in independent processes
+(<code>results/v3/kb_v2.md</code>):</p>
+<ul>
+  <li><strong>100/100 valid</strong> in both runs (before: <span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100). Max |error| over 200 runs × 6 trials: 2.98e-7.</li>
+  <li>Identity speedup median 1.000, range 0.982–1.005. None falls outside 0.95–1.05.</li>
+  <li>Bridge starter: CRASH 100/100 → fixed starter: PASS 100/100.</li>
+</ul>
+
+<h3>Per-bug attribution (45 recovered problems)</h3>
+<table class="data">
+  <thead><tr><th>Fix</th><th>Recovered</th><th>Evidence</th></tr></thead>
+  <tbody>
+    <tr><td>(a) seeded / copied weights</td><td><strong>35</strong> (all conv)</td>
+      <td>Ablation reverting only this fix: 35/35 FAIL. Seeding alone, without the <code>state_dict</code> copy: 35/35 PASS.</td></tr>
+    <tr><td>(b) inputs on GPU, outside the timeout</td><td><strong>10</strong> (9 flaky + #38, which failed every old run)</td>
+      <td>Generation time per trial drops from 7.0–13.1&nbsp;s on CPU to 0.006–0.09&nbsp;s on GPU. Attributed by category: the timeouts depended on CPU contention and did not reproduce in isolation.</td></tr>
+    <tr><td>(c) starter <code>super()</code></td><td>0 identity problems</td>
+      <td>Affects every agent run that starts from the bridge starter: 100/100 crash → 100/100 pass.</td></tr>
+  </tbody>
+</table>
+<p class="muted">This validates the harness, not the candidates. The earlier 0/28 before/after KernelBench result was measured
+with the old harness and its 55-problem list.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="launch">
+<h2>5. Why a launch check matters</h2>
+<p>kb v2 checks numerics but not <em>how</em> the output was computed. When the base model
+(Qwen2.5-Coder-7B-Instruct) was evaluated on KernelBench L1 under kb v2, it "solved"
+<span data-k="phase3.json:kernelbench.kb2_base.fast_0_raw" data-fmt="pct0">3%</span> of problems. With a launch check
+(an <code>@triton.jit</code> kernel actually launched as <code>name[grid](...)</code>), the rate is
+<span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span>.
+All three "passes" call the PyTorch module the problem asks them to replace:</p>
+<pre><code># L1_33 (BatchNorm), turn 2: PASS, speedup 1.0002x
+def forward(self, x):
+    return self.bn(x)
+
+# L1_64 (ConvTranspose1d), turn 0: PASS, speedup 1.0003x
+def forward(self, x):
+    return self.conv1d_transpose(x)
+
+# L1_78 (ConvTranspose2d), turn 1: PASS
+def forward(self, x):
+    return self.conv_transpose2d(x)</code></pre>
+<p class="muted">Source: <code>results/v3/phase3_runs/kb2_base.jsonl</code> (<code>any_pass_triton: false</code> for all three).
+After SFT, the same split is <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_raw" data-fmt="pct0">21%</span> raw vs
+<span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span> with the launch check. See <a href="sft.html">SFT</a>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="sft-verifier">
+<h2>6. The SFT verifier and its controls</h2>
+<p>Every SFT training example had to pass a GPU verifier first (<code>modal_app/sft_verify_modal.py</code>,
+core <code>modal_app/sft_verify_core.py</code>). It reuses the kb v2 and bench v2 logic and adds:</p>
+<ul>
+  <li><strong>Launch check:</strong> each candidate forward must make at least one <code>@triton.jit</code> launch. Torch compute ops
+    (matmul/conv/softmax/norm/…) inside the forward give <code>FALLBACK</code>.</li>
+  <li><strong>Two shapes × 3 seeds:</strong> a rescaled batch dim catches hard-coded shapes (<code>FAIL_SHAPE2</code>).</li>
+  <li><strong>Extreme magnitudes</strong> for reductions (inputs ×1e3, ×1e-3; <code>FAIL_EXTREME</code>).</li>
+  <li><strong>Static symbol allowlist</strong> for Triton 3.2 (<code>REJECT_SYMBOL</code>, never sent to the GPU).</li>
+  <li><strong>Fork per candidate</strong> with a 60&nbsp;s kill, so a CUDA fault or GPU hang costs only that one candidate.</li>
+</ul>
+
+<h3>Smoke test: 10 GPU controls + 1 static control</h3>
+<table class="data">
+  <thead><tr><th>control</th><th>category</th><th>expected = got</th></tr></thead>
+  <tbody>
+    <tr><td>correct_softmax</td><td>correct</td><td>PASS</td></tr>
+    <tr><td>correct_add_relu</td><td>correct</td><td>PASS</td></tr>
+    <tr><td>correct_ak_rmsnorm_starter</td><td>correct</td><td>PASS</td></tr>
+    <tr><td>wrong_mean_div_n_plus_1</td><td>wrong numerics</td><td>FAIL</td></tr>
+    <tr><td>wrong_ak_rmsnorm_grpo_best (the fp16 hack)</td><td>wrong numerics</td><td>FAIL</td></tr>
+    <tr><td>wrong_softmax_no_max (overflows at ×1e3)</td><td>wrong numerics</td><td>FAIL_EXTREME</td></tr>
+    <tr><td>nolaunch_dead_kernel</td><td>no-launch fallback</td><td>NO_LAUNCH</td></tr>
+    <tr><td>nolaunch_conditional_fallback</td><td>no-launch fallback</td><td>NO_LAUNCH</td></tr>
+    <tr><td>crash_illegal_address</td><td>crash/hang</td><td>CRASH</td></tr>
+    <tr><td>hang_2e62_loop</td><td>crash/hang</td><td>TIMEOUT</td></tr>
+    <tr><td>static_bad_tl_symbol</td><td>static</td><td>REJECT_SYMBOL</td></tr>
+  </tbody>
+</table>
+<p class="muted">All controls matched (<code>all_match: true</code>). The 10 GPU controls ran on one L40S container in 78&nbsp;s,
+about $0.05. Source: <code>results/v3/sft/smoke_verify.summary.json</code>, controls in
+<code>modal_app/sft_verify_controls.py</code>.</p>
+
+<h3>What it caught in real data</h3>
+<p>Of the <span data-k="mix_report.json:subsets.drkernel.verified_rows" data-fmt="int">3609</span> Dr. Kernel candidates that
+entered verification, <span data-k="mix_report.json:subsets.drkernel.verdicts.PASS" data-fmt="int">3295</span> PASSed. Among the rest:
+<span data-k="mix_report.json:subsets.drkernel.verdicts.FALLBACK" data-fmt="int">116</span> FALLBACK and
+<span data-k="mix_report.json:subsets.drkernel.verdicts.NO_LAUNCH" data-fmt="int">4</span> NO_LAUNCH (correct outputs, but not computed by a Triton kernel),
+<span data-k="mix_report.json:subsets.drkernel.verdicts.FAIL_SHAPE2" data-fmt="int">29</span> FAIL_SHAPE2,
+<span data-k="mix_report.json:subsets.drkernel.verdicts.FAIL_EXTREME" data-fmt="int">3</span> FAIL_EXTREME,
+<span data-k="mix_report.json:subsets.drkernel.verdicts.FAIL" data-fmt="int">123</span> FAIL,
+<span data-k="mix_report.json:subsets.drkernel.verdicts.REJECT_SYMBOL" data-fmt="int">25</span> REJECT_SYMBOL,
+<span data-k="mix_report.json:subsets.drkernel.verdicts.CRASH" data-fmt="int">13</span> CRASH and
+<span data-k="mix_report.json:subsets.drkernel.verdicts.TIMEOUT" data-fmt="int">1</span> TIMEOUT.
+For KernelBook, <span data-k="mix_report.json:subsets.kernelbook_sel.verdicts.FAIL_SHAPE2" data-fmt="int">689</span> of
+<span data-k="mix_report.json:subsets.kernelbook_sel.verified_rows" data-fmt="int">1029</span> selected rows failed at the second shape.
+A single-shape allclose check would have admitted the FALLBACK, NO_LAUNCH and FAIL_SHAPE2 rows into the training mix.</p>
+</section>
+
+<div class="callout">
+<p><strong>Takeaway.</strong> A kernel reward needs more than allclose against a reference. It needs (1) a golden reference
+in higher precision, (2) inputs at magnitudes where low-precision intermediates break, (3) a launch/fallback check, (4) fresh
+seeds and a second shape, and (5) positive and negative controls run before any policy is scored.</p>
+</div>
+</main>
+
+<footer class="site-footer">
+  <a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">github.com/Ramshankar07/Kernel-Writer-RL-v2</a> · Apache-2.0
+</footer>
+<script src="assets/bind.js" defer></script>
+</body>
+</html>
