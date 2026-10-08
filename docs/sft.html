@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SFT before RL · Kernel-Writer-RL-v2</title>
+<meta name="description" content="Supervised fine-tuning before GRPO: failure analysis, Phase 0 fixes, a GPU-verified 3,022-example Triton SFT mix, a LoRA run, and the base-vs-SFT evaluation on the validation set and KernelBench L1.">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* page-local helpers for sft.html only */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1rem 0; max-width: 100%; }
+  main p code, main li code, .stat-label code { overflow-wrap: anywhere; }
+  main section, main > * { min-width: 0; }
+  .table-wrap table { min-width: 560px; }
+  .table-wrap.two table { min-width: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .meter { display: inline-block; vertical-align: middle; width: 90px; height: 8px; border-radius: 4px;
+           background: color-mix(in srgb, currentColor 14%, transparent); overflow: hidden; margin-left: .4rem; }
+  .meter > i { display: block; height: 100%; width: var(--w); background: var(--accent, #FCA311); }
+  .loss-chart { width: 100%; height: auto; display: block; color: inherit; }
+  .loss-chart .grid { stroke: currentColor; stroke-opacity: .12; }
+  .loss-chart .axis { stroke: currentColor; stroke-opacity: .5; }
+  .loss-chart .epoch { stroke: currentColor; stroke-opacity: .35; stroke-dasharray: 4 4; }
+  .loss-chart .tick, .loss-chart .lbl { fill: currentColor; font-size: 12px; }
+  .loss-chart .tick { fill-opacity: .7; }
+  @media (max-width: 600px) { .loss-chart .tick, .loss-chart .lbl { font-size: 19px; } }
+  .loss-chart .lbl { font-weight: 600; }
+  .loss-chart .train { fill: none; stroke: currentColor; stroke-opacity: .22; stroke-width: 1; }
+  .loss-chart .dev { fill: none; stroke: var(--accent, #FCA311); stroke-width: 2.5; }
+  .loss-chart .devpt { fill: var(--accent, #FCA311); stroke: var(--surface, #FCFCFB); stroke-width: 1.5; }
+  .legend { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; font-size: .9rem; margin: .4rem 0 .6rem; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 3px; vertical-align: middle;
+                         margin-right: .4rem; background: currentColor; opacity: .3; }
+  .legend .k-dev::before { background: var(--accent, #FCA311); opacity: 1; height: 4px; }
+  .verdict-yes { font-weight: 600; }
+  .src { font-size: .85rem; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav" aria-label="Site">
+    <a href="index.html">Home</a>
+    <a href="method.html">Method</a>
+    <a href="rl.html">RL results</a>
+    <a href="verifier.html">Verifier</a>
+    <a href="sft.html" aria-current="page">SFT</a>
+    <a href="reproduce.html">Reproduce</a>
+  </nav>
+</header>
+
+<main>
+<h1>SFT before RL</h1>
+<p class="lead">GRPO on a 7B coder model barely moved, because most rollout groups either all failed or all
+passed, so there was little to learn from. We went back and ran supervised fine-tuning (SFT) first:
+fix the parts of the setup that were not the model's fault, build a GPU-verified Triton SFT set, train a
+LoRA, and check whether RL would now have a usable signal. Correctness improved a lot. Speed did not.</p>
+
+<div class="cards">
+  <div class="stat">
+    <div class="stat-value"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span> → <span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span></div>
+    <div class="stat-label">val pass@1 (62 problems, n=4)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><span data-k="phase3.json:val.base.compile_error_rate" data-fmt="pct1">8.1%</span> → <span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="pct1">1.9%</span></div>
+    <div class="stat-label">turns that hit a Triton compile error</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span> → <span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span></div>
+    <div class="stat-label">KernelBench L1 (kb v2): correct and launches a Triton kernel</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value"><span data-k="phase3.json:val.base.speedup_vs_starter_geomean" data-fmt="x2">0.95×</span> → <span data-k="phase3.json:val.sft.speedup_vs_starter_geomean" data-fmt="x2">1.00×</span></div>
+    <div class="stat-label">speedup vs starter (geomean of solved episodes): flat</div>
+  </div>
+</div>
+
+<nav aria-label="On this page" class="muted">
+  On this page: <a href="#why">Why SFT</a> · <a href="#phase0">Phase 0</a> · <a href="#phase1">Phase 1 data</a> ·
+  <a href="#phase2">Phase 2 training</a> · <a href="#phase3">Phase 3 evaluation</a> · <a href="#grpo">Why GRPO was not resumed</a> ·
+  <a href="#caveats">Caveats</a>
+</nav>
+
+<ol class="timeline">
+  <li><strong>Phase 0</strong> (2026-09-30): fixed starters, prompt v2, a 62-problem validation set, and a base-model baseline.</li>
+  <li><strong>Phase 1</strong> (2026-10-06): ingest, static filter, GPU verification, decontamination, and the mix.</li>
+  <li><strong>Phase 2</strong> (2026-10-07): LoRA SFT run <code>sft_v1</code>, 378 steps on 1×H100.</li>
+  <li><strong>Phase 3</strong> (2026-10-07): base vs SFT on the validation set and on KernelBench L1, plus the GRPO gate.</li>
+</ol>
+
+<!-- ============================================================ -->
+<section id="why">
+<h2>Why SFT, and not more GRPO</h2>
+<p>We sorted every failing turn from the GRPO v1/v2 and agent-eval rollouts by the earliest stage that failed:
+9,393 benchmarked turns in 2,225 trajectories, of which 8,267 failed. Three findings argued for SFT:</p>
+<ul>
+  <li><strong>The reward never saw a real speedup.</strong> Re-scored under the fixed bench v2, no GRPO kernel beat its starter.</li>
+  <li><strong>Many failures were basic.</strong> 31.3% of failing turns were Triton compile errors. 30% of those used APIs that do
+    not exist in Triton 3.2, for example <code>tl.math.tanh</code> (281 times). After a compile failure, the next turn passed only 1.2% of the time.</li>
+  <li><strong>The model got stuck.</strong> In 54.5% of consecutive fail→fail pairs, the model repeated the same error, and 29.2% of
+    pairs resubmitted byte-identical code. RL cannot learn from groups that never succeed.</li>
+</ul>
+<p>So the plan was: teach format, API use, and repair with verified supervised data first, then resume GRPO
+only if the SFT model passed explicit gates.</p>
+<p class="muted src">Sources: <code>results/v3/sft_failure_analysis.md</code>, <code>results/v3/sft_plan.md</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="phase0">
+<h2>Phase 0: remove failures that were not the model's fault</h2>
+<p>Before measuring the model again, we fixed three problems in the setup itself. Each change is a new file;
+no old harness, prompt or result file was edited.</p>
+<ul>
+  <li><strong>Three broken starters.</strong> Under bench v2, the upstream fused_mlp starter crashed (Triton 3.2 resolves the unused
+    <code>tl.math.tanh</code> branch, so the fix uses tanh(y) = 2·sigmoid(2y) − 1). flash_attention ran out of shared memory on the
+    L4 (101,376 B), and matmul's fp32 path used TF32 (max error 4e-2 against a tolerance of 1e-4). All 9 starters in
+    <code>modal_app/starters_v2/</code> now PASS. The exception is 3 fp32 matmul cases at K = 4096–8192, which an exact fp64 matmul also fails, because
+    bench v2's golden for them is itself fp32.</li>
+  <li><strong>Prompt v2.</strong> The v1 system prompt described a callable tool, but the parser expected a fenced code block.
+    v2 describes only the fenced-block protocol. Tool calls written as code fell from 7.1% of failing turns to 0.4% (2/497).
+Malformed or unterminated code fences did not fall (90 turns, 18.1% of failures), and the comparison is not like-for-like: the
+problems, bench and starters were all new.</li>
+  <li><strong>A held-out validation set.</strong> 62 problems with 376 correctness cases, covering all 9 AutoKernel families with new
+    shapes and variants (layernorm without bias, rmsnorm at N=16384, online softmax over 300k–1M columns, rotary with head_dim 80/96, bf16, GQA…).
+    No KernelBench problems are in it. Its harness adds a launch check (a PASS must launch an <code>@triton.jit</code> kernel) and uses fp64 goldens for fp32 inputs of
+    matmul, attention and MLP. It also computes softmax and cross-entropy goldens in fp64 on the CPU, because CUDA fp64 softmax in torch 2.6 gives wrong values when 257 &lt; n ≤ 1024 and n % 8 == 1.</li>
+</ul>
+
+<h3>Base-model baseline (the "before" number)</h3>
+<p>Qwen2.5-Coder-7B-Instruct with no LoRA: 62 problems × n=4, 4 turns, T=0.8. A <em>solve</em> is a PASS whose code is not AST-identical to the starter.</p>
+<div class="table-wrap two">
+<table class="data">
+  <thead><tr><th>metric</th><th class="num">base</th></tr></thead>
+  <tbody>
+    <tr><td>pass@1 (solve)</td><td class="num"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span></td></tr>
+    <tr><td>pass@4</td><td class="num"><span data-k="phase3.json:val.base.pass@n" data-fmt="f3">0.774</span></td></tr>
+    <tr><td>pass@1 counting unchanged starter resubmits</td><td class="num"><span data-k="phase3.json:val.base.pass@1_incl_starter_resubmits" data-fmt="f3">0.778</span></td></tr>
+    <tr><td>solving turns within difflib 0.9 of the starter</td><td class="num"><span data-k="phase3.json:val.base.solving_turns_near_starter_share" data-fmt="pct1">92.1%</span></td></tr>
+    <tr><td>beat starter @1 (paired median &gt; 1.05, CI lower bound &gt; 1)</td><td class="num"><span data-k="phase3.json:val.base.beat_starter@1" data-fmt="f3">0.028</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Most base-model "solves" were near-copies of the starter. The pass@1 seed spread was 0.008, so the gate needs a gain of at least 0.016.</p>
+<p class="muted src">Source: <code>results/v3/phase0.md</code>; values from <code>results/v3/phase3.json</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="phase1">
+<h2>Phase 1: build a verified SFT set</h2>
+<h3>Sources</h3>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>source</th><th>pinned revision</th><th>what we took</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Dr. Kernel</strong> <code>hkust-nlp/drkernel-coldstart-8k</code></td><td><code>cba0ef06</code></td>
+      <td>8,920 multi-turn rows. The best round becomes a single-turn example if its speedup is ≥ 1 (5,405 rows). Failed turn + feedback → next, better turn becomes repair data.</td></tr>
+    <tr><td><strong>KernelBook</strong> <code>GPUMODE/KernelBook</code> (MIT)</td><td><code>1576375b</code></td>
+      <td>18,162 rows → 7,415 pure-Triton → 5,523 after dedup → 1,029 selected for the 9 families.</td></tr>
+    <tr><td><strong>In-repo</strong></td><td>this repo</td>
+      <td>Our own policy's bench-v2 PASS kernels from GRPO and agent-eval rollouts: 211 distinct non-starter programs (reduce, softmax, cross_entropy), plus repair pairs.</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Excluded on purpose: <code>ppbhatt500/kernelbook-triton-reasoning-traces</code>, which is built from KernelBench, and <code>siro1/*</code>,
+whose license and verification are undocumented.</p>
+<p class="muted src">Sources: <code>results/v3/sft/README.md</code>, <code>ingest_drkernel_summary.json</code>, <code>ingest_kernelbook_summary.json</code>, <code>select_summary.json</code>, <code>ingest_inrepo_summary.json</code>.</p>
+
+<h3>Filter and verification funnel</h3>
+<p><strong>Static filter:</strong> the code parses; at least one <code>@triton.jit</code> kernel is actually launched; there is no
+<code>torch.nn.functional</code>, <code>torch.matmul</code> or <code>try</code>/<code>except</code> fallback in the forward path; and <code>tl.*</code> symbols are checked against a Triton 3.2 allowlist (the verifier rejects the rest as REJECT_SYMBOL). <strong>GPU
+verification</strong> on ≤4 L40S/L4 containers: an fp32 golden reference, 3 seeds × 2 shapes, extreme-magnitude inputs for reductions, and a launch
+check (no silent PyTorch fallback). <strong>Decontamination:</strong> rows whose PyTorch module is a near-duplicate (normalized AST, or ≥ 50% of distinctive
+lines) of a KernelBench L1 or validation problem were dropped. Op-level overlap (shared torch ops) was only tagged, not dropped:
+<span data-k="mix_report.json:splits.train.op_overlap_flag" data-fmt="int">673</span> training examples share most of their ops with some
+KernelBench L1 or validation problem. Examples longer than 4,096 tokens were dropped.</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>subset</th><th class="num">candidates</th><th class="num">static OK</th><th class="num">GPU PASS</th><th class="num">kept</th><th>kept / candidates</th><th class="num">in train</th></tr></thead>
+  <tbody>
+    <tr><td>Dr. Kernel (single-turn)</td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel.candidates" data-fmt="int">5,405</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel.candidates_static_ok" data-fmt="int">3,609</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel.verdicts.PASS" data-fmt="int">3,295</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel.kept" data-fmt="int">3,264</span></td>
+      <td><span class="meter" role="presentation"><i style="--w:60.4%"></i></span> 60.4%</td>
+      <td class="num"><span data-k="mix_report.json:splits.train.by_subset.drkernel" data-fmt="int">2,294</span></td></tr>
+    <tr><td>Dr. Kernel repair</td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel_repair_sel.candidates" data-fmt="int">1,500</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel_repair_sel.candidates_static_ok" data-fmt="int">1,500</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel_repair_sel.verdicts.PASS" data-fmt="int">1,238</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.drkernel_repair_sel.kept" data-fmt="int">929</span></td>
+      <td><span class="meter" role="presentation"><i style="--w:61.9%"></i></span> 61.9%</td>
+      <td class="num"><span data-k="mix_report.json:splits.train.by_subset.drkernel_repair_sel" data-fmt="int">413</span></td></tr>
+    <tr><td>In-repo</td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo.candidates" data-fmt="int">211</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo.candidates_static_ok" data-fmt="int">208</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo.verdicts.PASS" data-fmt="int">208</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo.kept" data-fmt="int">208</span></td>
+      <td><span class="meter" role="presentation"><i style="--w:98.6%"></i></span> 98.6%</td>
+      <td class="num"><span data-k="mix_report.json:splits.train.by_subset.inrepo" data-fmt="int">204</span></td></tr>
+    <tr><td>In-repo repair</td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo_repair.candidates" data-fmt="int">69</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo_repair.candidates_static_ok" data-fmt="int">68</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo_repair.verdicts.PASS" data-fmt="int">68</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.inrepo_repair.kept" data-fmt="int">40</span></td>
+      <td><span class="meter" role="presentation"><i style="--w:58.0%"></i></span> 58.0%</td>
+      <td class="num"><span data-k="mix_report.json:splits.train.by_subset.inrepo_repair" data-fmt="int">40</span></td></tr>
+    <tr><td>KernelBook (selected)</td>
+      <td class="num"><span data-k="mix_report.json:subsets.kernelbook_sel.candidates" data-fmt="int">1,029</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.kernelbook_sel.candidates_static_ok" data-fmt="int">1,029</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.kernelbook_sel.verdicts.PASS" data-fmt="int">69</span></td>
+      <td class="num"><span data-k="mix_report.json:subsets.kernelbook_sel.kept" data-fmt="int">59</span></td>
+      <td><span class="meter" role="presentation"><i style="--w:5.7%"></i></span> 5.7%</td>
+      <td class="num"><span data-k="mix_report.json:splits.train.by_subset.kernelbook_sel" data-fmt="int">71</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Why the yields differ:</p>
+<ul>
+  <li><strong>Dr. Kernel:</strong> most losses come from the static filter (mostly <code>try</code>/<code>except</code> fallback paths and <code>torch.nn.functional</code> calls in the forward path).
+    The GPU verifier dropped about 9% more (FAIL <span data-k="mix_report.json:subsets.drkernel.verdicts.FAIL" data-fmt="int">123</span>,
+    silent PyTorch FALLBACK <span data-k="mix_report.json:subsets.drkernel.verdicts.FALLBACK" data-fmt="int">116</span>), and decontamination removed
+    <span data-k="mix_report.json:subsets.drkernel.drops.decontam_kb_l1" data-fmt="int">19</span> KernelBench L1 near-duplicates.</li>
+  <li><strong>Dr. Kernel repair:</strong> mostly lost to the 4,096-token limit
+    (<span data-k="mix_report.json:subsets.drkernel_repair_sel.drops.too_long" data-fmt="int">294</span> too long).</li>
+  <li><strong>KernelBook:</strong> its targets are TorchInductor output, which hard-codes shapes, so
+    <span data-k="mix_report.json:subsets.kernelbook_sel.verdicts.FAIL_SHAPE2" data-fmt="int">689</span> fail on the second shape. We dropped them deliberately.</li>
+</ul>
+<p>"In train" is below "kept" for Dr. Kernel because the mix capped generic families (other, activation, reduce, conv) at
+<span data-k="mix_report.json:config.generic_max_frac" data-fmt="pct0">80%</span> of single-turn examples and repair data at
+<span data-k="mix_report.json:config.repair_frac" data-fmt="pct0">15%</span> of the mix, so not every verified example was used.
+It exceeds "kept" for KernelBook because scarce families (MLP, attention) were upsampled up to 3×. 60 examples went to the dev split.</p>
+
+<h3>The final mix</h3>
+<div class="cards">
+  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span></div><div class="stat-label">train examples</div></div>
+  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.dev.examples" data-fmt="int">60</span></div><div class="stat-label">dev examples</div></div>
+  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:splits.train.repair_share" data-fmt="pct0">15%</span></div><div class="stat-label">repair examples (failing turn + real feedback → verified fix)</div></div>
+  <div class="stat"><div class="stat-value"><span data-k="mix_report.json:tokens.train_trained_tokens.total" data-fmt="int">3,603,928</span></div><div class="stat-label">loss-bearing (assistant) tokens per epoch</div></div>
+</div>
+<div class="table-wrap two">
+<table class="data">
+  <thead><tr><th>train split by</th><th>breakdown</th></tr></thead>
+  <tbody>
+    <tr><td>source</td><td>Dr. Kernel <span data-k="mix_report.json:splits.train.by_source.drkernel" data-fmt="int">2,707</span> ·
+      in-repo <span data-k="mix_report.json:splits.train.by_source.inrepo" data-fmt="int">244</span> ·
+      KernelBook <span data-k="mix_report.json:splits.train.by_source.kernelbook" data-fmt="int">71</span></td></tr>
+    <tr><td>format</td><td>ModelNew (PyTorch module → Triton) <span data-k="mix_report.json:splits.train.by_format.modelnew" data-fmt="int">2,778</span> ·
+      AutoKernel (<code>kernel_fn</code>) <span data-k="mix_report.json:splits.train.by_format.autokernel" data-fmt="int">244</span></td></tr>
+    <tr><td>repair</td><td>single-turn <span data-k="mix_report.json:splits.train.by_repair.false" data-fmt="int">2,569</span> ·
+      repair <span data-k="mix_report.json:splits.train.by_repair.true" data-fmt="int">453</span></td></tr>
+    <tr><td>family</td><td>other <span data-k="mix_report.json:splits.train.by_family.other" data-fmt="int">910</span> ·
+      activation <span data-k="mix_report.json:splits.train.by_family.activation" data-fmt="int">692</span> ·
+      reduce <span data-k="mix_report.json:splits.train.by_family.reduce" data-fmt="int">658</span> ·
+      softmax <span data-k="mix_report.json:splits.train.by_family.softmax" data-fmt="int">315</span> ·
+      matmul <span data-k="mix_report.json:splits.train.by_family.matmul" data-fmt="int">206</span> ·
+      cross_entropy <span data-k="mix_report.json:splits.train.by_family.cross_entropy" data-fmt="int">63</span> ·
+      rmsnorm <span data-k="mix_report.json:splits.train.by_family.rmsnorm" data-fmt="int">59</span> ·
+      layernorm <span data-k="mix_report.json:splits.train.by_family.layernorm" data-fmt="int">45</span> ·
+      conv <span data-k="mix_report.json:splits.train.by_family.conv" data-fmt="int">31</span> ·
+      mlp <span data-k="mix_report.json:splits.train.by_family.mlp" data-fmt="int">22</span> ·
+      attention <span data-k="mix_report.json:splits.train.by_family.attention" data-fmt="int">21</span></td></tr>
+    <tr><td>length (tokens, full example)</td><td>p50 <span data-k="mix_report.json:splits.train.tokens.p50" data-fmt="int">1,831</span> ·
+      p90 <span data-k="mix_report.json:splits.train.tokens.p90" data-fmt="int">3,321</span> ·
+      max <span data-k="mix_report.json:splits.train.tokens.max" data-fmt="int">4,094</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Rotary had no verified examples at all, so its upsample factor is 0. Fused-MLP and attention data are thin even after 3× upsampling.</p>
+<p class="muted src">Source: <code>results/v3/sft/mix_report.json</code> / <code>mix_report.md</code>, <code>verified_*.summary.json</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="phase2">
+<h2>Phase 2: LoRA SFT (<code>sft_v1</code>)</h2>
+<div class="table-wrap two">
+<table class="data">
+  <thead><tr><th>setting</th><th>value</th></tr></thead>
+  <tbody>
+    <tr><td>base model</td><td>Qwen/Qwen2.5-Coder-7B-Instruct</td></tr>
+    <tr><td>adapter</td><td>LoRA r=64, alpha=128, dropout 0.05, on q/k/v/o and gate/up/down projections</td></tr>
+    <tr><td>optimization</td><td>lr 1e-4, cosine schedule, 3% warmup; micro-batch 4 × grad-accum 4 = 16 examples/step</td></tr>
+    <tr><td>length / loss</td><td>max length 4,096 tokens, loss on assistant tokens only</td></tr>
+    <tr><td>schedule</td><td>2 epochs × 189 steps = 378 steps; checkpoint and dev eval every 94 steps (about every half-epoch), plus one dev eval at step 100, the end of the throughput pilot</td></tr>
+    <tr><td>hardware / throughput</td><td>1×H100; median 4,608 tok/s and 7.0 s/step over 5-step windows; peak GPU memory 29.4 GB</td></tr>
+  </tbody>
+</table>
+</div>
+<figure class="fig">
+  <svg class="loss-chart" viewBox="0 0 640 320" role="img" aria-labelledby="loss-title loss-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="loss-title">sft_v1 loss by optimizer step</title>
+<desc id="loss-desc">Held-out dev loss measured at steps 0 (0.601), 94 (0.333), 100 (0.332), 188 (0.310), 282 (0.304), 376 (0.301), 378 (0.302). Per-step training loss is drawn faintly behind it.</desc>
+<line x1="52" x2="620" y1="276.0" y2="276.0" class="grid"/><text x="44" y="280.0" text-anchor="end" class="tick">0.1</text>
+<line x1="52" x2="620" y1="210.5" y2="210.5" class="grid"/><text x="44" y="214.5" text-anchor="end" class="tick">0.3</text>
+<line x1="52" x2="620" y1="145.0" y2="145.0" class="grid"/><text x="44" y="149.0" text-anchor="end" class="tick">0.5</text>
+<line x1="52" x2="620" y1="79.5" y2="79.5" class="grid"/><text x="44" y="83.5" text-anchor="end" class="tick">0.7</text>
+<line x1="52" x2="620" y1="14.0" y2="14.0" class="grid"/><text x="44" y="18.0" text-anchor="end" class="tick">0.9</text>
+<line x1="52.0" x2="52.0" y1="276" y2="281" class="axis"/><text x="52.0" y="295" text-anchor="middle" class="tick">0</text>
+<line x1="193.2" x2="193.2" y1="276" y2="281" class="axis"/><text x="193.2" y="295" text-anchor="middle" class="tick">94</text>
+<line x1="336.0" x2="336.0" y1="276" y2="281" class="axis"/><text x="336.0" y="295" text-anchor="middle" class="tick">189</text>
+<line x1="475.7" x2="475.7" y1="276" y2="281" class="axis"/><text x="475.7" y="295" text-anchor="middle" class="tick">282</text>
+<line x1="620.0" x2="620.0" y1="276" y2="281" class="axis"/><text x="620.0" y="295" text-anchor="middle" class="tick">378</text>
+<line x1="52" x2="620" y1="276" y2="276" class="axis"/>
+<line x1="336.0" x2="336.0" y1="14" y2="276" class="epoch"/><text x="341.0" y="26" class="tick">epoch 2</text>
+<text x="336" y="314" text-anchor="middle" class="tick">optimizer step</text>
+<polyline class="train" points="53.5,81.5 55.0,77.1 56.5,127.9 58.0,39.8 59.5,92.2 61.0,113.0 62.5,66.7 64.0,114.5 65.5,121.8 67.0,98.9 68.5,117.3 70.0,124.9 71.5,181.6 73.0,160.6 74.5,174.0 76.0,200.8 77.5,163.5 79.0,133.0 80.6,141.3 82.1,156.9 83.6,164.3 85.1,134.3 86.6,155.3 88.1,143.6 89.6,165.4 91.1,168.2 92.6,179.6 94.1,147.9 95.6,166.2 97.1,192.8 98.6,161.4 100.1,140.6 101.6,143.4 103.1,189.9 104.6,130.9 106.1,190.8 107.6,161.8 109.1,179.7 110.6,221.6 112.1,195.6 113.6,172.7 115.1,167.1 116.6,156.4 118.1,199.6 119.6,188.8 121.1,154.3 122.6,166.1 124.1,189.2 125.6,199.9 127.1,214.0 128.6,189.9 130.1,219.2 131.6,165.9 133.1,204.8 134.6,171.4 136.1,187.8 137.7,167.3 139.2,204.2 140.7,252.1 142.2,188.8 143.7,179.6 145.2,164.7 146.7,188.7 148.2,212.6 149.7,203.9 151.2,193.1 152.7,179.5 154.2,208.4 155.7,213.5 157.2,186.5 158.7,197.1 160.2,178.5 161.7,206.5 163.2,229.6 164.7,185.9 166.2,219.8 167.7,210.7 169.2,177.7 170.7,196.7 172.2,196.0 173.7,228.9 175.2,195.9 176.7,185.8 178.2,221.2 179.7,252.2 181.2,173.0 182.7,176.6 184.2,204.1 185.7,198.4 187.2,175.5 188.7,167.0 190.2,180.7 191.7,222.8 193.2,177.8 194.8,185.7 196.3,194.6 197.8,176.1 199.3,220.0 200.8,229.2 202.3,166.9 203.8,188.3 205.3,183.1 206.8,204.6 208.3,191.7 209.8,212.9 211.3,201.6 212.8,195.2 214.3,197.1 215.8,181.2 217.3,183.3 218.8,184.3 220.3,155.5 221.8,209.5 223.3,221.6 224.8,187.6 226.3,195.4 227.8,175.2 229.3,212.7 230.8,166.1 232.3,212.6 233.8,222.5 235.3,209.4 236.8,156.9 238.3,243.7 239.8,181.4 241.3,179.6 242.8,257.8 244.3,196.8 245.8,211.6 247.3,217.7 248.8,212.3 250.3,193.1 251.9,185.7 253.4,206.3 254.9,211.7 256.4,205.9 257.9,202.7 259.4,179.7 260.9,200.3 262.4,207.4 263.9,226.7 265.4,185.1 266.9,207.9 268.4,194.9 269.9,200.8 271.4,217.5 272.9,199.0 274.4,199.2 275.9,208.2 277.4,188.8 278.9,196.4 280.4,195.0 281.9,240.5 283.4,248.4 284.9,197.6 286.4,204.3 287.9,201.2 289.4,168.2 290.9,214.6 292.4,203.1 293.9,183.2 295.4,195.7 296.9,188.0 298.4,225.6 299.9,172.2 301.4,225.3 302.9,170.7 304.4,208.1 305.9,208.8 307.4,214.4 309.0,198.9 310.5,181.9 312.0,204.8 313.5,197.1 315.0,187.2 316.5,193.9 318.0,218.8 319.5,211.2 321.0,218.9 322.5,213.8 324.0,203.3 325.5,176.3 327.0,208.4 328.5,200.5 330.0,211.7 331.5,165.7 333.0,188.5 334.5,205.2 336.0,195.0 337.5,210.2 339.0,213.5 340.5,220.4 342.0,180.3 343.5,241.4 345.0,202.7 346.5,196.4 348.0,224.0 349.5,209.6 351.0,196.8 352.5,203.3 354.0,213.8 355.5,222.0 357.0,233.2 358.5,218.4 360.0,228.6 361.5,236.7 363.0,215.9 364.6,203.1 366.1,248.4 367.6,217.5 369.1,215.2 370.6,231.6 372.1,196.1 373.6,219.7 375.1,211.7 376.6,247.0 378.1,202.5 379.6,206.2 381.1,216.6 382.6,194.4 384.1,228.9 385.6,200.4 387.1,214.8 388.6,224.3 390.1,238.4 391.6,221.7 393.1,204.0 394.6,205.5 396.1,196.5 397.6,221.4 399.1,185.7 400.6,221.3 402.1,191.2 403.6,213.2 405.1,212.6 406.6,190.8 408.1,235.3 409.6,199.5 411.1,201.5 412.6,220.8 414.1,204.9 415.6,195.3 417.1,215.5 418.6,195.8 420.1,213.8 421.7,195.5 423.2,208.1 424.7,212.2 426.2,222.7 427.7,212.0 429.2,221.0 430.7,200.9 432.2,236.5 433.7,245.4 435.2,233.3 436.7,197.4 438.2,232.3 439.7,196.7 441.2,211.5 442.7,231.7 444.2,208.3 445.7,237.3 447.2,200.0 448.7,236.9 450.2,231.7 451.7,199.6 453.2,214.6 454.7,239.8 456.2,210.0 457.7,240.4 459.2,214.2 460.7,200.1 462.2,211.4 463.7,235.6 465.2,204.2 466.7,205.4 468.2,216.3 469.7,238.5 471.2,218.8 472.7,232.1 474.2,202.2 475.7,207.0 477.2,228.7 478.8,247.1 480.3,221.6 481.8,198.8 483.3,211.3 484.8,218.8 486.3,210.7 487.8,187.6 489.3,224.0 490.8,179.2 492.3,201.8 493.8,211.1 495.3,224.7 496.8,193.2 498.3,204.0 499.8,204.2 501.3,242.0 502.8,233.9 504.3,207.7 505.8,224.7 507.3,199.7 508.8,231.0 510.3,262.6 511.8,209.6 513.3,237.5 514.8,245.8 516.3,193.3 517.8,237.2 519.3,226.3 520.8,188.3 522.3,219.1 523.8,197.8 525.3,213.0 526.8,217.7 528.3,245.3 529.8,229.2 531.3,239.8 532.8,231.5 534.3,219.3 535.9,211.7 537.4,205.0 538.9,226.6 540.4,220.3 541.9,201.1 543.4,224.0 544.9,220.5 546.4,227.2 547.9,223.0 549.4,200.5 550.9,240.0 552.4,203.0 553.9,194.6 555.4,227.7 556.9,219.9 558.4,242.6 559.9,213.2 561.4,223.5 562.9,215.4 564.4,226.3 565.9,206.4 567.4,210.7 568.9,219.3 570.4,214.2 571.9,211.4 573.4,225.6 574.9,199.5 576.4,218.0 577.9,243.6 579.4,220.4 580.9,230.5 582.4,216.3 583.9,202.5 585.4,231.3 586.9,215.9 588.4,223.0 589.9,210.2 591.4,220.0 593.0,224.3 594.5,237.3 596.0,216.3 597.5,232.3 599.0,236.6 600.5,208.7 602.0,241.1 603.5,218.1 605.0,210.2 606.5,224.7 608.0,238.1 609.5,224.7 611.0,200.1 612.5,218.1 614.0,246.4 615.5,208.5 617.0,210.2 618.5,207.3 620.0,213.5"/>
+<polyline class="dev" points="52.0,112.0 193.2,199.6 202.3,200.0 334.5,207.1 475.7,209.3 617.0,210.0 620.0,210.0"/>
+<circle class="devpt" cx="52.0" cy="112.0" r="3.5"><title>step 0: dev loss 0.601</title></circle>
+<circle class="devpt" cx="193.2" cy="199.6" r="3.5"><title>step 94: dev loss 0.333</title></circle>
+<circle class="devpt" cx="202.3" cy="200.0" r="3.5"><title>step 100: dev loss 0.332</title></circle>
+<circle class="devpt" cx="334.5" cy="207.1" r="3.5"><title>step 188: dev loss 0.310</title></circle>
+<circle class="devpt" cx="475.7" cy="209.3" r="3.5"><title>step 282: dev loss 0.304</title></circle>
+<circle class="devpt" cx="617.0" cy="210.0" r="3.5"><title>step 376: dev loss 0.301</title></circle>
+<circle class="devpt" cx="620.0" cy="210.0" r="3.5"><title>step 378: dev loss 0.302</title></circle>
+<text x="60.0" y="116.0" class="lbl">dev 0.601</text>
+<text x="616.0" y="200.0" text-anchor="end" class="lbl">dev 0.302</text>
+</svg>
+  <div class="legend" aria-hidden="true"><span class="k-dev">dev loss (60 held-out examples), every measured point</span><span>per-step training loss</span></div>
+  <figcaption>Dev loss fell from 0.601 before training to 0.302 at step 378. Most of the drop came in the first half-epoch; after step 188 the curve is nearly flat.
+  We evaluated the final checkpoint (step 378).</figcaption>
+</figure>
+<p class="muted src">Source: <code>results/v3/sft_runs/sft_v1/config.json</code>, <code>metrics.jsonl</code> (chart drawn directly from its rows), <code>modal_app/sft_train_modal.py</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="phase3">
+<h2>Phase 3: base vs SFT</h2>
+<h3>Validation set (62 problems, n=4, 4 turns, prompt v2)</h3>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>metric</th><th class="num">base</th><th class="num">SFT</th></tr></thead>
+  <tbody>
+    <tr><td>pass@1 (solve = PASS, not the starter)</td><td class="num"><span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span></td><td class="num"><span data-k="phase3.json:val.sft.pass@1" data-fmt="f3">0.508</span></td></tr>
+    <tr><td>pass@4</td><td class="num"><span data-k="phase3.json:val.base.pass@n" data-fmt="f3">0.774</span></td><td class="num"><span data-k="phase3.json:val.sft.pass@n" data-fmt="f3">0.790</span></td></tr>
+    <tr><td>pass on turn 0</td><td class="num"><span data-k="phase3.json:val.base.pass@1_turn0" data-fmt="f3">0.145</span></td><td class="num"><span data-k="phase3.json:val.sft.pass@1_turn0" data-fmt="f3">0.315</span></td></tr>
+    <tr><td>compile-error rate (per turn)</td><td class="num"><span data-k="phase3.json:val.base.compile_error_rate" data-fmt="f3">0.081</span></td><td class="num"><span data-k="phase3.json:val.sft.compile_error_rate" data-fmt="f3">0.019</span></td></tr>
+    <tr><td>compile share of failures</td><td class="num"><span data-k="phase3.json:val.base.compile_share_of_failures" data-fmt="f3">0.161</span></td><td class="num"><span data-k="phase3.json:val.sft.compile_share_of_failures" data-fmt="f3">0.038</span></td></tr>
+    <tr><td>repeat-same-error rate</td><td class="num"><span data-k="phase3.json:val.base.repeat_error_rate" data-fmt="f3">0.338</span></td><td class="num"><span data-k="phase3.json:val.sft.repeat_error_rate" data-fmt="f3">0.283</span></td></tr>
+    <tr><td>P(solve next turn | failed turn)</td><td class="num"><span data-k="phase3.json:val.base.p_pass_next_given_fail" data-fmt="f3">0.072</span></td><td class="num"><span data-k="phase3.json:val.sft.p_pass_next_given_fail" data-fmt="f3">0.125</span></td></tr>
+    <tr><td>solves that are near-copies of the starter</td><td class="num"><span data-k="phase3.json:val.base.solving_turns_near_starter_share" data-fmt="f3">0.921</span></td><td class="num"><span data-k="phase3.json:val.sft.solving_turns_near_starter_share" data-fmt="f3">0.201</span></td></tr>
+    <tr><td>beat starter @1</td><td class="num"><span data-k="phase3.json:val.base.beat_starter@1" data-fmt="f3">0.028</span></td><td class="num"><span data-k="phase3.json:val.sft.beat_starter@1" data-fmt="f3">0.008</span></td></tr>
+    <tr><td>beat starter @4</td><td class="num"><span data-k="phase3.json:val.base.beat_starter@n" data-fmt="f3">0.048</span></td><td class="num"><span data-k="phase3.json:val.sft.beat_starter@n" data-fmt="f3">0.032</span></td></tr>
+    <tr><td>speedup vs starter, geomean (solved episodes)</td><td class="num"><span data-k="phase3.json:val.base.speedup_vs_starter_geomean" data-fmt="f3">0.950</span></td><td class="num"><span data-k="phase3.json:val.sft.speedup_vs_starter_geomean" data-fmt="f3">1.003</span></td></tr>
+    <tr><td>speedup vs torch.compile, geomean</td><td class="num"><span data-k="phase3.json:val.base.speedup_vs_compile_geomean" data-fmt="f3">0.846</span></td><td class="num"><span data-k="phase3.json:val.sft.speedup_vs_compile_geomean" data-fmt="f3">0.884</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Per-run pass@1: base <span data-k="phase3.json:val.base.pass@1_per_run.half1+mmfix1" data-fmt="f3">0.387</span> / <span data-k="phase3.json:val.base.pass@1_per_run.half2+mmfix2" data-fmt="f3">0.379</span>,
+SFT <span data-k="phase3.json:val.sft.pass@1_per_run.phase3_runs/s1" data-fmt="f3">0.492</span> / <span data-k="phase3.json:val.sft.pass@1_per_run.phase3_runs/s2" data-fmt="f3">0.524</span>.
+SFT writes its own kernels instead of resubmitting the starter: near-copy solves fell from 92% to 20%. But these new kernels are not faster.
+By family, pass@1 rose most on layernorm, softmax, cross_entropy and rotary. It fell on matmul
+(<span data-k="phase3.json:val.base.by_family.matmul.pass@1" data-fmt="f3">0.321</span> → <span data-k="phase3.json:val.sft.by_family.matmul.pass@1" data-fmt="f3">0.143</span>)
+and flash_attention (<span data-k="phase3.json:val.base.by_family.flash_attention.pass@1" data-fmt="f3">0.107</span> → <span data-k="phase3.json:val.sft.by_family.flash_attention.pass@1" data-fmt="f3">0.036</span>).</p>
+
+<h3>The three gates for resuming GRPO</h3>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>gate</th><th class="num">value</th><th class="num">threshold</th><th>passed</th></tr></thead>
+  <tbody>
+    <tr><td>pass@1 gain ≥ 2× seed-to-seed spread</td>
+      <td class="num"><span data-k="phase3.json:gates.pass@1 gain >= 2x seed spread.0" data-fmt="f3">0.125</span></td>
+      <td class="num"><span data-k="phase3.json:gates.pass@1 gain >= 2x seed spread.1" data-fmt="f3">0.016</span></td>
+      <td class="verdict-yes"><span data-k="phase3.json:gates_passed.pass@1 gain >= 2x seed spread" data-fmt="raw">true</span></td></tr>
+    <tr><td>compile share of failures &lt; 15%</td>
+      <td class="num"><span data-k="phase3.json:gates.compile share of failures < 15%.0" data-fmt="f3">0.038</span></td>
+      <td class="num"><span data-k="phase3.json:gates.compile share of failures < 15%.1" data-fmt="f3">0.150</span></td>
+      <td class="verdict-yes"><span data-k="phase3.json:gates_passed.compile share of failures < 15%" data-fmt="raw">true</span></td></tr>
+    <tr><td>groups with mixed outcomes (nonzero advantage) ≥ 30%</td>
+      <td class="num"><span data-k="phase3.json:gates.mixed-outcome groups >= 30%.0" data-fmt="f3">0.597</span></td>
+      <td class="num"><span data-k="phase3.json:gates.mixed-outcome groups >= 30%.1" data-fmt="f3">0.300</span></td>
+      <td class="verdict-yes"><span data-k="phase3.json:gates_passed.mixed-outcome groups >= 30%" data-fmt="raw">true</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>All three gates passed. But they test correctness and variance, not speed, so we also checked whether RL would have any speed signal to learn from.</p>
+
+<h3>Would GRPO have a speed signal? (offline, from the val runs)</h3>
+<p>We treated each problem's n=4 episodes as a GRPO group, with reward = 0.5 + max(0, log2 best vs_starter) if solved, else 0
+(a reward_v2-style PASS floor).</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th></th><th class="num">base</th><th class="num">SFT</th></tr></thead>
+  <tbody>
+    <tr><td>groups with mixed pass/fail</td><td class="num"><span data-k="phase3.json:groups.base.mixed_pass_fail" data-fmt="pct0">76%</span></td><td class="num"><span data-k="phase3.json:groups.sft.mixed_pass_fail" data-fmt="pct0">60%</span></td></tr>
+    <tr><td>groups with speed-reward std &gt; 0.02</td><td class="num">77%</td><td class="num">60%</td></tr>
+    <tr><td>groups where every episode solves</td><td class="num"><span data-k="phase3.json:groups.base.all_solve" data-fmt="int">1</span></td><td class="num"><span data-k="phase3.json:groups.sft.all_solve" data-fmt="int">12</span></td></tr>
+    <tr><td>groups where no episode solves</td><td class="num"><span data-k="phase3.json:groups.base.never_solve" data-fmt="int">14</span></td><td class="num"><span data-k="phase3.json:groups.sft.never_solve" data-fmt="int">13</span></td></tr>
+    <tr><td>solved episodes</td><td class="num"><span data-k="phase3.json:groups.base.solved_episodes" data-fmt="int">95</span></td><td class="num"><span data-k="phase3.json:groups.sft.solved_episodes" data-fmt="int">126</span></td></tr>
+    <tr><td>… that beat the starter by &gt; 5%</td><td class="num"><span data-k="phase3.json:groups.base.solved_beat_starter_5pct" data-fmt="int">7</span></td><td class="num"><span data-k="phase3.json:groups.sft.solved_beat_starter_5pct" data-fmt="int">2</span></td></tr>
+    <tr><td>median vs_starter of solved episodes</td><td class="num"><span data-k="phase3.json:groups.base.solved_vs_starter_median" data-fmt="f3">1.000</span></td><td class="num"><span data-k="phase3.json:groups.sft.solved_vs_starter_median" data-fmt="f3">1.001</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Almost all of the group variance comes from pass vs fail, not from speed. A speed reward would mostly teach correctness again.</p>
+<p class="muted src">The "speed-reward std" row is copied from <code>results/v3/phase3.md</code>; its JSON key contains a dot. Everything else: <code>results/v3/phase3.json</code>.</p>
+
+<h3>KernelBench Level 1 (kb v2, 100 valid problems, n=1, 3 turns)</h3>
+<p>Evaluated once, at the end, with no tuning on KernelBench.</p>
+<div class="table-wrap">
+<table class="data">
+  <thead><tr><th>metric</th><th class="num">base</th><th class="num">SFT</th></tr></thead>
+  <tbody>
+    <tr><td>correct (fast_0, any implementation)</td><td class="num"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_raw" data-fmt="pct0">3%</span></td><td class="num"><span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_raw" data-fmt="pct0">21%</span></td></tr>
+    <tr><td>correct and launches a Triton kernel</td><td class="num"><span data-k="phase3.json:kernelbench.kb2_base.fast_0_triton" data-fmt="pct0">0%</span></td><td class="num"><span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_0_triton" data-fmt="pct0">20%</span></td></tr>
+    <tr><td>… and faster than PyTorch (fast_1)</td><td class="num"><span data-k="phase3.json:kernelbench.kb2_base.fast_1_triton" data-fmt="pct0">0%</span></td><td class="num"><span data-k="phase3.json:kernelbench.kb2_sft_v1.fast_1_triton" data-fmt="pct0">10%</span></td></tr>
+    <tr><td>solved, op-seen problems</td>
+      <td class="num"><span data-k="phase3.json:kernelbench_seen_split.kb2_base.solved_seen" data-fmt="int">0</span>/<span data-k="phase3.json:kernelbench_seen_split.kb2_base.seen_problems" data-fmt="int">41</span></td>
+      <td class="num"><span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.solved_seen" data-fmt="int">13</span>/<span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.seen_problems" data-fmt="int">41</span></td></tr>
+    <tr><td>solved, op-unseen problems</td>
+      <td class="num"><span data-k="phase3.json:kernelbench_seen_split.kb2_base.solved_unseen" data-fmt="int">0</span>/<span data-k="phase3.json:kernelbench_seen_split.kb2_base.unseen_problems" data-fmt="int">59</span></td>
+      <td class="num"><span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.solved_unseen" data-fmt="int">7</span>/<span data-k="phase3.json:kernelbench_seen_split.kb2_sft_v1.unseen_problems" data-fmt="int">59</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p>kb v2 has no launch check of its own, so the "Triton" rows also require an <code>@triton.jit</code> kernel launched as
+<code>name[grid](…)</code>. A problem is <em>op-seen</em> if a training example shares most of its ops with it (Jaccard ≥ 0.5). No verbatim or
+near-duplicate KernelBench module is in the training set. The op-unseen result (7/59) is the cleaner evidence that SFT generalizes.</p>
+<p class="muted src">Source: <code>results/v3/phase3.json</code>, <code>results/v3/phase3.md</code> (generated by <code>modal_app/phase3_report.py</code>).</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="grpo">
+<h2>Why GRPO was not resumed</h2>
+<div class="callout">
+  <p>The gates passed, but the offline check showed that only <span data-k="phase3.json:groups.sft.solved_beat_starter_5pct" data-fmt="int">2</span> of
+  <span data-k="phase3.json:groups.sft.solved_episodes" data-fmt="int">126</span> solved SFT episodes beat the starter by more than 5%.
+  A speed-shaped GRPO reward would have had almost nothing to reinforce beyond correctness, which SFT had already improved. Given that, and the
+  limited remaining compute budget, we decided (2026-10-07) not to resume GRPO.</p>
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="caveats">
+<h2>Caveats</h2>
+<ul>
+  <li><strong>Speed did not improve.</strong> SFT raised correctness (pass@1, compile errors, KernelBench Triton PASS) but not speed. The beat-starter
+    rate went slightly down, and the geomean speedup vs starter is about 1.00×.</li>
+  <li><strong>Dr. Kernel data is GPT-5-distilled.</strong> <code>drkernel-coldstart-8k</code> has an MIT tag on Hugging Face, but its paper says the
+    trajectories were distilled from GPT-5, so OpenAI's output terms (no use to develop competing models) may apply. We treat it as research-only.
+    It supplies <span data-k="mix_report.json:splits.train.by_source.drkernel" data-fmt="int">2,707</span> of the
+    <span data-k="mix_report.json:splits.train.examples" data-fmt="int">3,022</span> training examples.</li>
+  <li><strong>The SFT datasets are not published.</strong> The repo has the scripts to regenerate them from the pinned revisions
+    (<code>modal_app/sft_ingest_drkernel.py</code> and the other ingest scripts, <code>sft_verify_modal.py</code>, <code>sft_decontam.py</code>,
+    <code>sft_assemble.py</code>), plus the summary reports in <code>results/v3/sft/</code>. The trained adapter is not published either.</li>
+  <li><strong>Small samples.</strong> The validation results use n=4 per problem, from two independent n=2 runs. KernelBench uses n=1, so one sample per problem.</li>
+  <li><strong>A different harness from the earlier results.</strong> These numbers come from bench v2 / the val harness / kb v2. They are not directly comparable with the
+    original-bench numbers on the <a href="rl.html">RL results</a> page. See <a href="verifier.html">Verifier</a>.</li>
+</ul>
+</section>
+</main>
+
+<footer class="site-footer">
+  <a href="https://github.com/Ramshankar07/Kernel-Writer-RL-v2">GitHub: Ramshankar07/Kernel-Writer-RL-v2</a> · Apache-2.0
+</footer>
+<script src="assets/bind.js" defer></script>
+</body>
+</html>
