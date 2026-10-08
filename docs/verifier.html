@@ -29,11 +29,11 @@ harness bugs in nearly every stage. One of them produced the project's headline 
 
 <div class="stats">
   <div class="stat"><span class="stat-num"><span class="from"><span data-k="numbers.json:kb_sanity.valid" data-fmt="int">55</span>/100</span><span class="arrow">→</span><wbr>100/100</span>
-    <span class="stat-label">KernelBench L1 problems that are harness-valid, i.e. a copy of the reference passes reliably (kb v1 → kb v2)</span></div>
+    <span class="stat-label">KernelBench L1 problems that are harness-valid, i.e. a copy of the reference passes reliably (original harness → kb v2, our fixed KernelBench harness)</span></div>
   <div class="stat"><span class="stat-num">0%</span>
     <span class="stat-label">speedup added by GRPO's RMSNorm edit over the starter (geomean 0.999× over 32 configs)</span></div>
   <div class="stat"><span class="stat-num">346/362</span>
-    <span class="stat-label">old PASS kernels that still PASS under bench v2. 0 have a real speedup over the starter (&gt;1.05× at every timing shape)</span></div>
+    <span class="stat-label">old PASS kernels that still PASS under bench v2 (our fixed AutoKernel bench). 0 have a real speedup over the starter (&gt;1.05× at every timing shape)</span></div>
   <div class="stat"><span class="stat-num">10/10</span>
     <span class="stat-label">SFT-verifier GPU controls that returned the expected verdict</span></div>
 </div>
