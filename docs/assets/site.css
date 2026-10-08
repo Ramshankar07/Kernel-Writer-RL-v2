@@ -48,9 +48,16 @@
   --card: #FFFFFF;
   --ink: #0B0B0B;
   --ink-2: #52514E;
-  --muted: #898781;
+  --muted: #6B6964;          /* >= 4.8:1 on every light surface (was #898781, 3.5:1) */
   --hairline: #E1E0D9;
   --accent-text: var(--navy);
+  /* roles: amber is the rare signal (focus, current page, change), navy carries hierarchy */
+  --accent: var(--amber);
+  --on-accent: #14213D;      /* text on an amber fill: 7.9:1 */
+  --focus: var(--amber-ink); /* 6.0:1 on surface; raw amber was 1.97:1 */
+  --selection: #FDE7BF;      /* ink on it: 16:1 */
+  --figure-plate: #FFFFFF;   /* figures are light-ground PNGs */
+  --figure-pad: 0px;
   --code-bg: #F1F0EB;
   --shadow: 0 1px 2px rgba(20, 33, 61, 0.06), 0 4px 16px rgba(20, 33, 61, 0.05);
 
@@ -79,6 +86,10 @@
     --hairline: #2A3245;
     --code-bg: #1B2335;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --focus: #FCA311;          /* 9.1:1 on the dark surface */
+    --selection: #5C4513;      /* ink on it: 7.6:1 */
+    --figure-plate: #FCFCFB;   /* light charts sit on a deliberate paper plate */
+    --figure-pad: 10px;
     color-scheme: dark;
   }
 }
@@ -98,7 +109,11 @@ body {
 img, svg, video { max-width: 100%; height: auto; display: block; }
 a { color: var(--navy); text-decoration-color: color-mix(in srgb, var(--amber) 70%, transparent); text-underline-offset: 3px; }
 a:hover { text-decoration-color: var(--amber); }
-:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+
+/* browser surfaces carry the palette too */
+html { accent-color: var(--navy); caret-color: var(--amber-ink); scrollbar-color: var(--hairline) transparent; }
+::selection { background: var(--selection); color: var(--ink); }
 
 h1, h2, h3, h4 { font-family: var(--serif); color: var(--ink); line-height: 1.2; font-weight: 700; margin: 0 0 .5em; text-wrap: balance; }
 h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 2.9rem); letter-spacing: -0.01em; }
@@ -192,7 +207,8 @@ section.block > h2 { padding-top: 1.75rem; border-top: 1px solid var(--hairline)
 
 /* ---------- figures ---------- */
 .fig { margin: 1.5rem 0; }
-.fig img { width: 100%; max-width: 100%; border: 1px solid var(--hairline); border-radius: 8px; background: #fff; }
+.fig img { width: 100%; max-width: 100%; height: auto; box-sizing: border-box; border: 1px solid var(--hairline); border-radius: 8px;
+  background: var(--figure-plate); padding: var(--figure-pad); }
 .fig figcaption { margin-top: 8px; font-size: .875rem; color: var(--ink-2); }
 
 /* ---------- tables ---------- */
