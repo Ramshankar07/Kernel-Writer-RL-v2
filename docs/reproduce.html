@@ -69,7 +69,7 @@ The commands come from the docstrings of the <code>modal_app/</code> modules, an
   <li><strong>Concurrency cap.</strong> The account we used allows at most 10 concurrent GPUs/containers. Each app sets its own <code>max_containers</code> so that one stage fits under that cap:
     <ul>
       <li>v1 bench pools: <code>BENCH_MAX_CONTAINERS = 8</code> in <code>modal_app/common.py</code>. An agent eval uses 1 policy GPU + up to 8 bench GPUs = 9.</li>
-      <li>bench v2: <code>BENCH_V2_MAX_CONTAINERS</code> env var (default 4). Val bench: <code>VAL_BENCH_MAX_CONTAINERS</code> (default 6). kb v2 and SFT verification: 4 (hard-coded).</li>
+      <li>bench v2 (the fixed AutoKernel bench): <code>BENCH_V2_MAX_CONTAINERS</code> env var (default 4). Val bench: <code>VAL_BENCH_MAX_CONTAINERS</code> (default 6). kb v2 (the fixed KernelBench harness) and SFT verification: 4 (hard-coded).</li>
       <li>GRPO: 1 trainer H100 + 1 policy H100 + up to 8 bench L4s.</li>
     </ul>
     If your account has a lower limit, lower these values before you run anything.
@@ -165,7 +165,7 @@ modal run modal_app/val_eval.py --n 2 --max-turns 4 --tag mmfix2 --ids matmul__b
 # "a+b" = run a with b's episodes replacing the problems b covers; overwrites the committed file
 python modal_app/val_eval.py summarize half1+mmfix1,half2+mmfix2   # -> results/v3/phase0_baseline.json</code></pre></div>
 <p class="muted">The published baseline merges the two matmul re-runs (runs <code>half1+mmfix1</code>, <code>half2+mmfix2</code> in <code>results/v3/phase0_baseline.json</code>; run files in <code>results/v3/phase0_runs/</code>). <code>results/v3/phase0.md</code> explains why.
-Base pass@1 on the 62-problem val set: <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span>.</p>
+Base pass@1 on the 62-problem validation set: <span data-k="phase3.json:val.base.pass@1" data-fmt="f3">0.383</span>.</p>
 </section>
 
 <section class="phase">
@@ -337,7 +337,7 @@ L4 $<span data-k="numbers.json:prices_usd_per_gpu_hr.L4" data-fmt="f2">0.80</spa
   <li><strong>In-repo data</strong>: kernels written by our own Qwen2.5-Coder-7B-Instruct policy during the GRPO and agent-eval rollouts, re-verified with bench v2. No third-party data.</li>
   <li><strong>Vendored AutoKernel code</strong> in <code>results/autokernel_src/</code>: MIT (<code>results/autokernel_src/LICENSE</code>).</li>
   <li><strong>This project</strong>: Apache-2.0 (<code>LICENSE</code>).</li>
-  <li>Excluded by choice: <code>ppbhatt500/kernelbook-triton-reasoning-traces</code> (KernelBench-derived) and <code>siro1/*</code>. KernelBench L1 and the val set are never used for training.</li>
+  <li>Excluded by choice: <code>ppbhatt500/kernelbook-triton-reasoning-traces</code> (KernelBench-derived) and <code>siro1/*</code>. KernelBench L1 and the validation set are never used for training.</li>
 </ul>
 </main>
 
@@ -347,6 +347,11 @@ L4 $<span data-k="numbers.json:prices_usd_per_gpu_hr.L4" data-fmt="f2">0.80</spa
 
 <script>
   // Add a copy button to every code block on this page.
+  var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  var live = document.createElement("p");
+  live.className = "sr-only";
+  live.setAttribute("aria-live", "polite");
+  document.body.appendChild(live);
   document.querySelectorAll(".codewrap").forEach(function (wrap) {
     var code = wrap.querySelector("pre code");
     if (!code) return;
@@ -354,24 +359,35 @@ L4 $<span data-k="numbers.json:prices_usd_per_gpu_hr.L4" data-fmt="f2">0.80</spa
     btn.type = "button";
     btn.className = "copy-btn";
     btn.textContent = "Copy";
-    btn.setAttribute("aria-label", "Copy command to clipboard");
     btn.addEventListener("click", function () {
       var text = code.innerText;
-      var done = function (ok) {
-        btn.textContent = ok ? "Copied" : "Press Ctrl+C";
-        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
-      };
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
-      } else {
+      var selectCode = function () {
         var range = document.createRange();
         range.selectNodeContents(code);
         var sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
-        var ok = false;
+        return sel;
+      };
+      var done = function (ok) {
+        if (ok) {
+          btn.textContent = "Copied";
+          live.textContent = "Command copied to the clipboard.";
+        } else {
+          // Leave the command selected so the shortcut works.
+          selectCode();
+          var keys = isMac ? "\u2318C" : "Ctrl+C";
+          btn.textContent = "Press " + keys;
+          live.textContent = "Copy failed. The command is selected: press " + keys + " to copy it.";
+        }
+        setTimeout(function () { btn.textContent = "Copy"; }, ok ? 1600 : 4000);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        var sel = selectCode(), ok = false;
         try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
-        sel.removeAllRanges();
+        if (ok) sel.removeAllRanges();
         done(ok);
       }
     });
