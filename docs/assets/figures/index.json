@@ -1,0 +1,121 @@
+[
+  {
+    "file": "01_architecture.png",
+    "source_path": "presentation/figures/01_architecture.png",
+    "width": 1600,
+    "height": 642,
+    "title": "Original design (SkyPilot + verl) vs. Modal re-run"
+  },
+  {
+    "file": "02_starter_baselines.png",
+    "source_path": "presentation/figures/02_starter_baselines.png",
+    "width": 1600,
+    "height": 819,
+    "title": "AutoKernel starter kernels on the full bench"
+  },
+  {
+    "file": "03_kb_identity_noise.png",
+    "source_path": "presentation/figures/03_kb_identity_noise.png",
+    "width": 1533,
+    "height": 857,
+    "title": "KernelBench L1 harness test: identity ModelNew"
+  },
+  {
+    "file": "04_pass_at_turn_feedback.png",
+    "source_path": "presentation/figures/04_pass_at_turn_feedback.png",
+    "width": 1534,
+    "height": 888,
+    "title": "Base Qwen2.5-Coder-7B barely improves with more turns"
+  },
+  {
+    "file": "05_per_kernel_base.png",
+    "source_path": "presentation/figures/05_per_kernel_base.png",
+    "width": 1600,
+    "height": 808,
+    "title": "Base model only solves kernels whose starter already works"
+  },
+  {
+    "file": "06_failure_taxonomy.png",
+    "source_path": "presentation/figures/06_failure_taxonomy.png",
+    "width": 1600,
+    "height": 751,
+    "title": "Why kernels fail (base model, v2 feedback)"
+  },
+  {
+    "file": "07_zero_advantage_groups.png",
+    "source_path": "presentation/figures/07_zero_advantage_groups.png",
+    "width": 1397,
+    "height": 815,
+    "title": "Most GRPO groups give no gradient; bigger groups help"
+  },
+  {
+    "file": "08_context_growth.png",
+    "source_path": "presentation/figures/08_context_growth.png",
+    "width": 1379,
+    "height": 826,
+    "title": "Context growth per agent turn"
+  },
+  {
+    "file": "09_grpo_curves.png",
+    "source_path": "presentation/figures/09_grpo_curves.png",
+    "width": 1600,
+    "height": 467,
+    "title": "GRPO training curves (v1 and v2 reward)"
+  },
+  {
+    "file": "10_kernelbench_transfer.png",
+    "source_path": "presentation/figures/10_kernelbench_transfer.png",
+    "width": 1600,
+    "height": 742,
+    "title": "KernelBench v1 L1 transfer"
+  },
+  {
+    "file": "x1_time_breakdown.png",
+    "source_path": "presentation/v2/figures/x1_time_breakdown.png",
+    "width": 1600,
+    "height": 711,
+    "title": "Where a GRPO step goes: time breakdown"
+  },
+  {
+    "file": "x2_dr_grpo_noise_mass.png",
+    "source_path": "presentation/v2/figures/x2_dr_grpo_noise_mass.png",
+    "width": 1600,
+    "height": 748,
+    "title": "Advantage mass from timing-noise groups: GRPO vs. Dr. GRPO"
+  },
+  {
+    "file": "x3_group_explorer.png",
+    "source_path": "presentation/v2/figures/x3_group_explorer.png",
+    "width": 1600,
+    "height": 1093,
+    "title": "Group explorer: one GRPO v1 group"
+  },
+  {
+    "file": "x4_entropy_proxy.png",
+    "source_path": "presentation/v2/figures/x4_entropy_proxy.png",
+    "width": 1600,
+    "height": 790,
+    "title": "Entropy proxy: mean token log-prob of trained samples"
+  },
+  {
+    "file": "x5_turn_transitions.png",
+    "source_path": "presentation/v2/figures/x5_turn_transitions.png",
+    "width": 1129,
+    "height": 1093,
+    "title": "Base model, v2 feedback: P(next turn | this turn)"
+  },
+  {
+    "file": "x6_speedup_hist.png",
+    "source_path": "presentation/v2/figures/x6_speedup_hist.png",
+    "width": 1600,
+    "height": 780,
+    "title": "Speedup distribution of PASS turns"
+  },
+  {
+    "file": "deck_v3_cover.png",
+    "source_path": "presentation/v3/_render/slide-01.png",
+    "width": 1067,
+    "height": 600,
+    "title": "Deck v3 cover slide"
+  }
+]
